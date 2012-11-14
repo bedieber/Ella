@@ -8,40 +8,51 @@ using Middleware.Attributes;
 namespace Middleware
 {
     /// <summary>
+    /// <remarks>
     /// Name to be refactored
+    /// </remarks>
     /// </summary>
     public class Middleware
     {
+        /// <summary>
+        /// Constructor for the middleware
+        /// </summary>
         public Middleware()
         {
             Publishers = new List<Type>();
         }
 
+        /// <summary>
+        /// List of all known publishers
+        /// </summary>
         public ICollection<Type> Publishers
         {
             get;
             set;
         }
 
-        public void LoadPublishers(System.IO.FileInfo fi)
+        /// <summary>
+        /// Loads all publishers from a given assembly
+        /// </summary>
+        /// <param name="a">The assembly where to search publishers in</param>
+        public void LoadPublishers(Assembly a)
         {
-                Assembly a = Assembly.LoadFile(fi.FullName);
-                //AssemblyName[] referencedAssemblies = a.GetReferencedAssemblies();
-                //foreach (AssemblyName name in referencedAssemblies)
-                //{
-                //    Assembly.Load(name);
-                //}
-                Type[] exportedTypes = a.GetExportedTypes();
-                foreach (Type t in exportedTypes)
-                {
-                    List<object> atr = new List<object>(t.GetCustomAttributes(true));
+            //AssemblyName[] referencedAssemblies = a.GetReferencedAssemblies();
+            //foreach (AssemblyName name in referencedAssemblies)
+            //{
+            //    Assembly.Load(name);
+            //}
+            Type[] exportedTypes = a.GetExportedTypes();
+            foreach (Type t in exportedTypes)
+            {
+                List<object> atr = new List<object>(t.GetCustomAttributes(true));
 
-                    foreach (var attribute in atr)
-                    {
-                        if (attribute is PublisherAttribute)
-                            Publishers.Add(t);
-                    }
+                foreach (var attribute in atr)
+                {
+                    if (attribute is PublishesAttribute)
+                        Publishers.Add(t);
                 }
+            }
         }
     }
 }

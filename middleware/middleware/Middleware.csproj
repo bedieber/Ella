@@ -41,7 +41,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Attributes\PublisherAttribute.cs" />
+    <Compile Include="Attributes\PublishesAttribute.cs" />
     <Compile Include="Attributes\SubscriberAttribute.cs" />
     <Compile Include="Middleware.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

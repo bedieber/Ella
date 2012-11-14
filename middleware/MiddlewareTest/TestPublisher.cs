@@ -6,7 +6,7 @@ using Middleware.Attributes;
 
 namespace MiddlewareTest
 {
-    [Publisher(typeof(String),1)]
+    [Publishes(typeof(String),1)]
     public class TestPublisher
     {
     }
