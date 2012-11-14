@@ -1,0 +1,23 @@
+﻿using System;
+using System.IO;
+using System.Text;
+using System.Collections.Generic;
+using System.Linq;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+namespace MiddlewareTest
+{
+    [TestClass]
+    public class TestMiddleware
+    {
+        [TestMethod]
+        public void LoadPublishers()
+        {
+            Middleware.Middleware mw = new Middleware.Middleware();
+            Assert.IsNotNull(mw.Publishers);
+            FileInfo fi = new FileInfo(GetType().Assembly.Location);
+            mw.LoadPublishers(fi);
+            Assert.IsTrue(mw.Publishers.Count() == 1);
+        }
+    }
+}

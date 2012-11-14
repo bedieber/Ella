@@ -1,0 +1,75 @@
+# compiled source #
+###################
+*.com
+*.class
+*.dll
+*.exe
+*.pdb
+*.dll.config
+*.cache
+*.suo
+*.docstates
+*.csproj.user
+
+# binaries #
+############
+
+# Include dlls if they’re in the NuGet packages directory
+!*/packages/*/lib/*.dll
+
+# if contained in a NET40 or SL3 folder
+!*/packages/*/lib/*/*.dll
+
+# Include everything from lib Folder
+!lib/*
+!*/lib/*
+
+# Include everything from _bin_deployableAssemblies folder
+!*/_bin_deployableAssemblies/*
+
+# Include everything from packages folder (NuGet)
+!*/packages/*
+
+# VS Upgrade stuff #
+####################
+UpgradeLog.XML
+_UpgradeReport_Files/
+# Directories #
+###############
+bin/
+obj/
+TestResults/
+# Web publish log #
+###################
+*.Publish.xml
+# Resharper #
+#############
+*_ReSharper.*
+*.ReSharper.*
+# Packages #
+############
+# it’s better to unpack these files and commit the raw source
+# git has its own built in compression methods
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+# Logs and databases #
+######################
+*.log
+*.sqlite
+# OS generated files #
+######################
+.DS_Store?
+ehthumbs.db
+# disabled breaks icon set folder
+#Icon?
+Thumbs.db
+# Office backup files #
+#######################
+\~\$*
+\~*.tmp
