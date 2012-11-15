@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -20,6 +21,7 @@ namespace Middleware
         public Middleware()
         {
             Publishers = new List<Type>();
+            Subscribers = new List<Type>();
         }
 
         /// <summary>
@@ -30,6 +32,11 @@ namespace Middleware
             get;
             set;
         }
+
+        /// <summary>
+        /// List of all known subscriber types
+        /// </summary>
+        public ICollection<Type> Subscribers { get; set; }
 
         /// <summary>
         /// Loads all publishers from a given assembly
@@ -53,6 +60,19 @@ namespace Middleware
                         Publishers.Add(t);
                 }
             }
+        }
+
+        public void DiscoverModules(System.IO.FileInfo fi)
+        {
+            if (!fi.Exists)
+                throw new FileNotFoundException("Assembly file not found");
+            if (fi.Extension != ".exe" && fi.Extension != ".dll")
+                throw new ArgumentException("Assembly must be a .exe or .dll");
+            
+                Assembly a = Assembly.LoadFrom(fi.FullName);
+                LoadPublishers(a);
+                //TODO load subscribers
+            
         }
     }
 }

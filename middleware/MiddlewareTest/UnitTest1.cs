@@ -12,7 +12,7 @@ namespace MiddlewareTest
     public class TestMiddleware
     {
         [TestMethod]
-        public void LoadPublishers()
+        public void DiscoverPublishers()
         {
             Middleware.Middleware mw = new Middleware.Middleware();
             Assert.IsNotNull(mw.Publishers);
@@ -20,6 +20,30 @@ namespace MiddlewareTest
             Assembly a = Assembly.LoadFile(fi.FullName);
             mw.LoadPublishers(a);
             Assert.IsTrue(mw.Publishers.Count() == 1);
+        }
+
+        [TestMethod]
+        public void DiscoverSubscribers()
+        {
+            //TODO Jenny's first feature
+        }
+
+        [TestMethod]
+        public void BuildSubscriberList()
+        {
+            Middleware.Middleware mw = new Middleware.Middleware();
+            Assert.IsNotNull(mw.Subscribers);
+            Assert.IsTrue(mw.Subscribers.Count == 0);
+        }
+
+        [TestMethod]
+        public void DiscoverModulesInAssemblies()
+        {
+            FileInfo fi = new FileInfo(GetType().Assembly.Location);
+            Middleware.Middleware mw = new Middleware.Middleware();
+            mw.DiscoverModules(fi);
+            Assert.IsTrue(mw.Subscribers.Count == 1);
+            Assert.IsTrue(mw.Publishers.Count == 1);
         }
     }
 }
