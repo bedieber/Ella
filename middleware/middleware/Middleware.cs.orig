@@ -45,9 +45,6 @@ namespace Middleware
         /// <param name="a">The assembly where to search publishers in</param>
         public void LoadPublishers(Assembly a)
         {
-
-            if (a == (Assembly)null)
-                throw new ArgumentNullException("a");
             //AssemblyName[] referencedAssemblies = a.GetReferencedAssemblies();
             //foreach (AssemblyName name in referencedAssemblies)
             //{
@@ -61,26 +58,31 @@ namespace Middleware
             }
         }
         /// <summary>
+<<<<<<< HEAD
+        /// Searches a given file for types that are publishers or subscribers
+        /// </summary>
+        /// <param name="fi">Fileinfo pointing to the file to inspect, must be a .dll or .exe file</param>
+=======
         /// Load all Subscribers from a given assembly
         /// </summary>
         /// <param name="a">The assembly where to search subscribers</param>
         public void LoadSubscribers(Assembly a)
         {
-            if (a == (Assembly)null)
-                throw new ArgumentNullException("a");
             Type[] exportedTypes = a.GetExportedTypes();
             foreach (Type t in exportedTypes)
             {
-                if (IsSubscriber(t))
-                    Subscribers.Add(t);
+                List<object> atr = new List<object>(t.GetCustomAttributes(true));
+
+                foreach (var attribute in atr)
+                {
+                    if (attribute is SubscriberAttribute)
+                        Subscribers.Add(t);
+                }
             }
         }
 
 
-        /// <summary>
-        /// Searches a given file for types that are publishers or subscribers
-        /// </summary>
-        /// <param name="fi">Fileinfo pointing to the file to inspect, must be a .dll or .exe file</param>
+>>>>>>> 4fef720368c2a44fb7c9bc0cf675066de29e3976
         public void DiscoverModules(System.IO.FileInfo fi)
         {
             if (!fi.Exists)
@@ -90,32 +92,21 @@ namespace Middleware
 
             Assembly a = Assembly.LoadFrom(fi.FullName);
             LoadPublishers(a);
-            LoadSubscribers(a);
+            //TODO load subscribers
+
+<<<<<<< HEAD
         }
 
-        /// <summary>
-        /// Creates an instance of a module type.
-        /// </summary>
-        /// <param name="type">The type.</param>
-        /// <returns></returns>
-        /// <exception cref="System.ArgumentException">Class does not define static factory method defining the [Factory] Attribute</exception>
         public object CreateModuleInstance(Type type)
         {
             if (IsPublisher(type) || IsSubscriber(type))
             {
-                IEnumerable<MethodBase> methodInfos = type.GetMethods();
-                var constructorInfos = type.GetConstructors();
-                methodInfos = methodInfos.Concat(constructorInfos);
+                MethodInfo[] methodInfos = type.GetMethods();
                 foreach (var methodInfo in methodInfos)
                 {
-                    var customAttributes = methodInfo.GetCustomAttributes(typeof(Attribute), true);
-                    if (customAttributes.Any() && (methodInfo is ConstructorInfo || (methodInfo is MethodInfo && methodInfo.IsStatic)))
+                    if (methodInfo.GetCustomAttributes(typeof(FactoryAttribute), false).Count() > 0 && methodInfo.IsStatic)
                     {
-                        object instance = null;
-                        if (methodInfo is ConstructorInfo)
-                            instance = (methodInfo as ConstructorInfo).Invoke(null);
-                        else
-                            instance = methodInfo.Invoke(new object[] { }, null);
+                        object instance = methodInfo.Invoke(null, null);
                         return instance;
                     }
                 }
@@ -126,36 +117,16 @@ namespace Middleware
         #endregion
         #region private helpers
 
-        /// <summary>
-        /// Determines whether the specified t is publisher.
-        /// </summary>
-        /// <param name="t">The type.</param>
-        /// <returns>
-        ///   <c>true</c> if the specified t is publisher; otherwise, <c>false</c>.
-        /// </returns>
         private bool IsPublisher(Type t)
         {
             return DefinesAttribute(t, typeof(PublishesAttribute));
         }
 
-        /// <summary>
-        /// Determines whether the specified t is subscriber.
-        /// </summary>
-        /// <param name="t">The type.</param>
-        /// <returns>
-        ///   <c>true</c> if the specified t is subscriber; otherwise, <c>false</c>.
-        /// </returns>
         private bool IsSubscriber(Type t)
         {
             return DefinesAttribute(t, typeof(SubscriberAttribute));
         }
 
-        /// <summary>
-        /// Checks if <paramref name="t"/> defines the attribute <paramref name="attribute"/>.
-        /// </summary>
-        /// <param name="t">The type.</param>
-        /// <param name="attribute">The attribute.</param>
-        /// <returns></returns>
         private bool DefinesAttribute(Type t, Type attribute)
         {
             List<object> atr = new List<object>(t.GetCustomAttributes(true));
@@ -166,6 +137,8 @@ namespace Middleware
                     return true;
             }
             return false;
+=======
+>>>>>>> 4fef720368c2a44fb7c9bc0cf675066de29e3976
         }
         #endregion
     }
