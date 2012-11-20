@@ -45,5 +45,19 @@ namespace MiddlewareTest
             Assert.IsTrue(mw.Subscribers.Count == 1);
             Assert.IsTrue(mw.Publishers.Count == 1);
         }
+
+        [TestMethod]
+        public void CreateInstanceOfAModule()
+        {
+            Middleware.Middleware mw=new Middleware.Middleware();
+            object publisher=mw.CreateModuleInstance(typeof (TestPublisher));
+            Assert.IsNotNull(publisher);
+            Assert.IsInstanceOfType(publisher,typeof(TestPublisher));
+            
+            object subscriber = mw.CreateModuleInstance(typeof (TestSubscriber));
+            Assert.IsNotNull(subscriber);
+            Assert.IsInstanceOfType(subscriber, typeof(TestSubscriber));
+
+        }
     }
 }

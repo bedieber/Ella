@@ -9,5 +9,7 @@ namespace MiddlewareTest
     [Publishes(typeof(String),1)]
     public class TestPublisher
     {
+        [Factory]
+        public TestPublisher(){}
     }
 }

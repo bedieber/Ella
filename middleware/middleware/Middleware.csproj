@@ -36,11 +36,11 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Attributes\FactoryAttribute.cs" />
     <Compile Include="Attributes\PublishesAttribute.cs" />
     <Compile Include="Attributes\SubscriberAttribute.cs" />
     <Compile Include="Middleware.cs" />

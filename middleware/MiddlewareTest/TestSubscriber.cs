@@ -9,5 +9,7 @@ namespace MiddlewareTest
     [Subscriber]
     class TestSubscriber
     {
+        [Factory]
+        public TestSubscriber(){}
     }
 }
