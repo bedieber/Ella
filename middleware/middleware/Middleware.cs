@@ -58,6 +58,26 @@ namespace Middleware
             }
         }
         /// <summary>
+        /// Load all Subscribers from a given assembly
+        /// </summary>
+        /// <param name="a">The assembly where to search subscribers</param>
+        public void LoadSubscribers(Assembly a)
+        {
+            Type[] exportedTypes = a.GetExportedTypes();
+            foreach (Type t in exportedTypes)
+            {
+                List<object> atr = new List<object>(t.GetCustomAttributes(true));
+
+                foreach (var attribute in atr)
+                {
+                    if (attribute is SubscriberAttribute)
+                        Subscribers.Add(t);
+                }
+            }
+        }
+
+
+        /// <summary>
         /// Searches a given file for types that are publishers or subscribers
         /// </summary>
         /// <param name="fi">Fileinfo pointing to the file to inspect, must be a .dll or .exe file</param>
