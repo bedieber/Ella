@@ -25,7 +25,12 @@ namespace MiddlewareTest
         [TestMethod]
         public void DiscoverSubscribers()
         {
-            //TODO Jenny's first feature
+            Middleware.Middleware m = new Middleware.Middleware();
+            Assert.IsNotNull(m.Subscribers);
+            FileInfo fi = new FileInfo(GetType().Assembly.Location);
+            Assembly a = Assembly.LoadFile(fi.FullName);
+            m.LoadSubscribers(a);
+            Assert.IsTrue(m.Subscribers.Count() == 1);
         }
 
         [TestMethod]

@@ -61,6 +61,25 @@ namespace Middleware
                 }
             }
         }
+        /// <summary>
+        /// Load all Subscribers from a given assembly
+        /// </summary>
+        /// <param name="a">The assembly where to search subscribers</param>
+        public void LoadSubscribers(Assembly a)
+        {
+            Type[] exportedTypes = a.GetExportedTypes();
+            foreach (Type t in exportedTypes)
+            {
+                List<object> atr = new List<object>(t.GetCustomAttributes(true));
+
+                foreach (var attribute in atr)
+                {
+                    if (attribute is SubscriberAttribute)
+                        Subscribers.Add(t);
+                }
+            }
+        }
+
 
         public void DiscoverModules(System.IO.FileInfo fi)
         {
@@ -68,11 +87,11 @@ namespace Middleware
                 throw new FileNotFoundException("Assembly file not found");
             if (fi.Extension != ".exe" && fi.Extension != ".dll")
                 throw new ArgumentException("Assembly must be a .exe or .dll");
-            
-                Assembly a = Assembly.LoadFrom(fi.FullName);
-                LoadPublishers(a);
-                //TODO load subscribers
-            
+
+            Assembly a = Assembly.LoadFrom(fi.FullName);
+            LoadPublishers(a);
+            //TODO load subscribers
+
         }
     }
 }
