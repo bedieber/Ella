@@ -13,11 +13,10 @@ namespace MiddlewareTest
         public TestPublisher(){}
 
         [Start]
-        
-        public void Run()
-        {
-            
-        }
+        public void Run(){}
+
+        [Stop]
+        public void Stop(){}
     }
 
     [Publishes(typeof(string),1)]

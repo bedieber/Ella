@@ -44,6 +44,7 @@
     <Compile Include="Attributes\FactoryAttribute.cs" />
     <Compile Include="Attributes\PublishesAttribute.cs" />
     <Compile Include="Attributes\StartAttribute.cs" />
+    <Compile Include="Attributes\StopAttribute.cs" />
     <Compile Include="Attributes\SubscriberAttribute.cs" />
     <Compile Include="Middleware.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
