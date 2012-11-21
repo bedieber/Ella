@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Text;
 using System.Collections.Generic;
 using System.Linq;
+using Ella;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace MiddlewareTest
@@ -16,7 +17,7 @@ namespace MiddlewareTest
         [TestMethod]
         public void DiscoverPublishers()
         {
-            Middleware.Middleware mw = new Middleware.Middleware();
+            Middleware mw = new Middleware();
             Assert.IsNotNull(mw.Publishers);
             FileInfo fi = new FileInfo(GetType().Assembly.Location);
             Assembly a = Assembly.LoadFile(fi.FullName);
@@ -27,7 +28,7 @@ namespace MiddlewareTest
         [TestMethod]
         public void DiscoverSubscribers()
         {
-            Middleware.Middleware m = new Middleware.Middleware();
+            Middleware m = new Middleware();
             Assert.IsNotNull(m.Subscribers);
             FileInfo fi = new FileInfo(GetType().Assembly.Location);
             Assembly a = Assembly.LoadFile(fi.FullName);
@@ -38,7 +39,7 @@ namespace MiddlewareTest
         [TestMethod]
         public void BuildSubscriberList()
         {
-            Middleware.Middleware mw = new Middleware.Middleware();
+            Middleware mw = new Middleware();
             Assert.IsNotNull(mw.Subscribers);
             Assert.IsTrue(mw.Subscribers.Count == 0);
         }
@@ -47,7 +48,7 @@ namespace MiddlewareTest
         public void DiscoverModulesInAssemblies()
         {
             FileInfo fi = new FileInfo(GetType().Assembly.Location);
-            Middleware.Middleware mw = new Middleware.Middleware();
+            Middleware mw = new Middleware();
             mw.DiscoverModules(fi);
             Assert.IsTrue(mw.Subscribers.Count == NumSubscribers);
             Assert.IsTrue(mw.Publishers.Count == NumPublishers);
@@ -56,7 +57,7 @@ namespace MiddlewareTest
         [TestMethod]
         public void CreateInstanceOfAModule()
         {
-            Middleware.Middleware mw=new Middleware.Middleware();
+            Middleware mw=new Middleware();
             object publisher=mw.CreateModuleInstance(typeof (TestPublisher));
             Assert.IsNotNull(publisher);
             Assert.IsInstanceOfType(publisher,typeof(TestPublisher));
@@ -100,6 +101,13 @@ namespace MiddlewareTest
 
             }
             catch { Assert.Fail(); }
+        }
+
+        
+        [TestMethod]
+        public void StartAPublisher()
+        {
+
         }
     }
 }

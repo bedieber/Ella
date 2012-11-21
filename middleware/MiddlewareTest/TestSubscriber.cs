@@ -2,28 +2,28 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Middleware.Attributes;
+using Ella.Attributes;
 
 namespace MiddlewareTest
 {
     [Subscriber]
     public class TestSubscriber
     {
-        [FactoryAttribute]
+        [Factory]
         public TestSubscriber(){}
     }
 
     [Subscriber]
     public class TestSubscriberMethodFactory
     {
-        [FactoryAttribute]
+        [Factory]
         public TestSubscriberMethodFactory CreateInstance() {return new TestSubscriberMethodFactory(); }
     }
 
     [Subscriber]
     public class TestSubscriberStaticMethodFactory
     {
-        [FactoryAttribute]
+        [Factory]
         public static TestSubscriberStaticMethodFactory CreateInstance() { return new TestSubscriberStaticMethodFactory(); }
     }
 
@@ -36,7 +36,7 @@ namespace MiddlewareTest
     [Subscriber]
     public class TestSubscriberStaticConstructerFactory
     {
-        [FactoryAttribute]
+        [Factory]
         static TestSubscriberStaticConstructerFactory () { }
     }
 

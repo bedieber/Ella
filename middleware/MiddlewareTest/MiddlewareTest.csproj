@@ -51,9 +51,9 @@
     <Compile Include="UnitTest1.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\middleware\Middleware.csproj">
+    <ProjectReference Include="..\middleware\Ella.csproj">
       <Project>{C5D80CFB-3882-4B32-A234-B5561A3C8942}</Project>
-      <Name>Middleware</Name>
+      <Name>Ella</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

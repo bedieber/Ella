@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
-namespace Middleware.Attributes
+namespace Ella.Attributes
 {
     /// <summary>
     /// This attribute is used to declare a class as a subscriber. This is used upon discovery of subscriber types in an assembly.<br />

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Middleware", "middleware\Middleware.csproj", "{C5D80CFB-3882-4B32-A234-B5561A3C8942}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ella", "middleware\Ella.csproj", "{C5D80CFB-3882-4B32-A234-B5561A3C8942}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiddlewareTest", "MiddlewareTest\MiddlewareTest.csproj", "{F87001D3-78ED-40DE-AE61-67C33144361B}"
 EndProject

@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using Middleware.Attributes;
+using Ella.Attributes;
 
-namespace Middleware
+namespace Ella
 {
     /// <summary>
     /// <remarks>
