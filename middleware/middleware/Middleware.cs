@@ -144,6 +144,29 @@ namespace Ella
             }
         }
 
+        /// <summary>
+        /// Stops a publisher.
+        /// </summary>
+        /// <param name="instance">The instance of a publisher to be stopped.</param>
+        /// <exception cref="System.ArgumentException">If no valid stop method was found.</exception>
+        /// <remarks>
+        /// A publisher has to define a parameterless method attributed with <see cref="Ella.Attributes.StopAttribute" />
+        /// </remarks>
+        public void StopPublisher(object instance)
+        {
+            var type = instance.GetType();
+            if(IsPublisher(type))
+            {
+                var method = GetAttributedMethod(type, typeof(StopAttribute));
+
+                if (method == null)
+                    throw new ArgumentException("No valid stop method found");
+
+                if (!method.GetParameters().Any())
+                    method.Invoke(instance, null);
+            }
+        }
+
         #endregion
         #region private helpers
 

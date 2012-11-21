@@ -110,5 +110,13 @@ namespace MiddlewareTest
             object instance = mw.CreateModuleInstance(typeof(TestPublisher));
             mw.StartPublisher(instance);
         }
+
+        [TestMethod]
+        public void StopAPublisher()
+        {
+            Middleware m = new Middleware();
+            object instance = m.CreateModuleInstance(typeof(TestPublisher));
+            m.StopPublisher(instance);
+        }
     }
 }
