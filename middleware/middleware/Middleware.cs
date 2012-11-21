@@ -71,6 +71,7 @@ namespace Ella
         {
             if (a == (Assembly)null)
                 throw new ArgumentNullException("a");
+
             Type[] exportedTypes = a.GetExportedTypes();
             foreach (Type t in exportedTypes)
             {
@@ -186,6 +187,21 @@ namespace Ella
             return DefinesAttribute(t, typeof(PublishesAttribute));
         }
 
+        /// <summary>
+        /// Checks whether the specified type is a valid publisher.
+        /// </summary>
+        /// <param name="t">The type</param>
+        /// <returns>
+        ///   <c>true</c> if the specified t is a valid publisher; otherwise, <c>false</c>.
+        /// </returns>
+        /// <remarks> 
+        /// A valid publisher must fulfill the following:
+        /// <list type="Bullet">
+        /// <item>No multiply-defined event IDs are allowed.</item>
+        /// <item>A start method has to be defined.</item>
+        /// <item>A stop method has to be defined.</item>
+        /// </list>
+        /// </remarks>
         private bool IsValidPublisher(Type t)
         {
             //Check definition of publisher attribute
