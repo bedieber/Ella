@@ -58,7 +58,7 @@ namespace Ella
             {
                 if (IsValidPublisher(t))
                 {
-                        Publishers.Add(t);
+                    Publishers.Add(t);
                 }
             }
         }
@@ -160,7 +160,7 @@ namespace Ella
         public void StopPublisher(object instance)
         {
             var type = instance.GetType();
-            if(IsPublisher(type))
+            if (IsPublisher(type))
             {
                 var method = GetAttributedMethod(type, typeof(StopAttribute));
 
@@ -194,13 +194,15 @@ namespace Ella
         /// <returns>
         ///   <c>true</c> if the specified t is a valid publisher; otherwise, <c>false</c>.
         /// </returns>
-        /// <remarks> 
-        /// A valid publisher must fulfill the following:
-        /// <list type="Bullet">
-        /// <item>No multiply-defined event IDs are allowed.</item>
-        /// <item>A start method has to be defined.</item>
-        /// <item>A stop method has to be defined.</item>
-        /// </list>
+        /// <remarks>
+            /// <summary>
+            /// A valid publisher must fulfill the following criteria
+                /// <list type="bullet">
+                    /// <item><description>No multiply-defined event IDs are allowed.</description></item>
+                    /// <item><description>A start method has to be defined.</description></item>
+                    /// <item><description>A stop method has to be defined.</description></item>
+                /// </list>
+            /// </summary>
         /// </remarks>
         private bool IsValidPublisher(Type t)
         {
