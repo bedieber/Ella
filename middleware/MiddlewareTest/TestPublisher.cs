@@ -11,5 +11,12 @@ namespace MiddlewareTest
     {
         [Factory]
         public TestPublisher(){}
+
+        [Start]
+        
+        public void Run()
+        {
+            
+        }
     }
 }

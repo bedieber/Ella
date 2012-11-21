@@ -12,7 +12,7 @@ namespace MiddlewareTest
     [TestClass]
     public class TestMiddleware
     {
-        private const int NumPublishers=1;
+        private const int NumPublishers = 1;
         private const int NumSubscribers = 5;
         [TestMethod]
         public void DiscoverPublishers()
@@ -57,12 +57,12 @@ namespace MiddlewareTest
         [TestMethod]
         public void CreateInstanceOfAModule()
         {
-            Middleware mw=new Middleware();
-            object publisher=mw.CreateModuleInstance(typeof (TestPublisher));
+            Middleware mw = new Middleware();
+            object publisher = mw.CreateModuleInstance(typeof(TestPublisher));
             Assert.IsNotNull(publisher);
-            Assert.IsInstanceOfType(publisher,typeof(TestPublisher));
-            
-            object subscriber = mw.CreateModuleInstance(typeof (TestSubscriber));
+            Assert.IsInstanceOfType(publisher, typeof(TestPublisher));
+
+            object subscriber = mw.CreateModuleInstance(typeof(TestSubscriber));
             Assert.IsNotNull(subscriber);
             Assert.IsInstanceOfType(subscriber, typeof(TestSubscriber));
             try
@@ -75,7 +75,7 @@ namespace MiddlewareTest
 
             }
             catch { Assert.Fail(); }
-            
+
             try
             {
                 subscriber = mw.CreateModuleInstance(typeof(TestSubscriberNoFactory));
@@ -83,9 +83,9 @@ namespace MiddlewareTest
             }
             catch (ArgumentException)
             {
-                
+
             }
-            catch{Assert.Fail();}
+            catch { Assert.Fail(); }
 
             subscriber = mw.CreateModuleInstance(typeof(TestSubscriberStaticMethodFactory));
             Assert.IsNotNull(subscriber);
@@ -103,11 +103,13 @@ namespace MiddlewareTest
             catch { Assert.Fail(); }
         }
 
-        
+
         [TestMethod]
         public void StartAPublisher()
         {
-
+            Middleware mw = new Middleware();
+            object instance = mw.CreateModuleInstance(typeof(TestPublisher));
+            mw.StartPublisher(instance);
         }
     }
 }

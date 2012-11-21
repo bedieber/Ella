@@ -60,7 +60,8 @@ namespace Ella
             }
         }
         /// <summary>
-        /// Load all Subscribers from a given assembly
+        /// Load all Subscribers from a given assembly<br />
+        /// <remarks>Any type must define the <see cref="Ella.Attributes.SubscriberAttribute"/> attribute in order to be detected as subcriber</remarks>
         /// </summary>
         /// <param name="a">The assembly where to search subscribers</param>
         public void LoadSubscribers(Assembly a)
@@ -102,24 +103,42 @@ namespace Ella
         {
             if (IsPublisher(type) || IsSubscriber(type))
             {
-                IEnumerable<MethodBase> methodInfos = type.GetMethods();
-                var constructorInfos = type.GetConstructors();
-                methodInfos = methodInfos.Concat(constructorInfos);
-                foreach (var methodInfo in methodInfos)
+                var methodInfo = GetAttributedMethod(type, typeof (FactoryAttribute), true);
+                if (!methodInfo.GetParameters().Any() && (methodInfo is ConstructorInfo || (methodInfo is MethodInfo && methodInfo.IsStatic)))
                 {
-                    var customAttributes = methodInfo.GetCustomAttributes(typeof(Attribute), true);
-                    if (customAttributes.Any() && (methodInfo is ConstructorInfo || (methodInfo is MethodInfo && methodInfo.IsStatic)))
-                    {
-                        object instance = null;
-                        if (methodInfo is ConstructorInfo)
-                            instance = (methodInfo as ConstructorInfo).Invoke(null);
-                        else
-                            instance = methodInfo.Invoke(new object[] { }, null);
-                        return instance;
-                    }
+                    object instance = null;
+                    if (methodInfo is ConstructorInfo)
+                        instance = (methodInfo as ConstructorInfo).Invoke(null);
+                    else
+                        instance = methodInfo.Invoke(new object[] { }, null);
+                    return instance;
                 }
             }
             throw new ArgumentException("Class does not define static factory method defining the [Factory] Attribute");
+        }
+
+        /// <summary>
+        /// Starts the publisher.
+        /// </summary>
+        /// <param name="instance">The instance of a publisher to be started.</param>
+        /// <exception cref="System.ArgumentException">If No valid starter was method found</exception>
+        /// <remarks>
+        /// A publisher must define a parameterless method attributed with <see cref="Ella.Attributes.StartAttribute" />
+        /// </remarks>
+        public void StartPublisher(object instance)
+        {
+            var type = instance.GetType();
+            if(IsPublisher(type))
+            {
+                var method = GetAttributedMethod(type, typeof (StartAttribute));
+                if(method==null)
+                    throw new ArgumentException("No valid starter method found");
+                if(!method.GetParameters().Any())
+                {
+                    //TODO perform this in a separate thread
+                    method.Invoke(instance, null);
+                }
+            }
         }
 
         #endregion
@@ -166,6 +185,32 @@ namespace Ella
             }
             return false;
         }
+
+        /// <summary>
+        /// Gets the first method defined in <paramref name="type"/> which is attributed with <paramref name="attribute"/> .
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <param name="attribute">The attribute.</param>
+        /// <param name="includeConstructors">if set to <c>true</c> <paramref name="attribute"/> is also searched for in constructors.</param>
+        /// <returns>A <see cref="System.Reflection.MethodBase"/> object referring to the first method found or null if no method was found</returns>
+        private MethodBase GetAttributedMethod(Type type, Type attribute, bool includeConstructors = false)
+        {
+            IEnumerable<MethodBase> methodInfos = type.GetMethods();
+            if (includeConstructors)
+            {
+                var constructorInfos = type.GetConstructors();
+                methodInfos = methodInfos.Concat(constructorInfos);
+            }
+            foreach (var methodInfo in methodInfos)
+            {
+                var customAttributes = methodInfo.GetCustomAttributes(attribute, true);
+                if (customAttributes.Any())
+                    return methodInfo;
+            }
+            return null;
+        }
         #endregion
+
+
     }
 }
