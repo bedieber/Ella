@@ -5,6 +5,7 @@ namespace Ella.Attributes
     /// <summary>
     /// Attribute used to declare a publisher
     /// </summary>
+    /// <remarks>For each publish event, a publisher must define one Publishes attribute. The <see cref="PublishesAttribute.ID"/> property defines a local ID for this event. No two events may receive the same number by the same publisher</remarks>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
     public class PublishesAttribute : Attribute
     {

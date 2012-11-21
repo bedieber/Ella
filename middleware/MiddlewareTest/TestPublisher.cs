@@ -19,4 +19,12 @@ namespace MiddlewareTest
             
         }
     }
+
+    [Publishes(typeof(string),1)]
+    [Publishes(typeof(int),1)]
+    [Publishes(typeof(string),2)]
+    public class TestPublisherNonUniqueEventID
+    {
+        
+    }
 }

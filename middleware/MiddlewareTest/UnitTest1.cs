@@ -12,7 +12,7 @@ namespace MiddlewareTest
     [TestClass]
     public class TestMiddleware
     {
-        private const int NumPublishers = 1;
+        private const int NumPublishers = 2;
         private const int NumSubscribers = 5;
         [TestMethod]
         public void DiscoverPublishers()
@@ -74,8 +74,7 @@ namespace MiddlewareTest
             {
 
             }
-            catch { Assert.Fail(); }
-
+           
             try
             {
                 subscriber = mw.CreateModuleInstance(typeof(TestSubscriberNoFactory));
@@ -85,7 +84,7 @@ namespace MiddlewareTest
             {
 
             }
-            catch { Assert.Fail(); }
+            
 
             subscriber = mw.CreateModuleInstance(typeof(TestSubscriberStaticMethodFactory));
             Assert.IsNotNull(subscriber);
@@ -100,7 +99,7 @@ namespace MiddlewareTest
             {
 
             }
-            catch { Assert.Fail(); }
+            
         }
 
 
