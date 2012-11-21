@@ -22,7 +22,7 @@ namespace MiddlewareTest
             FileInfo fi = new FileInfo(GetType().Assembly.Location);
             Assembly a = Assembly.LoadFile(fi.FullName);
             mw.LoadPublishers(a);
-            Assert.IsTrue(mw.Publishers.Count() == NumPublishers);
+            Assert.IsTrue(mw.Publishers.Count() == NumPublishers - 1);
         }
 
         [TestMethod]
@@ -51,7 +51,7 @@ namespace MiddlewareTest
             Middleware mw = new Middleware();
             mw.DiscoverModules(fi);
             Assert.IsTrue(mw.Subscribers.Count == NumSubscribers);
-            Assert.IsTrue(mw.Publishers.Count == NumPublishers);
+            Assert.IsTrue(mw.Publishers.Count == NumPublishers - 1);
         }
 
         [TestMethod]
@@ -74,7 +74,7 @@ namespace MiddlewareTest
             {
 
             }
-           
+
             try
             {
                 subscriber = mw.CreateModuleInstance(typeof(TestSubscriberNoFactory));
@@ -84,7 +84,7 @@ namespace MiddlewareTest
             {
 
             }
-            
+
 
             subscriber = mw.CreateModuleInstance(typeof(TestSubscriberStaticMethodFactory));
             Assert.IsNotNull(subscriber);
@@ -99,7 +99,7 @@ namespace MiddlewareTest
             {
 
             }
-            
+
         }
 
 

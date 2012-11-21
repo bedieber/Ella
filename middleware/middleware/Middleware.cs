@@ -56,7 +56,10 @@ namespace Ella
             foreach (Type t in exportedTypes)
             {
                 if (IsPublisher(t))
-                    Publishers.Add(t);
+                {
+                    if (ArePublisherEventsValid(t))
+                        Publishers.Add(t);
+                }
             }
         }
         /// <summary>
@@ -103,8 +106,8 @@ namespace Ella
         {
             if (IsPublisher(type) || IsSubscriber(type))
             {
-                var methodInfo = GetAttributedMethod(type, typeof (FactoryAttribute), true);
-                if (!methodInfo.GetParameters().Any() && (methodInfo is ConstructorInfo || (methodInfo is MethodInfo && methodInfo.IsStatic)))
+                var methodInfo = GetAttributedMethod(type, typeof(FactoryAttribute), true);
+                if (methodInfo != null && !methodInfo.GetParameters().Any() && (methodInfo is ConstructorInfo || (methodInfo is MethodInfo && methodInfo.IsStatic)))
                 {
                     object instance = null;
                     if (methodInfo is ConstructorInfo)
@@ -128,12 +131,12 @@ namespace Ella
         public void StartPublisher(object instance)
         {
             var type = instance.GetType();
-            if(IsPublisher(type))
+            if (IsPublisher(type))
             {
-                var method = GetAttributedMethod(type, typeof (StartAttribute));
-                if(method==null)
+                var method = GetAttributedMethod(type, typeof(StartAttribute));
+                if (method == null)
                     throw new ArgumentException("No valid starter method found");
-                if(!method.GetParameters().Any())
+                if (!method.GetParameters().Any())
                 {
                     //TODO perform this in a separate thread
                     method.Invoke(instance, null);
@@ -156,6 +159,21 @@ namespace Ella
             return DefinesAttribute(t, typeof(PublishesAttribute));
         }
 
+        private bool ArePublisherEventsValid(Type t)
+        {
+            var eventIds = (from a in
+                                (IEnumerable<PublishesAttribute>)
+                                t.GetCustomAttributes(typeof(PublishesAttribute), true)
+                            select a.ID).GroupBy(i => i);
+            foreach (var eventId in eventIds)
+            {
+                if (eventId.Count() > 1)
+                    //throw new ArgumentException(string.Format("Publisher {0} defines ID {1} multiple times", t, eventId.Key));
+                    return false;
+            }
+            return true;
+        }
+
         /// <summary>
         /// Determines whether the specified t is subscriber.
         /// </summary>
@@ -176,14 +194,8 @@ namespace Ella
         /// <returns></returns>
         private bool DefinesAttribute(Type t, Type attribute)
         {
-            List<object> atr = new List<object>(t.GetCustomAttributes(true));
-
-            foreach (var a in atr)
-            {
-                if (a.GetType() == attribute)
-                    return true;
-            }
-            return false;
+            List<object> atr = new List<object>(t.GetCustomAttributes(attribute, true));
+            return atr.Any();
         }
 
         /// <summary>
