@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Ella.Attributes;
+using Ella.Exceptions;
 
 namespace Ella
 {
@@ -55,9 +56,8 @@ namespace Ella
             Type[] exportedTypes = a.GetExportedTypes();
             foreach (Type t in exportedTypes)
             {
-                if (IsPublisher(t))
+                if (IsValidPublisher(t))
                 {
-                    if (ArePublisherEventsValid(t))
                         Publishers.Add(t);
                 }
             }
@@ -131,16 +131,20 @@ namespace Ella
         public void StartPublisher(object instance)
         {
             var type = instance.GetType();
-            if (IsPublisher(type))
+            if (IsValidPublisher(type))
             {
                 var method = GetAttributedMethod(type, typeof(StartAttribute));
                 if (method == null)
-                    throw new ArgumentException("No valid starter method found");
+                    throw new InvalidPublisherException("Publisher does not define a start method");
                 if (!method.GetParameters().Any())
                 {
                     //TODO perform this in a separate thread
                     method.Invoke(instance, null);
                 }
+            }
+            else
+            {
+                throw new InvalidPublisherException(instance.GetType().ToString());
             }
         }
 
@@ -160,7 +164,7 @@ namespace Ella
                 var method = GetAttributedMethod(type, typeof(StopAttribute));
 
                 if (method == null)
-                    throw new ArgumentException("No valid stop method found");
+                    throw new InvalidPublisherException("No valid stop method found");
 
                 if (!method.GetParameters().Any())
                     method.Invoke(instance, null);
@@ -182,8 +186,13 @@ namespace Ella
             return DefinesAttribute(t, typeof(PublishesAttribute));
         }
 
-        private bool ArePublisherEventsValid(Type t)
+        private bool IsValidPublisher(Type t)
         {
+            //Check definition of publisher attribute
+            if (!IsPublisher(t))
+                return false;
+
+            //Check for multiply-defined event IDs
             var eventIds = (from a in
                                 (IEnumerable<PublishesAttribute>)
                                 t.GetCustomAttributes(typeof(PublishesAttribute), true)
@@ -194,6 +203,13 @@ namespace Ella
                     //throw new ArgumentException(string.Format("Publisher {0} defines ID {1} multiple times", t, eventId.Key));
                     return false;
             }
+
+            //Check for start and stop Methods
+            if (GetAttributedMethod(t, typeof(StartAttribute)) == null)
+                return false;
+            if (GetAttributedMethod(t, typeof(StopAttribute)) == null)
+                return false;
+
             return true;
         }
 

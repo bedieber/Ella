@@ -46,6 +46,7 @@
     <Compile Include="Attributes\StartAttribute.cs" />
     <Compile Include="Attributes\StopAttribute.cs" />
     <Compile Include="Attributes\SubscriberAttribute.cs" />
+    <Compile Include="Exceptions\InvalidPublisherException.cs" />
     <Compile Include="Middleware.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
