@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using Ella.Attributes;
 using Ella.Exceptions;
+using System.Threading;
 
 namespace Ella
 {
@@ -22,6 +24,7 @@ namespace Ella
         {
             Publishers = new List<Type>();
             Subscribers = new List<Type>();
+            ActivePublishers = new List<object>();
         }
 
         /// <summary>
@@ -37,6 +40,11 @@ namespace Ella
         /// List of all known subscriber types
         /// </summary>
         public ICollection<Type> Subscribers { get; set; }
+
+        /// <summary>
+        /// List of all started publishers
+        /// </summary>
+        private ICollection<object> ActivePublishers { get; set; }
 
         #region public methods
         /// <summary>
@@ -139,8 +147,8 @@ namespace Ella
                     throw new InvalidPublisherException("Publisher does not define a start method");
                 if (!method.GetParameters().Any())
                 {
-                    //TODO perform this in a separate thread
-                    method.Invoke(instance, null);
+                    ActivePublishers.Add(instance);
+                    Thread t = new Thread(() => method.Invoke(instance, null));
                 }
             }
             else
@@ -168,7 +176,15 @@ namespace Ella
                     throw new InvalidPublisherException("No valid stop method found");
 
                 if (!method.GetParameters().Any())
+                {
                     method.Invoke(instance, null);
+                    if (ActivePublishers.Contains(instance))
+                        ActivePublishers.Remove(instance);
+                }
+                else
+                {
+                    throw new InvalidPublisherException("Stop method requires parameters, this is not supported");
+                }
             }
         }
 
@@ -195,14 +211,14 @@ namespace Ella
         ///   <c>true</c> if the specified t is a valid publisher; otherwise, <c>false</c>.
         /// </returns>
         /// <remarks>
-            /// <summary>
-            /// A valid publisher must fulfill the following criteria
-                /// <list type="bullet">
-                    /// <item><description>No multiply-defined event IDs are allowed.</description></item>
-                    /// <item><description>A start method has to be defined.</description></item>
-                    /// <item><description>A stop method has to be defined.</description></item>
-                /// </list>
-            /// </summary>
+        /// <summary>
+        /// A valid publisher must fulfill the following criteria
+        /// <list type="bullet">
+        /// <item><description>No multiply-defined event IDs are allowed.</description></item>
+        /// <item><description>A start method has to be defined.</description></item>
+        /// <item><description>A stop method has to be defined.</description></item>
+        /// </list>
+        /// </summary>
         /// </remarks>
         private bool IsValidPublisher(Type t)
         {

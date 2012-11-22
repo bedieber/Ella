@@ -118,5 +118,11 @@ namespace MiddlewareTest
             object instance = m.CreateModuleInstance(typeof(TestPublisher));
             m.StopPublisher(instance);
         }
+
+        [TestMethod]
+        public void ProvideTemplateObject()
+        {
+            
+        }
     }
 }
