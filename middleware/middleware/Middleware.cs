@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Emit;
 using Ella.Attributes;
 using Ella.Exceptions;
 using System.Threading;
@@ -188,6 +189,84 @@ namespace Ella
             }
         }
 
+        /// <summary>
+        /// Gets a template object from the publisher instance using the specified event ID<br />
+        /// A template data providing member (method or propery) may take an eventID as parameter
+        /// </summary>
+        /// <param name="instance">The instance.</param>
+        /// <param name="eventId">The event id.</param>
+        /// <returns></returns>
+        /// <exception cref="InvalidPublisherException">TemplateData Method may require at most one parameter</exception>
+        public object GetTemplateObject(object instance, int eventId)
+        {
+            if (IsValidPublisher(instance.GetType()))
+            {
+                /*
+                 * OK -- Resolve the method or property attributed with TemplateDataAttribute
+                 * Return value must be of the same type as the published event
+                 * OK -- methods may have one parameter which is the integer eventID
+                 * OK -- the eventId supplied in the TemplateDataAttribute must match
+                 * 
+                 */
+                var members = GetAttributedMembers(instance.GetType(), typeof(TemplateDataAttribute));
+                foreach (var m in members)
+                {
+                    IEnumerable<bool> attributes = m.Value.Select(a => (a as TemplateDataAttribute).EventID == eventId);
+                    if (attributes.Any())
+                    {
+
+                        Type targetType =
+                            (instance.GetType().GetCustomAttributes(typeof(PublishesAttribute), true)).Where(
+                                a => (a as PublishesAttribute).ID == eventId).Cast<PublishesAttribute>().First().
+                                DataType;
+                        //Check the type of member (property or method)
+                        //get the result
+                        object templateObject = null;
+                        if (m.Key is MethodInfo)
+                        {
+                            var methodInfo = m.Key as MethodInfo;
+                            var parameters = methodInfo.GetParameters();
+                            if (parameters.Count() > 1)
+                                throw new InvalidPublisherException("TemplateData Method may require at most one parameter");
+                            if (parameters.Count() == 1)
+                                templateObject = methodInfo.Invoke(instance, new object[] { eventId });
+                            else
+                            {
+                                templateObject = methodInfo.Invoke(instance, null);                                
+                            }
+                        }
+                        else
+                        {
+                            var propertyInfo = m.Key as PropertyInfo;
+                            ParameterInfo[] parameters = propertyInfo.GetIndexParameters();
+                            if (parameters.Count() > 1)
+                                throw new InvalidPublisherException("TemplateData Property may require at most one index variable");
+                            if (parameters.Count() == 1)
+                            templateObject = propertyInfo.GetValue(instance, new object[] { eventId });
+                            else
+                            {
+                                templateObject = propertyInfo.GetValue(instance, null);
+                            }
+                        }
+                        //check if the template object is of the same type as defined in the PublishesAttribute
+                        if (targetType != templateObject.GetType())
+                            throw new InvalidOperationException("Template objects was not of the same type as defined in the PublishesAttribute");
+                        return templateObject;
+                    }
+                }
+            }
+            else
+            {
+                throw new InvalidPublisherException(instance.GetType().ToString());
+            }
+            return null;
+        }
+
+        public void GetTemplateObject(Type type, int eventId)
+        {
+            throw new NotImplementedException();
+        }
+
         #endregion
         #region private helpers
 
@@ -294,8 +373,41 @@ namespace Ella
             }
             return null;
         }
+
+        /// <summary>
+        /// Gets the all methods of the type <paramref name="type"/> which are attributed with <paramref name="attribute"/>
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <param name="attribute">The attribute.</param>
+        /// <param name="includeConstructors">if set to <c>true</c> <paramref name="attribute"/> is also searched for in constructors</param>
+        /// <returns></returns>
+        private IEnumerable<MethodBase> GetAttributedMethods(Type type, Type attribute, bool includeConstructors = false)
+        {
+
+            IEnumerable<MethodBase> methodInfos = type.GetMethods();
+            if (includeConstructors)
+            {
+                var constructorInfos = type.GetConstructors();
+                methodInfos = methodInfos.Concat(constructorInfos);
+            }
+            var methods = from m in methodInfos where m.GetCustomAttributes(attribute, true).Any() select m;
+            return methods;
+        }
+
+
+        /// <summary>
+        /// Searches for any <paramref name="type"/> members attributed with <paramref name="attribute"/>
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <param name="attribute">The attribute.</param>
+        /// <returns></returns>
+        private IEnumerable<KeyValuePair<MemberInfo, IEnumerable<Attribute>>> GetAttributedMembers(Type type, Type attribute)
+        {
+            var memberInfos = type.GetMembers();
+            var attributedMembers = from m in memberInfos let atr = m.GetCustomAttributes(attribute, true) where atr.Any() select new KeyValuePair<MemberInfo, IEnumerable<Attribute>>(m, atr.Cast<Attribute>());
+            return attributedMembers;
+        }
+
         #endregion
-
-
     }
 }

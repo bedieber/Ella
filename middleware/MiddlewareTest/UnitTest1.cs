@@ -12,7 +12,7 @@ namespace MiddlewareTest
     [TestClass]
     public class TestMiddleware
     {
-        private const int NumPublishers = 2;
+        private const int NumPublishers = 4;
         private const int NumSubscribers = 5;
         [TestMethod]
         public void DiscoverPublishers()
@@ -122,7 +122,12 @@ namespace MiddlewareTest
         [TestMethod]
         public void ProvideTemplateObject()
         {
-            
+            Middleware mw = new Middleware();
+           // mw.GetTemplateObject(typeof(TestPublisher), 1);
+            TestPublisher t = new TestPublisher();
+            Assert.IsInstanceOfType(mw.GetTemplateObject(t, 1), typeof(string));
+            Assert.IsInstanceOfType(mw.GetTemplateObject(new TestPublisherPropertyTemplate(), 1), typeof(int));
+            Assert.IsInstanceOfType(mw.GetTemplateObject(new TestPublisherMultipleEvents(), 2), typeof(string));
         }
     }
 }
