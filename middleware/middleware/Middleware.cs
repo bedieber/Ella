@@ -262,10 +262,6 @@ namespace Ella
             return null;
         }
 
-        public void GetTemplateObject(Type type, int eventId)
-        {
-            throw new NotImplementedException();
-        }
 
         #endregion
         #region private helpers
