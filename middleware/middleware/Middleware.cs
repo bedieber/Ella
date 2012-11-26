@@ -329,14 +329,10 @@ namespace Ella
         /// </returns>
         public static bool IsSubscriber(Type t)
         {
-            ret
+            return DefinesAttribute(t, typeof(SubscriberAttribute));
+        }
         #endregion
         #region private helpers
-
-
-
-urn DefinesAttribute(t, typeof(SubscriberAttribute));
-        }
 
         /// <summary>
         /// Checks if <paramref name="t"/> defines the attribute <paramref name="attribute"/>.

@@ -19,7 +19,7 @@ namespace Ella
         /// <param name="eventData">The event data to be delivered to subscribers.</param>
         /// <param name="publisher">The publisher publishing the event.</param>
         /// <exception cref="InvalidPublisherException"></exception>
-        public static void PublishEvent<T>(T eventData, object publisher)
+        public static void PublishEvent<T>(T eventData, object publisher, int eventId)
         {
             if (Middleware.IsPublisher(publisher.GetType()))
             {
@@ -31,6 +31,9 @@ namespace Ella
                 else
                 {
                     //TODO lookup subscribers, publish event asynchronously
+                    /*
+                     * Check if event ID matches
+                     */
                 }
             }
             else
