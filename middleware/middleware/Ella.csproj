@@ -47,6 +47,7 @@
     <Compile Include="Attributes\StopAttribute.cs" />
     <Compile Include="Attributes\SubscriberAttribute.cs" />
     <Compile Include="Attributes\TemplateDataAttribute.cs" />
+    <Compile Include="Data\DataCopyPolicy.cs" />
     <Compile Include="Data\DataTransferObject.cs" />
     <Compile Include="Exceptions\InvalidPublisherException.cs" />
     <Compile Include="Middleware.cs" />

@@ -23,6 +23,14 @@ namespace Ella.Attributes
         /// The local ID of this publishing event
         /// </summary>
         public int ID { get { return _id; } }
+
+        /// <summary>
+        /// Gets or sets the copy policy, default is <see cref="DataCopyPolicy.None"/>.
+        /// </summary>
+        /// <value>
+        /// The copy policy to be used when processing the published data.
+        /// </value>
+        public DataCopyPolicy CopyPolicy { get; set; }
         #endregion
 
         /// <summary>
@@ -34,6 +42,7 @@ namespace Ella.Attributes
         {
             _dataType = dataType;
             _id = id;
+            //CopyPolicy = policy;
         }
 
     }
