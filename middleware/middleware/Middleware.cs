@@ -45,7 +45,7 @@ namespace Ella
         /// <summary>
         /// List of all started publishers
         /// </summary>
-        private ICollection<object> ActivePublishers { get; set; }
+        internal ICollection<object> ActivePublishers { get; set; }
 
         #region public methods
         /// <summary>
@@ -264,8 +264,7 @@ namespace Ella
 
 
         #endregion
-        #region private helpers
-
+        #region Public helpers
         /// <summary>
         /// Determines whether the specified t is publisher.
         /// </summary>
@@ -273,11 +272,10 @@ namespace Ella
         /// <returns>
         ///   <c>true</c> if the specified t is publisher; otherwise, <c>false</c>.
         /// </returns>
-        private bool IsPublisher(Type t)
+        public static bool IsPublisher(Type t)
         {
             return DefinesAttribute(t, typeof(PublishesAttribute));
         }
-
         /// <summary>
         /// Checks whether the specified type is a valid publisher.
         /// </summary>
@@ -295,7 +293,7 @@ namespace Ella
         /// </list>
         /// </summary>
         /// </remarks>
-        private bool IsValidPublisher(Type t)
+        public static bool IsValidPublisher(Type t)
         {
             //Check definition of publisher attribute
             if (!IsPublisher(t))
@@ -329,9 +327,15 @@ namespace Ella
         /// <returns>
         ///   <c>true</c> if the specified t is subscriber; otherwise, <c>false</c>.
         /// </returns>
-        private bool IsSubscriber(Type t)
+        public static bool IsSubscriber(Type t)
         {
-            return DefinesAttribute(t, typeof(SubscriberAttribute));
+            ret
+        #endregion
+        #region private helpers
+
+
+
+urn DefinesAttribute(t, typeof(SubscriberAttribute));
         }
 
         /// <summary>
@@ -340,7 +344,7 @@ namespace Ella
         /// <param name="t">The type.</param>
         /// <param name="attribute">The attribute.</param>
         /// <returns></returns>
-        private bool DefinesAttribute(Type t, Type attribute)
+        private static bool DefinesAttribute(Type t, Type attribute)
         {
             List<object> atr = new List<object>(t.GetCustomAttributes(attribute, true));
             return atr.Any();
@@ -353,7 +357,7 @@ namespace Ella
         /// <param name="attribute">The attribute.</param>
         /// <param name="includeConstructors">if set to <c>true</c> <paramref name="attribute"/> is also searched for in constructors.</param>
         /// <returns>A <see cref="System.Reflection.MethodBase"/> object referring to the first method found or null if no method was found</returns>
-        private MethodBase GetAttributedMethod(Type type, Type attribute, bool includeConstructors = false)
+        private static MethodBase GetAttributedMethod(Type type, Type attribute, bool includeConstructors = false)
         {
             IEnumerable<MethodBase> methodInfos = type.GetMethods();
             if (includeConstructors)
@@ -377,9 +381,8 @@ namespace Ella
         /// <param name="attribute">The attribute.</param>
         /// <param name="includeConstructors">if set to <c>true</c> <paramref name="attribute"/> is also searched for in constructors</param>
         /// <returns></returns>
-        private IEnumerable<MethodBase> GetAttributedMethods(Type type, Type attribute, bool includeConstructors = false)
+        private static IEnumerable<MethodBase> GetAttributedMethods(Type type, Type attribute, bool includeConstructors = false)
         {
-
             IEnumerable<MethodBase> methodInfos = type.GetMethods();
             if (includeConstructors)
             {
@@ -397,7 +400,7 @@ namespace Ella
         /// <param name="type">The type.</param>
         /// <param name="attribute">The attribute.</param>
         /// <returns></returns>
-        private IEnumerable<KeyValuePair<MemberInfo, IEnumerable<Attribute>>> GetAttributedMembers(Type type, Type attribute)
+        private static IEnumerable<KeyValuePair<MemberInfo, IEnumerable<Attribute>>> GetAttributedMembers(Type type, Type attribute)
         {
             var memberInfos = type.GetMembers();
             var attributedMembers = from m in memberInfos let atr = m.GetCustomAttributes(attribute, true) where atr.Any() select new KeyValuePair<MemberInfo, IEnumerable<Attribute>>(m, atr.Cast<Attribute>());
