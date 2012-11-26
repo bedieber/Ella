@@ -129,5 +129,18 @@ namespace MiddlewareTest
             Assert.IsInstanceOfType(mw.GetTemplateObject(new TestPublisherPropertyTemplate(), 1), typeof(int));
             Assert.IsInstanceOfType(mw.GetTemplateObject(new TestPublisherMultipleEvents(), 2), typeof(string));
         }
+
+        [TestMethod]
+        public void DeliverEventToSubscribers()
+        {
+            //TODO parts of this test cannot be implemented before subscriber management is ready
+            TestSubscriber subscriber=new TestSubscriber();
+            subscriber.Subscribe();
+            TestPublisher publisher=new TestPublisher();
+            Middleware mw=new Middleware();
+            mw.StartPublisher(publisher);
+            publisher.PublishEvent();
+            Assert.AreEqual(subscriber.numEventsReceived,1);
+        }
     }
 }

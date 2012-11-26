@@ -9,8 +9,14 @@ namespace MiddlewareTest
     [Subscriber]
     public class TestSubscriber
     {
+        internal int numEventsReceived = 0;
         [Factory]
         public TestSubscriber(){}
+
+        internal void Subscribe()
+        {
+            //TODO subscribe to event, provide handler, count numEventsReceived up if event data =="hello"
+        }
     }
 
     [Subscriber]

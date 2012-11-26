@@ -21,7 +21,15 @@
     <DocumentationSources>
       <DocumentationSource sourceFile="..\middleware\middleware\bin\Debug\Ella.dll" xmlns="" />
 <DocumentationSource sourceFile="..\middleware\middleware\bin\Debug\Ella.XML" xmlns="" /></DocumentationSources>
-    <VisibleItems>InheritedMembers, InheritedFrameworkMembers, Privates, Protected, SealedProtected</VisibleItems>
+    <VisibleItems>Attributes, InheritedMembers, InheritedFrameworkMembers, Internals, Privates, Protected, SealedProtected</VisibleItems>
+    <FrameworkVersion>.NET Framework 3.5</FrameworkVersion>
+    <KeepLogFile>False</KeepLogFile>
+    <FeedbackEMailAddress>bernhard.dieber%40aau.at</FeedbackEMailAddress>
+    <FeedbackEMailLinkText>Send us feedback</FeedbackEMailLinkText>
+    <HeaderText>Ella Middleware</HeaderText>
+    <HelpTitle>Publish/Subscribe Middleware for Embedded Smart Cameras</HelpTitle>
+    <Preliminary>True</Preliminary>
+    <PresentationStyle>vs2010</PresentationStyle>
   </PropertyGroup>
   <!-- There are no properties for these groups.  AnyCPU needs to appear in
        order for Visual Studio to perform the build.  The others are optional

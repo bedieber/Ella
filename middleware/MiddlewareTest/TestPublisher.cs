@@ -2,42 +2,48 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Ella;
 using Ella.Attributes;
 
 namespace MiddlewareTest
 {
-    [Publishes(typeof(String),1)]
+    [Publishes(typeof(String), 1)]
     public class TestPublisher
     {
         [Factory]
-        public TestPublisher(){}
+        public TestPublisher() { }
 
         [Start]
-        public void Run(){}
+        public void Run() { }
 
         [Stop]
-        public void Stop(){}
+        public void Stop() { }
 
         [TemplateData(1)]
         public string GetTemplateObject()
         {
             return string.Empty;
         }
+
+        internal void PublishEvent()
+        {
+            Publish.PublishEvent("hello", this, 1);
+        }
     }
 
-    [Publishes(typeof(string),1)]
-    [Publishes(typeof(int),1)]
-    [Publishes(typeof(string),2)]
+    [Publishes(typeof(string), 1)]
+    [Publishes(typeof(int), 1)]
+    [Publishes(typeof(string), 2)]
     public class TestPublisherNonUniqueEventID
     {
-        
+
     }
 
     [Publishes(typeof(int), 1)]
     public class TestPublisherPropertyTemplate
     {
         [Factory]
-        public TestPublisherPropertyTemplate(){}
+        public TestPublisherPropertyTemplate() { }
 
         [Start]
         public void Run() { }
