@@ -22,8 +22,13 @@ namespace Ella
         {
             /*
              * find all matching events from currently active publishers
+             * check if subscriber instace is valid subscriber
              * hold a list of subscriptions
              */
+            if (!Is.Subscriber(subscriberInstance.GetType()))
+            {
+                throw new ArgumentException("subscriberInstance must be a valid subscriber");
+            }
             var matches = EllaModel.Instance.ActiveEvents.FirstOrDefault(g => g.Key==dataType);
             if (matches != null)
             {
