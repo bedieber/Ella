@@ -5,7 +5,7 @@ using System.Text;
 using Ella.Attributes;
 using Ella;
 
-namespace MiddlewareTest
+namespace Ella
 {
     [Subscriber]
     public class TestSubscriber

@@ -2,29 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Ella.Attributes;
 using Ella.Exceptions;
+using Ella.Model;
 
 namespace Ella
 {
-    internal class Event
-    {
-        object _publisher;
-
-        internal object Publisher
-        {
-            get { return _publisher; }
-            set { _publisher = value; }
-        }
-        PublishesAttribute _eventDetail;
-
-        internal PublishesAttribute EventDetail
-        {
-            get { return _eventDetail; }
-            set { _eventDetail = value; }
-        }
-    }
-
     /// <summary>
     /// Facade class for publishing events
     /// </summary>
@@ -36,13 +18,14 @@ namespace Ella
         /// <typeparam name="T"></typeparam>
         /// <param name="eventData">The event data to be delivered to subscribers.</param>
         /// <param name="publisher">The publisher publishing the event.</param>
+        /// <param name="eventId">The publisher-internal event ID associated with this event </param>
         /// <exception cref="InvalidPublisherException"></exception>
         public static void PublishEvent<T>(T eventData, object publisher, int eventId)
         {
-            if (Middleware.IsPublisher(publisher.GetType()))
+            if (Is.Publisher(publisher.GetType()))
             {
                 //check if this one was started before
-                if(!Middleware.Instance.ActivePublishers.Contains(publisher))
+                if(!EllaModel.Instance.ActivePublishers.Contains(publisher))
                 {
                     //TODO throw an exception
                 }

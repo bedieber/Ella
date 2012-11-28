@@ -9,7 +9,7 @@
     <ProjectGuid>{F87001D3-78ED-40DE-AE61-67C33144361B}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MiddlewareTest</RootNamespace>
+    <RootNamespace>Ella</RootNamespace>
     <AssemblyName>MiddlewareTest</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>

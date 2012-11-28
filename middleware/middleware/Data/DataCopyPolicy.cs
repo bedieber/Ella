@@ -1,4 +1,7 @@
-﻿public enum DataCopyPolicy
+﻿/// <summary>
+/// This attribute is used by publishers to indicate whether their published data shall be copied before it's modified
+/// </summary>
+public enum DataCopyPolicy
 {
     /// <summary>
     /// If no copying of data before further processing is necessary<br />

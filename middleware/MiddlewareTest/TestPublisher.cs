@@ -5,7 +5,7 @@ using System.Text;
 using Ella;
 using Ella.Attributes;
 
-namespace MiddlewareTest
+namespace Ella
 {
     [Publishes(typeof(String), 1)]
     public class TestPublisher

@@ -3,43 +3,34 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Ella.Attributes;
+using Ella.Model;
 
 namespace Ella
 {
-    public class Subscription
-    {
-        object _subscriber;
-
-        public object Subscriber
-        {
-          get { return _subscriber; }
-          set { _subscriber = value; }
-        }
-        Event _event;
-
-        internal Event Event
-        {
-          get { return _event; }
-          set { _event = value; }
-        }
-    }
-
+    /// <summary>
+    /// This class allows access to subscriptions, it provides facilities to make new subscriptions
+    /// </summary>
     public static class Subscribe
     {
-        public static List<Subscription> _subscriptions = new List<Subscription>();
 
+        /// <summary>
+        /// Subscribes the <paramref name="subscriberInstance"/> to any event matching <paramref name="dataType"/> as event data type
+        /// </summary>
+        /// <param name="dataType">The data type to match for this event</param>
+        /// <param name="subscriberInstance">The instance of a subscriber to be subscribed to the event</param>
         public static void To(Type dataType, object subscriberInstance)
         {
             /*
              * find all matching events from currently active publishers
              * hold a list of subscriptions
              */
-            var matches = Middleware.Instance.ActiveEvents.Where(g=>g.Key==dataType).FirstOrDefault();
+            var matches = EllaModel.Instance.ActiveEvents.FirstOrDefault(g => g.Key==dataType);
             if (matches != null)
             {
                 foreach (var m in matches)
                 {
-                    _subscriptions.Add(new Subscription { Event = m, Subscriber = subscriberInstance });
+                    //TODO avoid double subscriptions
+                    EllaModel.Instance.Subscriptions.Add(new Subscription { Event = m, Subscriber = subscriberInstance });
                 }
             }
         }

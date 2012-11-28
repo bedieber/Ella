@@ -5,9 +5,10 @@ using System.Text;
 using System.Collections.Generic;
 using System.Linq;
 using Ella;
+using Ella.Model;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace MiddlewareTest
+namespace Ella
 {
     [TestClass]
     public class TestMiddleware
@@ -17,57 +18,54 @@ namespace MiddlewareTest
         [TestMethod]
         public void DiscoverPublishers()
         {
-            Middleware mw = new Middleware();
-            Assert.IsNotNull(mw.Publishers);
+            Assert.IsNotNull(EllaModel.Instance.Publishers);
             FileInfo fi = new FileInfo(GetType().Assembly.Location);
             Assembly a = Assembly.LoadFile(fi.FullName);
-            mw.LoadPublishers(a);
-            Assert.IsTrue(mw.Publishers.Count() == NumPublishers - 1);
+            Load.Publishers(a);
+            Assert.AreEqual(NumPublishers - 1, EllaModel.Instance.Publishers.Count());
+            Load.Publishers(a);
+            Assert.AreEqual(NumPublishers - 1, EllaModel.Instance.Publishers.Count());
         }
 
         [TestMethod]
         public void DiscoverSubscribers()
         {
-            Middleware m = new Middleware();
-            Assert.IsNotNull(m.Subscribers);
+            Assert.IsNotNull(EllaModel.Instance.Subscribers);
             FileInfo fi = new FileInfo(GetType().Assembly.Location);
             Assembly a = Assembly.LoadFile(fi.FullName);
-            m.LoadSubscribers(a);
-            Assert.IsTrue(m.Subscribers.Count() == NumSubscribers);
+            Load.Subscribers(a);
+            Assert.IsTrue(EllaModel.Instance.Subscribers.Count() == NumSubscribers);
         }
 
         [TestMethod]
         public void BuildSubscriberList()
         {
-            Middleware mw = new Middleware();
-            Assert.IsNotNull(mw.Subscribers);
-            Assert.IsTrue(mw.Subscribers.Count == 0);
+            Assert.IsNotNull(EllaModel.Instance.Subscribers);
+            Assert.IsTrue(EllaModel.Instance.Subscribers.Count == 0);
         }
 
         [TestMethod]
         public void DiscoverModulesInAssemblies()
         {
             FileInfo fi = new FileInfo(GetType().Assembly.Location);
-            Middleware mw = new Middleware();
-            mw.DiscoverModules(fi);
-            Assert.IsTrue(mw.Subscribers.Count == NumSubscribers);
-            Assert.IsTrue(mw.Publishers.Count == NumPublishers - 1);
+            Discover.Modules(fi);
+            Assert.AreEqual(NumSubscribers, EllaModel.Instance.Subscribers.Count);
+            Assert.AreEqual(NumPublishers - 1, EllaModel.Instance.Publishers.Count);
         }
 
         [TestMethod]
         public void CreateInstanceOfAModule()
         {
-            Middleware mw = new Middleware();
-            object publisher = mw.CreateModuleInstance(typeof(TestPublisher));
+            object publisher = Create.ModuleInstance(typeof(TestPublisher));
             Assert.IsNotNull(publisher);
             Assert.IsInstanceOfType(publisher, typeof(TestPublisher));
 
-            object subscriber = mw.CreateModuleInstance(typeof(TestSubscriber));
+            object subscriber = Create.ModuleInstance(typeof(TestSubscriber));
             Assert.IsNotNull(subscriber);
             Assert.IsInstanceOfType(subscriber, typeof(TestSubscriber));
             try
             {
-                subscriber = mw.CreateModuleInstance(typeof(TestSubscriberMethodFactory));
+                subscriber = Create.ModuleInstance(typeof(TestSubscriberMethodFactory));
                 Assert.Fail();
             }
             catch (ArgumentException)
@@ -77,7 +75,7 @@ namespace MiddlewareTest
 
             try
             {
-                subscriber = mw.CreateModuleInstance(typeof(TestSubscriberNoFactory));
+                subscriber = Create.ModuleInstance(typeof(TestSubscriberNoFactory));
                 Assert.Fail();
             }
             catch (ArgumentException)
@@ -86,13 +84,13 @@ namespace MiddlewareTest
             }
 
 
-            subscriber = mw.CreateModuleInstance(typeof(TestSubscriberStaticMethodFactory));
+            subscriber = Create.ModuleInstance(typeof(TestSubscriberStaticMethodFactory));
             Assert.IsNotNull(subscriber);
             Assert.IsInstanceOfType(subscriber, typeof(TestSubscriberStaticMethodFactory));
 
             try
             {
-                subscriber = mw.CreateModuleInstance(typeof(TestSubscriberStaticConstructerFactory));
+                subscriber = Create.ModuleInstance(typeof(TestSubscriberStaticConstructerFactory));
                 Assert.Fail();
             }
             catch (ArgumentException)
@@ -106,52 +104,49 @@ namespace MiddlewareTest
         [TestMethod]
         public void StartAPublisher()
         {
-            Middleware mw = new Middleware();
-            object instance = mw.CreateModuleInstance(typeof(TestPublisher));
-            mw.StartPublisher(instance);
+            object instance = Create.ModuleInstance(typeof(TestPublisher));
+            Start.Publisher(instance);
         }
 
         [TestMethod]
         public void StopAPublisher()
         {
-            Middleware m = new Middleware();
-            object instance = m.CreateModuleInstance(typeof(TestPublisher));
-            m.StopPublisher(instance);
+            object instance = Create.ModuleInstance(typeof(TestPublisher));
+            Stop.Publisher(instance);
         }
 
         [TestMethod]
         public void ProvideTemplateObject()
         {
-            Middleware mw = new Middleware();
-           // mw.GetTemplateObject(typeof(TestPublisher), 1);
+            // mw.GetTemplateObject(typeof(TestPublisher), 1);
             TestPublisher t = new TestPublisher();
-            Assert.IsInstanceOfType(mw.GetTemplateObject(t, 1), typeof(string));
-            Assert.IsInstanceOfType(mw.GetTemplateObject(new TestPublisherPropertyTemplate(), 1), typeof(int));
-            Assert.IsInstanceOfType(mw.GetTemplateObject(new TestPublisherMultipleEvents(), 2), typeof(string));
+            Assert.IsInstanceOfType(Create.TemplateObject(t, 1), typeof(string));
+            Assert.IsInstanceOfType(Create.TemplateObject(new TestPublisherPropertyTemplate(), 1), typeof(int));
+            Assert.IsInstanceOfType(Create.TemplateObject(new TestPublisherMultipleEvents(), 2), typeof(string));
         }
 
         [TestMethod]
         public void DeliverEventToSubscribers()
         {
             //TODO parts of this test cannot be implemented before subscriber management is ready
-            TestSubscriber subscriber=new TestSubscriber();
+            TestSubscriber subscriber = new TestSubscriber();
             subscriber.Subscribe();
-            TestPublisher publisher=new TestPublisher();
-            Middleware mw=new Middleware();
-            mw.StartPublisher(publisher);
+            TestPublisher publisher = new TestPublisher();
+            Start.Publisher(publisher);
             publisher.PublishEvent();
-            Assert.AreEqual(subscriber.numEventsReceived,1);
+            Assert.AreEqual(subscriber.numEventsReceived, 1);
         }
 
         [TestMethod]
         public void SubscribeToEventByType()
         {
-            Middleware mw = new Middleware();
             TestPublisher pub = new TestPublisher();
-            mw.StartPublisher(pub);
+            Start.Publisher(pub);
             TestSubscriber subscriber = new TestSubscriber();
             subscriber.Subscribe();
-            Assert.AreEqual(1,Subscribe._subscriptions.Count());
+            Assert.AreEqual(1, EllaModel.Instance.Subscriptions.Count());
+            subscriber.Subscribe();
+            Assert.AreEqual(1, EllaModel.Instance.Subscriptions.Count());
         }
     }
 }
