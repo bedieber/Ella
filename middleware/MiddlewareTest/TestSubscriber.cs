@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Ella.Attributes;
+using Ella;
 
 namespace MiddlewareTest
 {
@@ -16,6 +17,7 @@ namespace MiddlewareTest
         internal void Subscribe()
         {
             //TODO subscribe to event, provide handler, count numEventsReceived up if event data =="hello"
+            Ella.Subscribe.To(typeof(string), this);
         }
     }
 

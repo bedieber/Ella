@@ -18,6 +18,16 @@ namespace Ella
     /// </summary>
     public class Middleware
     {
+        #region Internal Singleton
+
+        private static Middleware _instance = new Middleware();
+
+        internal static Middleware Instance
+        {
+            get{return _instance;}
+            set { _instance = value; }
+        } 
+        #endregion
         /// <summary>
         /// Constructor for the middleware
         /// </summary>
@@ -403,6 +413,20 @@ namespace Ella
             return attributedMembers;
         }
 
+        #endregion
+
+        #region Internal Helpers
+        internal IEnumerable<IGrouping<Type, Event>> ActiveEvents
+        {
+            get
+            {
+                //from all active publishers, take their subscribes attributes as one flat list
+                IEnumerable<Event> atr = (from p in ActivePublishers let a = (((IEnumerable<PublishesAttribute>)p.GetType().GetCustomAttributes(typeof(PublishesAttribute), true))).Select(e => new Event { Publisher = p, EventDetail = e }) select a).SelectMany(i => i);
+                //make a dictionary out of that list, where the key is the type of published data
+                return atr.GroupBy(a => a.EventDetail.DataType);
+                //return atr.ToLookup(a => a.EventDetail.DataType);
+            }
+        }
         #endregion
     }
 }

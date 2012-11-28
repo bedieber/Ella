@@ -142,5 +142,16 @@ namespace MiddlewareTest
             publisher.PublishEvent();
             Assert.AreEqual(subscriber.numEventsReceived,1);
         }
+
+        [TestMethod]
+        public void SubscribeToEventByType()
+        {
+            Middleware mw = new Middleware();
+            TestPublisher pub = new TestPublisher();
+            mw.StartPublisher(pub);
+            TestSubscriber subscriber = new TestSubscriber();
+            subscriber.Subscribe();
+            Assert.AreEqual(1,Subscribe._subscriptions.Count());
+        }
     }
 }
