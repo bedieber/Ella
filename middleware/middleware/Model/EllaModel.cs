@@ -27,7 +27,7 @@ namespace Ella.Model
             Publishers = new List<Type>();
             Subscribers = new List<Type>();
             ActivePublishers = new List<object>();
-            Subscriptions=new List<Subscription>();
+            Subscriptions=new List<SubscriptionBase>();
         }
 
         /// <summary>
@@ -44,7 +44,7 @@ namespace Ella.Model
         /// </summary>
         internal ICollection<Type> Subscribers { get; set; }
 
-        internal List<Subscription> Subscriptions
+        internal List<SubscriptionBase> Subscriptions
         {
             get;
             set;
@@ -55,6 +55,7 @@ namespace Ella.Model
         /// List of all started publishers
         /// </summary>
         internal ICollection<object> ActivePublishers { get; set; }
+
 
 
         internal IEnumerable<IGrouping<Type, Event>> ActiveEvents

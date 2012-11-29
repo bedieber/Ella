@@ -3,7 +3,7 @@ namespace Ella.Model
     /// <summary>
     /// Describes one single subscription of one subscriber to one publisher
     /// </summary>
-    public class Subscription
+    internal class Subscription<T> : SubscriptionBase
     {
         /// <summary>
         /// Gets or sets the subscriber.
@@ -11,7 +11,7 @@ namespace Ella.Model
         /// <value>
         /// The subscriber.
         /// </value>
-        public object Subscriber { get; set; }
+        internal object Subscriber { get; set; }
 
         /// <summary>
         /// Gets or sets the event associated with this subscription.
@@ -20,5 +20,7 @@ namespace Ella.Model
         /// The event.
         /// </value>
         internal Event Event { get; set; }
+
+        internal System.Action<T> Callback { get; set; }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -27,14 +28,20 @@ namespace Ella
                 //check if this one was started before
                 if(!EllaModel.Instance.ActivePublishers.Contains(publisher))
                 {
-                    //TODO throw an exception
+                    throw new StateException("Publisher is not in the list of active publishers");
                 }
                 else
                 {
-                    //TODO lookup subscribers, publish event asynchronously
+                    //TODO this is performance critical, make sure below LINQ query is suitable for that
                     /*
                      * Check if event ID matches
                      */
+                    IEnumerable<Subscription<T>> subscriptions = from s in EllaModel.Instance.Subscriptions let s1 = s as Subscription<T> where s1 != null && s1.Event.EventDetail.ID==eventId select s1;
+                    foreach (var subscription in subscriptions)
+                    {
+                        //TODO async, decide for threadpool or dedicated thread
+                        subscription.Callback(eventData);
+                    }
                 }
             }
             else

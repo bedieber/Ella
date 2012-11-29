@@ -14,11 +14,13 @@ namespace Ella
     {
 
         /// <summary>
-        /// Subscribes the <paramref name="subscriberInstance"/> to any event matching <paramref name="dataType"/> as event data type
+        /// Subscribes the <paramref name="subscriberInstance" /> to any event matching <paramref name="dataType" /> as event data type
         /// </summary>
-        /// <param name="dataType">The data type to match for this event</param>
+        /// <typeparam name="T">The type to subscribe to</typeparam>
         /// <param name="subscriberInstance">The instance of a subscriber to be subscribed to the event</param>
-        public static void To(Type dataType, object subscriberInstance)
+        /// <param name="newDataCallback">A callback method acceptiong <typeparamref name="T"/> as argument, which will be called when new data from publishers is available</param>
+        /// <exception cref="System.ArgumentException">subscriberInstance must be a valid subscriber</exception>
+        public static void To<T>(object subscriberInstance, Action<T> newDataCallback )
         {
             /*
              * find all matching events from currently active publishers
@@ -29,13 +31,13 @@ namespace Ella
             {
                 throw new ArgumentException("subscriberInstance must be a valid subscriber");
             }
-            var matches = EllaModel.Instance.ActiveEvents.FirstOrDefault(g => g.Key==dataType);
+            var matches = EllaModel.Instance.ActiveEvents.FirstOrDefault(g => g.Key==typeof(T));
             if (matches != null)
             {
                 foreach (var m in matches)
                 {
                     //TODO avoid double subscriptions
-                    EllaModel.Instance.Subscriptions.Add(new Subscription { Event = m, Subscriber = subscriberInstance });
+                    EllaModel.Instance.Subscriptions.Add(new Subscription<T> { Event = m, Subscriber = subscriberInstance, Callback=newDataCallback });
                 }
             }
         }

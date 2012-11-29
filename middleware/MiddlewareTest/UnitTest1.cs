@@ -128,11 +128,10 @@ namespace Ella
         [TestMethod]
         public void DeliverEventToSubscribers()
         {
-            //TODO parts of this test cannot be implemented before subscriber management is ready
-            TestSubscriber subscriber = new TestSubscriber();
-            subscriber.Subscribe();
             TestPublisher publisher = new TestPublisher();
             Start.Publisher(publisher);
+            TestSubscriber subscriber = new TestSubscriber();
+            subscriber.Subscribe();
             publisher.PublishEvent();
             Assert.AreEqual(subscriber.numEventsReceived, 1);
         }
