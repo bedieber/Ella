@@ -1,4 +1,5 @@
 ﻿using System;
+using Ella.Data;
 
 namespace Ella.Attributes
 {
