@@ -16,7 +16,6 @@ namespace Ella
 
         internal void Subscribe()
         {
-            //TODO subscribe to event, provide handler, count numEventsReceived up if event data =="hello"
             Ella.Subscribe.To<string>(this,Callback);
         }
 
@@ -24,6 +23,16 @@ namespace Ella
         {
             if (s == "hello")
                 numEventsReceived++;
+        }
+
+        internal void SubscribeWithObject()
+        {
+           Ella.Subscribe.To<String>(this, Callback, EvaluateTemplateObject);
+        }
+
+        private bool EvaluateTemplateObject(string s)
+        {
+            return s == "hello";
         }
     }
 

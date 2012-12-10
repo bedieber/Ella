@@ -8,6 +8,7 @@ using Ella.Attributes;
 namespace Ella
 {
     [Publishes(typeof(String), 1)]
+    [Publishes(typeof(String), 2)]
     public class TestPublisher
     {
         [Factory]
@@ -20,9 +21,10 @@ namespace Ella
         public void Stop() { }
 
         [TemplateData(1)]
-        public string GetTemplateObject()
+        [TemplateData(2)]
+        public string GetTemplateObject(int id)
         {
-            return string.Empty;
+            return id == 1 ? "hello" : string.Empty;
         }
 
         internal void PublishEvent()

@@ -143,9 +143,20 @@ namespace Ella
             Start.Publisher(pub);
             TestSubscriber subscriber = new TestSubscriber();
             subscriber.Subscribe();
-            Assert.AreEqual(1, EllaModel.Instance.Subscriptions.Count());
+            Assert.AreEqual(2, EllaModel.Instance.Subscriptions.Count());
             subscriber.Subscribe();
-            Assert.AreEqual(1, EllaModel.Instance.Subscriptions.Count());
+            Assert.AreEqual(2, EllaModel.Instance.Subscriptions.Count());
         }
+
+         [TestMethod]
+         public void SubscribeToEventByTemplateObject()
+         {
+             TestPublisher pub = new TestPublisher();
+             Start.Publisher(pub);
+             TestSubscriber subscriber = new TestSubscriber();
+             subscriber.SubscribeWithObject();
+             Assert.AreEqual(1, EllaModel.Instance.Subscriptions.Count());
+         }
+
     }
 }
