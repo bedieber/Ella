@@ -41,9 +41,10 @@ namespace Ella
                 foreach (var m in matches)
                 {
                     T templateObject = (T)Create.TemplateObject(m.Publisher, m.EventDetail.ID);
+                    var subscription = new Subscription<T> {Event = m, Subscriber = subscriberInstance, Callback = newDataCallback};
                     if (evaluateTemplateObject(templateObject))
-                        //TODO avoid double subscriptions
-                        EllaModel.Instance.Subscriptions.Add(new Subscription<T> { Event = m, Subscriber = subscriberInstance, Callback = newDataCallback });
+                        if(!EllaModel.Instance.Subscriptions.Contains(subscription))
+                        EllaModel.Instance.Subscriptions.Add(subscription);
                 }
             }
         }

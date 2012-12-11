@@ -15,6 +15,13 @@ namespace Ella
     {
         private const int NumPublishers = 4;
         private const int NumSubscribers = 5;
+        
+        [TestInitialize]
+        public void InitElla()
+        {
+            EllaModel.Instance.Reset();
+        }
+
         [TestMethod]
         public void DiscoverPublishers()
         {
@@ -41,7 +48,7 @@ namespace Ella
         public void BuildSubscriberList()
         {
             Assert.IsNotNull(EllaModel.Instance.Subscribers);
-            Assert.IsTrue(EllaModel.Instance.Subscribers.Count == 0);
+            Assert.AreEqual(0, EllaModel.Instance.Subscribers.Count);
         }
 
         [TestMethod]
@@ -148,15 +155,15 @@ namespace Ella
             Assert.AreEqual(2, EllaModel.Instance.Subscriptions.Count());
         }
 
-         [TestMethod]
-         public void SubscribeToEventByTemplateObject()
-         {
-             TestPublisher pub = new TestPublisher();
-             Start.Publisher(pub);
-             TestSubscriber subscriber = new TestSubscriber();
-             subscriber.SubscribeWithObject();
-             Assert.AreEqual(1, EllaModel.Instance.Subscriptions.Count());
-         }
+        [TestMethod]
+        public void SubscribeToEventByTemplateObject()
+        {
+            TestPublisher pub = new TestPublisher();
+            Start.Publisher(pub);
+            TestSubscriber subscriber = new TestSubscriber();
+            subscriber.SubscribeWithObject();
+            Assert.AreEqual(1, EllaModel.Instance.Subscriptions.Count());
+        }
 
     }
 }

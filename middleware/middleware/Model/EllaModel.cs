@@ -69,5 +69,13 @@ namespace Ella.Model
                 //return atr.ToLookup(a => a.EventDetail.DataType);
             }
         }
+
+        internal void Reset()
+        {
+            Publishers = new List<Type>();
+            Subscribers = new List<Type>();
+            ActivePublishers = new List<object>();
+            Subscriptions = new List<SubscriptionBase>();
+        }
     }
 }
