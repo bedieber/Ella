@@ -1,4 +1,5 @@
 ﻿using System;
+using Ella.Data;
 
 namespace Ella.Attributes
 {
@@ -9,5 +10,18 @@ namespace Ella.Attributes
     [AttributeUsage(AttributeTargets.Class)]
     public class SubscriberAttribute:Attribute
     {
+        #region Public Properties
+
+        /// <summary>
+        /// Gets or sets the modify policy, default is <see cref="DataModifyPolicy.NoModify"/>.
+        /// </summary>
+        /// <value>
+        /// The modify policy to be used when subscribing to an event
+        /// </value>
+        public DataModifyPolicy ModifyPolicy { get; set; }
+
+        #endregion
+
+
     }
 }
