@@ -8,7 +8,7 @@ namespace Ella.Attributes
     /// If your class is not marked with this attribute, it will not be recognized as a subscriber
     /// </summary>
     [AttributeUsage(AttributeTargets.Class)]
-    public class SubscriberAttribute:Attribute
+    public class SubscriberAttribute : Attribute
     {
         #region Public Properties
 
