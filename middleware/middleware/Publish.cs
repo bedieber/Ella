@@ -37,6 +37,12 @@ namespace Ella
                      * Check if event ID matches
                      */
                     IEnumerable<Subscription<T>> subscriptions = from s in EllaModel.Instance.Subscriptions let s1 = s as Subscription<T> where s1 != null && s1.Event.EventDetail.ID==eventId select s1;
+                    /*
+                     * Data modification and data policies
+                     * No copy: publisher has DataCopyPolicy.None && All subscribers have DataModificationPolicy.NoModify
+                     * Copy once: Publisher has DataCopyPolicy.Copy && All subscribers have DataModificationPolicy.NoModify
+                     * Copy n times: Publisher has DataCopyPolicy.Copy && Some of n subscribers have DataModificationPolicy.Modify
+                     */
                     foreach (var subscription in subscriptions)
                     {
                         //TODO async, decide for threadpool or dedicated thread
