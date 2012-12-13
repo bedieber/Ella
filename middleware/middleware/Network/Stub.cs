@@ -7,19 +7,22 @@ using Ella.Data;
 
 namespace Ella.Network
 {
-    [Publishes(typeof (Unknown), 1,CopyPolicy = DataCopyPolicy.None)]
+    [Publishes(typeof(Unknown), 1, CopyPolicy = DataCopyPolicy.None)]
     internal class Stub
     {
+        internal Type DataType { get; set; }
+
+
         [Start]
-       public void Start()
-       {
-           
-       }
+        public void Start()
+        {
+
+        }
 
         [Stop]
         public void Stop()
         {
-            
+
         }
 
         [Factory]
