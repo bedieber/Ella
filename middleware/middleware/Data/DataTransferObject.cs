@@ -8,6 +8,7 @@ namespace Ella.Data
     /// <summary>
     /// The base class of transfer objects used to pass data between modules
     /// </summary>
+    [Serializable]
     public abstract class DataTransferObject
     {
         /// <summary>

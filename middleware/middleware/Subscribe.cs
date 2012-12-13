@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Ella.Attributes;
 using Ella.Model;
+using Ella.Network;
 
 namespace Ella
 {
@@ -49,5 +50,12 @@ namespace Ella
             }
         }
 
+
+        private static void SubsribeRemote<T>(object subscriberInstance, Action<T> newDataCallback,
+                                       Func<T, bool> evaluateTemplateObject = null)
+        {
+            //TODO do remote stuff
+            
+        }
     }
 }

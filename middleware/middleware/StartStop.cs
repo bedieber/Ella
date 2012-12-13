@@ -7,6 +7,7 @@ using Ella.Attributes;
 using Ella.Exceptions;
 using Ella.Internal;
 using Ella.Model;
+using Ella.Network;
 
 namespace Ella
 {
@@ -41,6 +42,16 @@ namespace Ella
             {
                 throw new InvalidPublisherException(instance.GetType().ToString());
             }
+        }
+
+        /// <summary>
+        /// Starts the Ella network functionality<br />
+        /// Unless this method is called, your Ella application will be local-only
+        /// </summary>
+        public static void Network()
+        {
+            NetworkController.Start();
+
         }
 
 

@@ -21,7 +21,7 @@ namespace Ella
         /// <param name="publisher">The publisher publishing the event.</param>
         /// <param name="eventId">The publisher-internal event ID associated with this event </param>
         /// <exception cref="InvalidPublisherException"></exception>
-        public static void PublishEvent<T>(T eventData, object publisher, int eventId)
+        public static void Event<T>(T eventData, object publisher, int eventId)
         {
             if (Is.Publisher(publisher.GetType()))
             {
