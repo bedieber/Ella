@@ -49,6 +49,7 @@
     <Compile Include="Attributes\TemplateDataAttribute.cs" />
     <Compile Include="Create.cs" />
     <Compile Include="Data\DataCopyPolicy.cs" />
+    <Compile Include="Data\DataModifyPolicy.cs" />
     <Compile Include="Data\DataTransferObject.cs" />
     <Compile Include="Discover.cs" />
     <Compile Include="Exceptions\InvalidPublisherException.cs" />
@@ -60,6 +61,10 @@
     <Compile Include="Model\Event.cs" />
     <Compile Include="Model\Subscription.cs" />
     <Compile Include="Model\SubscriptionBase.cs" />
+    <Compile Include="Network\Communication\Client.cs" />
+    <Compile Include="Network\Communication\Message.cs" />
+    <Compile Include="Network\Communication\MessageEventArgs.cs" />
+    <Compile Include="Network\Communication\Server.cs" />
     <Compile Include="Network\Stub.cs" />
     <Compile Include="Network\Unknown.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -11,7 +11,6 @@ namespace Ella.Attributes
     public class SubscriberAttribute : Attribute
     {
         #region Public Properties
-
         /// <summary>
         /// Gets or sets the modify policy, default is <see cref="DataModifyPolicy.NoModify"/>.
         /// </summary>
