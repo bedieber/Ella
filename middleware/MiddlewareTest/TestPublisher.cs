@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Ella;
 using Ella.Attributes;
+using Ella.Data;
 
 namespace Ella
 {
@@ -82,6 +83,47 @@ namespace Ella
         public string GetTemplateObject()
         {
             return "hallo";
+        }
+    }
+
+ 
+    [Publishes(typeof(String), 1, CopyPolicy = DataCopyPolicy.Copy)]
+    public class CopyPolicyTrue
+    {
+        internal String data="hello";
+
+         [Factory]
+        public CopyPolicyTrue() { }
+
+        [Start]
+        public void Run() { }
+
+        [Stop]
+        public void Stop() { }
+
+        internal void PublishEvent()
+        {
+            Publish.PublishEvent(data, this, 1);
+        }
+    }
+
+    [Publishes(typeof(string),1,CopyPolicy = DataCopyPolicy.None)]
+    public class CopyPolicyFalse
+    {
+         internal String data="hello";
+
+         [Factory]
+        public CopyPolicyFalse() { }
+
+        [Start]
+        public void Run() { }
+
+        [Stop]
+        public void Stop() { }
+
+        internal void PublishEvent()
+        {
+            Publish.PublishEvent(data, this, 1);
         }
     }
 }

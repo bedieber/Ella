@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using Ella.Data;
 using Ella.Exceptions;
+using Ella.Internal;
 using Ella.Model;
 
 namespace Ella
@@ -27,7 +28,7 @@ namespace Ella
             if (Is.Publisher(publisher.GetType()))
             {
                 //check if this one was started before
-                if(!EllaModel.Instance.ActivePublishers.Contains(publisher))
+                if (!EllaModel.Instance.ActivePublishers.Contains(publisher))
                 {
                     throw new StateException("Publisher is not in the list of active publishers");
                 }
@@ -37,30 +38,26 @@ namespace Ella
                     /*
                      * Check if event ID matches
                      */
-                    IEnumerable<Subscription<T>> subscriptions = from s in EllaModel.Instance.Subscriptions let s1 = s as Subscription<T> where s1 != null && s1.Event.EventDetail.ID==eventId select s1;
+                    IEnumerable<Subscription<T>> subscriptions = from s in EllaModel.Instance.Subscriptions let s1 = s as Subscription<T> where s1 != null && s1.Event.EventDetail.ID == eventId select s1;
                     /*
                      * Data modification and data policies
                      * No copy: publisher has DataCopyPolicy.None && All subscribers have DataModificationPolicy.NoModify
                      * Copy once: Publisher has DataCopyPolicy.Copy && All subscribers have DataModificationPolicy.NoModify
                      * Copy n times: Publisher has DataCopyPolicy.Copy && Some of n subscribers have DataModificationPolicy.Modify
                      */
-                    int copies = 0;
+
+                    T data = eventData;
+
+                    if (subscriptions.ElementAt(0).Event.EventDetail.CopyPolicy == DataCopyPolicy.Copy)
+                    {
+                        data = Serializer.SerializeCopy(eventData);
+                    }
                     foreach (var sub in subscriptions)
                     {
-                        if (copies == 0 && sub.Event.EventDetail.CopyPolicy == DataCopyPolicy.Copy)
-                            copies++;
-                        if (sub.ModifyPolicy == DataModifyPolicy.Modify)
-                            copies++;
+                        sub.Callback(sub.ModifyPolicy == DataModifyPolicy.Modify ? Serializer.SerializeCopy(data) : data);
                     }
 
-                    //TODO: Copy published data copies times
-
-
-                    foreach (var subscription in subscriptions)
-                    {
-                        //TODO async, decide for threadpool or dedicated thread
-                        subscription.Callback(eventData);
-                    }
+                    //TODO async
                 }
             }
             else

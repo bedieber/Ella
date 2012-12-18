@@ -11,6 +11,7 @@ namespace Ella
     [Subscriber]
     public class TestSubscriber
     {
+        internal String rec="";
         internal int numEventsReceived = 0;
         [Factory]
         public TestSubscriber() { }
@@ -22,18 +23,29 @@ namespace Ella
 
         private void Callback(string s)
         {
+            rec = s;
             if (s == "hello")
                 numEventsReceived++;
         }
 
         internal void SubscribeWithObject()
         {
-            Ella.Subscribe.To<String>(this, Callback, DataModifyPolicy.Modify, evaluateTemplateObject: EvaluateTemplateObject);
+            Ella.Subscribe.To<String>(this, Callback, evaluateTemplateObject: EvaluateTemplateObject);
         }
 
         private bool EvaluateTemplateObject(string s)
         {
             return s == "hello";
+        }
+
+        internal void SubscribeWithModifyTrue()
+        {
+            Ella.Subscribe.To<String>(this,Callback,DataModifyPolicy.Modify);
+        }
+
+        internal void SubscribeWithModifyFalse()
+        {
+            Ella.Subscribe.To<String>(this,Callback,DataModifyPolicy.NoModify);
         }
     }
 
