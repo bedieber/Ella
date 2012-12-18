@@ -66,6 +66,7 @@
     <Compile Include="Network\Communication\MessageEventArgs.cs" />
     <Compile Include="Network\Communication\Server.cs" />
     <Compile Include="Network\NetworkController.cs" />
+    <Compile Include="Network\Proxy.cs" />
     <Compile Include="Network\Stub.cs" />
     <Compile Include="Network\Unknown.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

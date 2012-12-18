@@ -29,7 +29,7 @@ namespace Ella
 
         internal void PublishEvent()
         {
-            Publish.PublishEvent("hello", this, 1);
+            Publish.Event("hello", this, 1);
         }
     }
 

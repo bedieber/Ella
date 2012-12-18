@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Text;
 using System.Threading;
 
 namespace Ella.Network.Communication
@@ -7,13 +8,15 @@ namespace Ella.Network.Communication
     /// <summary>
     /// Defines the type of message contained
     /// </summary>
-    internal enum MessageType:short
+    internal enum MessageType : byte
     {
-        Discover=0,
-        Subscribe=1,
+        Discover = 0,
+        Subscribe = 1,
         RequestTemplate,
         Publish
     }
+    
+    
 
     /// <summary>
     /// A class to encapsulate a single network message
@@ -86,7 +89,7 @@ namespace Ella.Network.Communication
         public byte[] Serialize()
         {
             MemoryStream ms = new MemoryStream();
-            ms.WriteByte((byte) Type);
+            ms.WriteByte((byte)Type);
             byte[] bytes = BitConverter.GetBytes(Id);
             ms.Write(bytes, 0, bytes.Length);
             bytes = BitConverter.GetBytes(Data.Length);
@@ -94,6 +97,6 @@ namespace Ella.Network.Communication
             ms.Write(Data, 0, Data.Length);
             return ms.ToArray();
         }
-        
+
     }
 }
