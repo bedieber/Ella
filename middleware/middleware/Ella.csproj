@@ -49,6 +49,7 @@
     <Compile Include="Attributes\TemplateDataAttribute.cs" />
     <Compile Include="Create.cs" />
     <Compile Include="Data\DataCopyPolicy.cs" />
+    <Compile Include="Data\DataModifyPolicy.cs" />
     <Compile Include="Data\DataTransferObject.cs" />
     <Compile Include="Discover.cs" />
     <Compile Include="Exceptions\InvalidPublisherException.cs" />

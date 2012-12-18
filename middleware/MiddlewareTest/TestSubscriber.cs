@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Ella.Attributes;
 using Ella;
+using Ella.Data;
 
 namespace Ella
 {
@@ -12,11 +13,11 @@ namespace Ella
     {
         internal int numEventsReceived = 0;
         [Factory]
-        public TestSubscriber(){}
+        public TestSubscriber() { }
 
         internal void Subscribe()
         {
-            Ella.Subscribe.To<string>(this,Callback);
+            Ella.Subscribe.To<string>(this, Callback);
         }
 
         private void Callback(string s)
@@ -27,7 +28,7 @@ namespace Ella
 
         internal void SubscribeWithObject()
         {
-           Ella.Subscribe.To<String>(this, Callback, EvaluateTemplateObject);
+            Ella.Subscribe.To<String>(this, Callback, DataModifyPolicy.Modify, evaluateTemplateObject: EvaluateTemplateObject);
         }
 
         private bool EvaluateTemplateObject(string s)
@@ -40,7 +41,7 @@ namespace Ella
     public class TestSubscriberMethodFactory
     {
         [Factory]
-        public TestSubscriberMethodFactory CreateInstance() {return new TestSubscriberMethodFactory(); }
+        public TestSubscriberMethodFactory CreateInstance() { return new TestSubscriberMethodFactory(); }
     }
 
     [Subscriber]
@@ -53,14 +54,14 @@ namespace Ella
     [Subscriber]
     public class TestSubscriberNoFactory
     {
-        
+
     }
 
     [Subscriber]
     public class TestSubscriberStaticConstructerFactory
     {
         [Factory]
-        static TestSubscriberStaticConstructerFactory () { }
+        static TestSubscriberStaticConstructerFactory() { }
     }
 
 

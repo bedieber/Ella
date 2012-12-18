@@ -1,3 +1,5 @@
+using Ella.Data;
+
 namespace Ella.Model
 {
     /// <summary>
@@ -30,6 +32,14 @@ namespace Ella.Model
         /// The callback.
         /// </value>
         internal System.Action<T> Callback { get; set; }
+
+        /// <summary>
+        /// Gets or sets the modify policy which is used to indicate whether a subscriber modifies the data or not.
+        /// </summary>
+        /// <value>
+        /// The ModifyPolicy.
+        /// </value>
+        internal DataModifyPolicy ModifyPolicy { get; set; }
 
         /// <summary>
         /// Determines whether the specified <see cref="System.Object" /> is equal to this instance.
