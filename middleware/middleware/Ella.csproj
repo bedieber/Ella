@@ -55,6 +55,7 @@
     <Compile Include="Exceptions\InvalidPublisherException.cs" />
     <Compile Include="Exceptions\StateException.cs" />
     <Compile Include="Internal\ReflectionUtils.cs" />
+    <Compile Include="Internal\Serializer.cs" />
     <Compile Include="Is.cs" />
     <Compile Include="Load.cs" />
     <Compile Include="Model\EllaModel.cs" />
