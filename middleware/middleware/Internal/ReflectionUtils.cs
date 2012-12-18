@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using Ella.Model;
+using Ella.Network;
 
 namespace Ella.Internal
 {
@@ -77,6 +79,16 @@ namespace Ella.Internal
             var memberInfos = type.GetMembers();
             var attributedMembers = from m in memberInfos let atr = m.GetCustomAttributes(attribute, true) where atr.Any() select new KeyValuePair<MemberInfo, IEnumerable<Attribute>>(m, atr.Cast<Attribute>());
             return attributedMembers;
+        }
+
+        internal static SubscriptionBase CreateGenericSubscription(Type type, Event match, Proxy proxy)
+        {
+            Type subscriptionType = typeof(Subscription<>).MakeGenericType(new Type[] { type });
+            Type actionType = typeof(Action<>).MakeGenericType(new Type[] { typeof(object) });
+            object subscription =
+                    subscriptionType.GetConstructor(new Type[] { typeof(object), typeof(Event), actionType })
+                                    .Invoke(new object[] { proxy, match, Action.CreateDelegate(actionType, proxy, "HandleEvent") });
+            return (SubscriptionBase) subscription;
         }
 
         #endregion

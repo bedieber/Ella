@@ -11,32 +11,36 @@ namespace Ella.Network
     /// A stub acts as the local representative of a remote publisher
     /// </summary>
     [Publishes(typeof(Unknown), 1, CopyPolicy = DataCopyPolicy.None)]
-    internal class Stub<T>
+    internal class Stub
     {
-        
+
+        internal Type DataType { get; set; }
+
         [Start]
-        public void Start()
+        internal void Start()
         {
 
         }
 
         [Stop]
-        public void Stop()
+        internal void Stop()
         {
 
         }
 
         [Factory]
-        public Stub<T> CreateInstance()
+        internal Stub CreateInstance()
         {
-            return new Stub<T>();
+            return new Stub();
         }
 
         internal void NewMessage(byte[] data)
         {
-            BinaryFormatter bf=new BinaryFormatter();
-            T dto=(T)bf.Deserialize(new MemoryStream(data));
-            Publish.Event(dto,this,1);
+            BinaryFormatter bf = new BinaryFormatter();
+            var dto = bf.Deserialize(new MemoryStream(data));
+            if (dto.GetType() == this.DataType)
+                Publish.Event(dto, this, 1);
+            //TODO log any irregularities
         }
     }
 }

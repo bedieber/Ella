@@ -128,7 +128,7 @@ namespace Ella.Network.Communication
             if (NewMessage != null)
             {
                 Message m = new Message(id) { Data = data, Type = ((MessageType)messageType), Sender = senderid };
-                NewMessage(this, new MessageEventArgs(m));
+                NewMessage(this, new MessageEventArgs(m){Address = client.Client.RemoteEndPoint});
             }
             else
                 Console.WriteLine("Server: No listeners for new messages attached");

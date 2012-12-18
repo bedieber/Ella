@@ -43,7 +43,7 @@ namespace Ella.Network.Communication
         /// <param name="address">The address.</param>
         /// <param name="port">The port.</param>
         /// <param name="sendingFinishedCallback">The sending finished callback.</param>
-        public static void SendAsync(Message m, string address, int port, Action<int> sendingFinishedCallback)
+        public static void SendAsync(Message m, string address, int port, Action<int> sendingFinishedCallback = null)
         {
             new Thread((ThreadStart)delegate
             {

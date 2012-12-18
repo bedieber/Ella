@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using Ella.Attributes;
+using Ella.Internal;
 using Ella.Model;
 using Ella.Network;
 
@@ -42,20 +44,28 @@ namespace Ella
                 foreach (var m in matches)
                 {
                     T templateObject = (T)Create.TemplateObject(m.Publisher, m.EventDetail.ID);
-                    var subscription = new Subscription<T> {Event = m, Subscriber = subscriberInstance, Callback = newDataCallback};
+                    var subscription = new Subscription<T> { Event = m, Subscriber = subscriberInstance, Callback = newDataCallback };
                     if (evaluateTemplateObject(templateObject))
-                        if(!EllaModel.Instance.Subscriptions.Contains(subscription))
-                        EllaModel.Instance.Subscriptions.Add(subscription);
+                        if (!EllaModel.Instance.Subscriptions.Contains(subscription))
+                            EllaModel.Instance.Subscriptions.Add(subscription);
                 }
             }
         }
 
 
-        private static void SubsribeRemote<T>(object subscriberInstance, Action<T> newDataCallback,
-                                       Func<T, bool> evaluateTemplateObject = null)
+        internal static void RemoteSubscriber(Type type)
         {
-            //TODO do remote stuff
+            var matches = EllaModel.Instance.ActiveEvents.FirstOrDefault(g => g.Key == type);
+
             
+            foreach (var match in matches)
+            {
+                //TODO endpoint
+                var proxy = new Proxy() { EventToHandle = match };
+
+                SubscriptionBase subscription = ReflectionUtils.CreateGenericSubscription(type, match, proxy);
+                EllaModel.Instance.Subscriptions.Add(subscription);
+            }
         }
     }
 }

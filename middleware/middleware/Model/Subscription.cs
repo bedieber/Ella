@@ -1,3 +1,5 @@
+using System;
+
 namespace Ella.Model
 {
     /// <summary>
@@ -5,8 +7,18 @@ namespace Ella.Model
     /// </summary>
     internal class Subscription<T> : SubscriptionBase
     {
-        
 
+        public Subscription()
+        {
+
+        }
+
+        public Subscription(object subscriber, Event ev, Action<T> callback)
+        {
+            Subscriber = subscriber;
+            Event = ev;
+            Callback = callback;
+        }
         /// <summary>
         /// Gets or sets the subscriber.
         /// </summary>
@@ -29,7 +41,7 @@ namespace Ella.Model
         /// <value>
         /// The callback.
         /// </value>
-        internal System.Action<T> Callback { get; set; }
+        internal Action<T> Callback { get; set; }
 
         /// <summary>
         /// Determines whether the specified <see cref="System.Object" /> is equal to this instance.
@@ -43,7 +55,7 @@ namespace Ella.Model
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
-            return Equals((Subscription<T>) obj);
+            return Equals((Subscription<T>)obj);
         }
 
         /// <summary>
