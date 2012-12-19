@@ -15,18 +15,29 @@ namespace Ella.Network
         private Server _server;
         private Dictionary<int, EndPoint> _remoteHosts = new Dictionary<int, EndPoint>();
 
-        public static void Start()
+        /// <summary>
+        /// Starts the network controller.
+        /// </summary>
+        internal static void Start()
         {
             _instance._server = new Server(33333, IPAddress.Any);
             _instance._server.Start();
         }
 
 
+        /// <summary>
+        /// Subscribes to remote host.
+        /// </summary>
+        /// <param name="type">The type.</param>
         internal static void SubscribeToRemoteHost(Type type)
         {
             _instance.SubscribeTo(type);
         }
 
+        /// <summary>
+        /// Subscribes to a remote host.
+        /// </summary>
+        /// <param name="type">The type.</param>
         private void SubscribeTo(Type type)
         {
             //TODO Sender
@@ -38,6 +49,11 @@ namespace Ella.Network
         }
 
 
+        /// <summary>
+        /// Handles a new message from the network
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="e">The <see cref="MessageEventArgs" /> instance containing the event data.</param>
         private void NewMessage(object sender, MessageEventArgs e)
         {
             switch (e.Message.Type)

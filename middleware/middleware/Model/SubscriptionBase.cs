@@ -5,6 +5,9 @@ using System.Text;
 
 namespace Ella.Model
 {
+    /// <summary>
+    /// Base class for subscriptions
+    /// </summary>
     internal abstract class SubscriptionBase
     {
     }

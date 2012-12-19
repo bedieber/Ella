@@ -16,24 +16,38 @@ namespace Ella.Network
 
         internal Type DataType { get; set; }
 
+        /// <summary>
+        /// Starts this instance.
+        /// </summary>
         [Start]
         internal void Start()
         {
 
         }
 
+        /// <summary>
+        /// Stops this instance.
+        /// </summary>
         [Stop]
         internal void Stop()
         {
 
         }
 
+        /// <summary>
+        /// Creates an instance.
+        /// </summary>
+        /// <returns></returns>
         [Factory]
         internal Stub CreateInstance()
         {
             return new Stub();
         }
 
+        /// <summary>
+        /// Handles a new message containing a published event from a remote host
+        /// </summary>
+        /// <param name="data">The data.</param>
         internal void NewMessage(byte[] data)
         {
             BinaryFormatter bf = new BinaryFormatter();

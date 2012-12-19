@@ -8,6 +8,9 @@ using Ella.Network;
 
 namespace Ella.Internal
 {
+    /// <summary>
+    /// Util class for various reflection functions
+    /// </summary>
     internal static class ReflectionUtils
     {
         #region private helpers
@@ -81,6 +84,14 @@ namespace Ella.Internal
             return attributedMembers;
         }
 
+        /// <summary>
+        /// Creates a <see cref="Ella.Model.Subscription{T}" /> instance for a specific type.<br />
+        /// Since the type parameter might not be known at compile time, we need a method using reflection to create this on the fly.
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <param name="match">The match.</param>
+        /// <param name="proxy">The proxy.</param>
+        /// <returns></returns>
         internal static SubscriptionBase CreateGenericSubscription(Type type, Event match, Proxy proxy)
         {
             Type subscriptionType = typeof(Subscription<>).MakeGenericType(new Type[] { type });

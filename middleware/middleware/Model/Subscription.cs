@@ -8,11 +8,20 @@ namespace Ella.Model
     internal class Subscription<T> : SubscriptionBase
     {
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Subscription{T}" /> class.
+        /// </summary>
         public Subscription()
         {
 
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Subscription{T}" /> class.
+        /// </summary>
+        /// <param name="subscriber">The subscriber.</param>
+        /// <param name="ev">The ev.</param>
+        /// <param name="callback">The callback.</param>
         public Subscription(object subscriber, Event ev, Action<T> callback)
         {
             Subscriber = subscriber;

@@ -49,19 +49,24 @@ namespace Ella
         }
 
 
+        /// <summary>
+        /// Performs a local subscription for a remote subscriber
+        /// </summary>
+        /// <param name="type">The type to subscribe to.</param>
         internal static void RemoteSubscriber(Type type)
         {
             var matches = EllaModel.Instance.ActiveEvents.FirstOrDefault(g => g.Key == type);
 
-            
-            foreach (var match in matches)
-            {
-                //TODO endpoint
-                var proxy = new Proxy() { EventToHandle = match };
 
-                SubscriptionBase subscription = ReflectionUtils.CreateGenericSubscription(type, match, proxy);
-                EllaModel.Instance.Subscriptions.Add(subscription);
-            }
+            if (matches != null)
+                foreach (var match in matches)
+                {
+                    //TODO endpoint
+                    var proxy = new Proxy() { EventToHandle = match };
+
+                    SubscriptionBase subscription = ReflectionUtils.CreateGenericSubscription(type, match, proxy);
+                    EllaModel.Instance.Subscriptions.Add(subscription);
+                }
         }
     }
 }
