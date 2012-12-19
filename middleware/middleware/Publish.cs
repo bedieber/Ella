@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using Ella.Data;
 using Ella.Exceptions;
 using Ella.Internal;
@@ -54,10 +55,9 @@ namespace Ella
                     }
                     foreach (var sub in subscriptions)
                     {
-                        sub.Callback(sub.ModifyPolicy == DataModifyPolicy.Modify ? Serializer.SerializeCopy(data) : data);
+                        Thread t = new Thread(() => sub.Callback(sub.ModifyPolicy==DataModifyPolicy.Modify ? Serializer.SerializeCopy(data):data));
+                        t.Start();
                     }
-
-                    //TODO async
                 }
             }
             else

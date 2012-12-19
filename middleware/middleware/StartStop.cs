@@ -35,6 +35,7 @@ namespace Ella
                 {
                     EllaModel.Instance.ActivePublishers.Add(instance);
                     Thread t = new Thread(() => method.Invoke(instance, null));
+                    t.Start();
                 }
             }
             else
