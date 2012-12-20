@@ -21,7 +21,7 @@ namespace Ella.Exceptions
     /// </list>
     /// 
     /// </summary>
-    public class InvalidPublisherException:Exception
+    public class InvalidPublisherException : InvalidModuleException
     {
 
         /// <summary>
@@ -29,16 +29,17 @@ namespace Ella.Exceptions
         /// </summary>
         public InvalidPublisherException()
         {
-            
+
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="InvalidPublisherException" /> class.
         /// </summary>
         /// <param name="message">The message.</param>
-        public InvalidPublisherException(string message):base(message)
+        public InvalidPublisherException(string message)
+            : base(message)
         {
-            
+
         }
     }
 }

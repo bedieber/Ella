@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using Ella.Exceptions;
 using Ella.Model;
+using log4net;
 
 namespace Ella
 {
@@ -13,6 +14,8 @@ namespace Ella
     /// </summary>
     public static class Publish
     {
+        private static readonly ILog _log = LogManager.GetLogger(typeof(Publish));
+
         /// <summary>
         /// This method is called to publish a new event
         /// </summary>
@@ -23,11 +26,13 @@ namespace Ella
         /// <exception cref="InvalidPublisherException"></exception>
         public static void Event<T>(T eventData, object publisher, int eventId)
         {
+            _log.DebugFormat("{0} publishes {1} for event {2}", publisher, eventData, eventId);
             if (Is.Publisher(publisher.GetType()))
             {
                 //check if this one was started before
                 if(!EllaModel.Instance.ActivePublishers.Contains(publisher))
                 {
+                    _log.ErrorFormat("Publisher {0} is not in the list of active publishers", publisher);
                     throw new StateException("Publisher is not in the list of active publishers");
                 }
                 else
@@ -52,6 +57,7 @@ namespace Ella
             }
             else
             {
+                _log.ErrorFormat("{0} is not a publisher and may not publish any events", publisher.GetType());
                 throw new InvalidPublisherException(string.Format("{0} is not a publisher and may not publish any events", publisher.GetType()));
             }
         }

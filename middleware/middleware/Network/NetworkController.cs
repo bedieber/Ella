@@ -5,6 +5,7 @@ using System.Net;
 using System.Text;
 using Ella.Internal;
 using Ella.Network.Communication;
+using log4net;
 
 namespace Ella.Network
 {
@@ -14,6 +15,8 @@ namespace Ella.Network
 
         private Server _server;
         private Dictionary<int, EndPoint> _remoteHosts = new Dictionary<int, EndPoint>();
+
+        private static ILog _log = LogManager.GetLogger(typeof (NetworkController));
 
         /// <summary>
         /// Starts the network controller.
@@ -56,12 +59,16 @@ namespace Ella.Network
         /// <param name="e">The <see cref="MessageEventArgs" /> instance containing the event data.</param>
         private void NewMessage(object sender, MessageEventArgs e)
         {
+            _log.DebugFormat("New {1} message from {0}", e.Address, e.Message.Type);
             switch (e.Message.Type)
             {
                 case MessageType.Discover:
                     {
                         if (!_remoteHosts.ContainsKey(e.Message.Id))
-                            _remoteHosts.Add(e.Message.Id, e.Address);
+                        {
+                            _log.InfoFormat("Discovered host {0}", e.Message.Id);
+                            _remoteHosts.Add(e.Message.Sender, e.Address);
+                        }
                         break;
                     }
                 case MessageType.Publish:
@@ -79,7 +86,7 @@ namespace Ella.Network
                         short eventID = BitConverter.ToInt16(e.Message.Data, 4);
                         byte[] data = new byte[e.Message.Data.Length - 6];
                         Buffer.BlockCopy(e.Message.Data, 6, data, 0, data.Length);
-
+                        //TODO call stub
 
                         break;
                     }

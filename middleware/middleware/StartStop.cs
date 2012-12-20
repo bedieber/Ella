@@ -8,6 +8,7 @@ using Ella.Exceptions;
 using Ella.Internal;
 using Ella.Model;
 using Ella.Network;
+using log4net;
 
 namespace Ella
 {
@@ -16,6 +17,7 @@ namespace Ella
     /// </summary>
     public static class Start
     {
+        private static ILog _log = LogManager.GetLogger(typeof (Start));
         /// <summary>
         /// Starts the publisher.
         /// </summary>
@@ -26,12 +28,16 @@ namespace Ella
         /// </remarks>
         public static void Publisher(object instance)
         {
+            _log.InfoFormat("Starting publisher {0}", instance);
             var type = instance.GetType();
             if (Is.ValidPublisher(type))
             {
                 var method = ReflectionUtils.GetAttributedMethod(type, typeof(StartAttribute));
                 if (method == null)
+                {
+                    _log.ErrorFormat("{0} does not define a start method", instance.GetType());
                     throw new InvalidPublisherException("Publisher does not define a start method");
+                }
                 if (!method.GetParameters().Any())
                 {
                     EllaModel.Instance.ActivePublishers.Add(instance);
@@ -40,6 +46,7 @@ namespace Ella
             }
             else
             {
+                _log.ErrorFormat("{0} is not a valid publisher", instance.GetType());
                 throw new InvalidPublisherException(instance.GetType().ToString());
             }
         }
@@ -50,6 +57,7 @@ namespace Ella
         /// </summary>
         public static void Network()
         {
+            _log.Info("Starting network controller");
             NetworkController.Start();
 
         }
@@ -62,6 +70,8 @@ namespace Ella
     /// </summary>
     public static class Stop
     {
+        private static ILog _log = LogManager.GetLogger(typeof(Stop));
+
         /// <summary>
         /// Stops a publisher.
         /// </summary>
@@ -72,13 +82,17 @@ namespace Ella
         /// </remarks>
         public static void Publisher(object instance)
         {
+            _log.InfoFormat("Stopping publisher {0}", instance);
             var type = instance.GetType();
             if (Is.Publisher(type))
             {
                 var method = ReflectionUtils.GetAttributedMethod(type, typeof(StopAttribute));
 
                 if (method == null)
+                {
+                    _log.ErrorFormat("{0} does not define a stop method", instance.GetType());
                     throw new InvalidPublisherException("No valid stop method found");
+                }
 
                 if (!method.GetParameters().Any())
                 {

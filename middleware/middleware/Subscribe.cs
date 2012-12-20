@@ -3,6 +3,7 @@ using System.Linq;
 using Ella.Internal;
 using Ella.Model;
 using Ella.Network;
+using log4net;
 
 namespace Ella
 {
@@ -11,7 +12,7 @@ namespace Ella
     /// </summary>
     public static class Subscribe
     {
-
+        private static readonly ILog _log = LogManager.GetLogger(typeof(Subscribe));
         /// <summary>
         /// Subscribes the <paramref name="subscriberInstance" /> to any event matching <typeparamref name="T"/> as event data type
         /// </summary>
@@ -23,6 +24,8 @@ namespace Ella
         /// <exception cref="System.ArgumentException">subscriberInstance must be a valid subscriber</exception>
         public static void To<T>(object subscriberInstance, Action<T> newDataCallback, Func<T, bool> evaluateTemplateObject = null)
         {
+            _log.DebugFormat("Subscribing {0} to type {1} {2}", subscriberInstance, typeof(T),
+                             (evaluateTemplateObject != null ? "with template object" : string.Empty));
             if (evaluateTemplateObject == null)
                 evaluateTemplateObject = (o => true);
             /*
@@ -32,18 +35,29 @@ namespace Ella
              */
             if (!Is.Subscriber(subscriberInstance.GetType()))
             {
+                _log.ErrorFormat("{0} is not a valid subscriber", subscriberInstance.GetType().ToString());
                 throw new ArgumentException("subscriberInstance must be a valid subscriber");
             }
             var matches = EllaModel.Instance.ActiveEvents.FirstOrDefault(g => g.Key == typeof(T));
+
             if (matches != null)
             {
+                _log.DebugFormat("Found {0} matches for subsription to {1}", matches.Count(), typeof(T));
                 foreach (var m in matches)
                 {
                     T templateObject = (T)Create.TemplateObject(m.Publisher, m.EventDetail.ID);
                     var subscription = new Subscription<T> { Event = m, Subscriber = subscriberInstance, Callback = newDataCallback };
                     if (evaluateTemplateObject(templateObject))
+                    {
                         if (!EllaModel.Instance.Subscriptions.Contains(subscription))
+                        {
+                            _log.InfoFormat("Subscribing {0} to {1} for type {2}", subscriberInstance, m.Publisher,
+                                             m.EventDetail.DataType);
                             EllaModel.Instance.Subscriptions.Add(subscription);
+                        }
+                    }
+                    else
+                        _log.DebugFormat("Templateobject from {0} was rejected by {1}", m.Publisher, subscriberInstance);
                 }
             }
         }
@@ -55,6 +69,7 @@ namespace Ella
         /// <param name="type">The type to subscribe to.</param>
         internal static void RemoteSubscriber(Type type)
         {
+            _log.DebugFormat("Performing remote subscription for type {0}", type);
             var matches = EllaModel.Instance.ActiveEvents.FirstOrDefault(g => g.Key == type);
 
 
@@ -65,6 +80,8 @@ namespace Ella
                     var proxy = new Proxy() { EventToHandle = match };
 
                     SubscriptionBase subscription = ReflectionUtils.CreateGenericSubscription(type, match, proxy);
+                    _log.InfoFormat("Subscribing remote subscriber to {0} for type {1}", match.Publisher,
+                              match.EventDetail.DataType);
                     EllaModel.Instance.Subscriptions.Add(subscription);
                 }
         }

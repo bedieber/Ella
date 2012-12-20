@@ -55,6 +55,12 @@
     <Compile Include="Data\DataModifyPolicy.cs" />
     <Compile Include="Data\DataTransferObject.cs" />
     <Compile Include="Discover.cs" />
+    <Compile Include="Exceptions\InvalidModuleException.cs" />
+    <Compile Include="Properties\Ella.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Ella.settings</DependentUpon>
+    </Compile>
     <Compile Include="Exceptions\InvalidPublisherException.cs" />
     <Compile Include="Exceptions\StateException.cs" />
     <Compile Include="Internal\ReflectionUtils.cs" />
@@ -79,11 +85,15 @@
     <Compile Include="Subscribe.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
+    <None Include="Ella.config" />
+    <None Include="Properties\Ella.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Ella.Designer.cs</LastGenOutput>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Util\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
