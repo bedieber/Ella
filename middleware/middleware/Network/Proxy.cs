@@ -15,7 +15,7 @@ namespace Ella.Network
     /// <summary>
     /// A proxy is used to catch local events and transfer them to a remote subscriber stub
     /// </summary>
-    [Subscriber(ModifyPolicy = DataModifyPolicy.NoModify)]
+    [Subscriber()]
     internal class Proxy
     {
         internal Event EventToHandle { get; set; }

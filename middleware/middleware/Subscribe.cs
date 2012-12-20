@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Linq;
 using Ella.Internal;
+using Ella.Data;
+using Ella.Internal;
 using Ella.Model;
 using Ella.Network;
 using log4net;
@@ -19,10 +21,11 @@ namespace Ella
         /// <typeparam name="T">The type to subscribe to</typeparam>
         /// <param name="subscriberInstance">The instance of a subscriber to be subscribed to the event</param>
         /// <param name="newDataCallback">A callback method acceptiong <typeparamref name="T" /> as argument, which will be called when new data from publishers is available</param>
+        /// <param name="policy">The data modify policy, default is <see cref="DataModifyPolicy.NoModify"/></param>
         /// <param name="evaluateTemplateObject">Pass a Func to subscribe using template objects. If no Func is given, <paramref name="subscriberInstance"/> will be subscribed to every event with matching <typeparamref name="T"/>.<br />
         /// As an alternative, a <paramref name="evaluateTemplateObject"/> can be provided to request templates for the data to be published from every single publisher.</param>
         /// <exception cref="System.ArgumentException">subscriberInstance must be a valid subscriber</exception>
-        public static void To<T>(object subscriberInstance, Action<T> newDataCallback, Func<T, bool> evaluateTemplateObject = null)
+        public static void To<T>(object subscriberInstance, Action<T> newDataCallback, DataModifyPolicy policy = DataModifyPolicy.NoModify, Func<T, bool> evaluateTemplateObject = null)
         {
             _log.DebugFormat("Subscribing {0} to type {1} {2}", subscriberInstance, typeof(T),
                              (evaluateTemplateObject != null ? "with template object" : string.Empty));
@@ -45,6 +48,7 @@ namespace Ella
                 _log.DebugFormat("Found {0} matches for subsription to {1}", matches.Count(), typeof(T));
                 foreach (var m in matches)
                 {
+                    
                     T templateObject = (T)Create.TemplateObject(m.Publisher, m.EventDetail.ID);
                     var subscription = new Subscription<T> { Event = m, Subscriber = subscriberInstance, Callback = newDataCallback };
                     if (evaluateTemplateObject(templateObject))

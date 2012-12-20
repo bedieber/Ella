@@ -3,7 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
+using Ella.Data;
 using Ella.Exceptions;
+using Ella.Internal;
 using Ella.Model;
 using log4net;
 
@@ -30,7 +33,7 @@ namespace Ella
             if (Is.Publisher(publisher.GetType()))
             {
                 //check if this one was started before
-                if(!EllaModel.Instance.ActivePublishers.Contains(publisher))
+                if (!EllaModel.Instance.ActivePublishers.Contains(publisher))
                 {
                     _log.ErrorFormat("Publisher {0} is not in the list of active publishers", publisher);
                     throw new StateException("Publisher is not in the list of active publishers");
@@ -41,17 +44,25 @@ namespace Ella
                     /*
                      * Check if event ID matches
                      */
-                    IEnumerable<Subscription<T>> subscriptions = from s in EllaModel.Instance.Subscriptions let s1 = s as Subscription<T> where s1 != null && s1.Event.EventDetail.ID==eventId select s1;
+                    IEnumerable<Subscription<T>> subscriptions = from s in EllaModel.Instance.Subscriptions let s1 = s as Subscription<T> where s1 != null && s1.Event.EventDetail.ID == eventId select s1;
                     /*
                      * Data modification and data policies
                      * No copy: publisher has DataCopyPolicy.None && All subscribers have DataModificationPolicy.NoModify
                      * Copy once: Publisher has DataCopyPolicy.Copy && All subscribers have DataModificationPolicy.NoModify
                      * Copy n times: Publisher has DataCopyPolicy.Copy && Some of n subscribers have DataModificationPolicy.Modify
                      */
-                    foreach (var subscription in subscriptions)
+
+                    T data = eventData;
+
+                    if (subscriptions.ElementAt(0).Event.EventDetail.CopyPolicy == DataCopyPolicy.Copy)
                     {
-                        //TODO async, decide for threadpool or dedicated thread
-                        subscription.Callback(eventData);
+                        data = Serializer.SerializeCopy(eventData);
+                    }
+                    foreach (var sub in subscriptions)
+                    {
+                        Thread t = new Thread(() => sub.Callback(sub.ModifyPolicy==DataModifyPolicy.Modify ? Serializer.SerializeCopy(data):data));
+                        t.Start();
+                        //TODO should be joined somewhere
                     }
                 }
             }

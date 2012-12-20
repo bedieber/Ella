@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using Ella.Internal;
 using Ella.Model;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -12,7 +13,7 @@ namespace Ella
     [TestClass]
     public class Management
     {
-        private const int NumPublishers = 4;
+        private const int NumPublishers = 6;
         private const int NumSubscribers = 5;
 
         [TestInitialize]
@@ -120,5 +121,53 @@ namespace Ella
             object instance = Create.ModuleInstance(typeof(TestPublisher));
             Stop.Publisher(instance);
         }
+        [TestMethod]
+        public void AdhereToCopyAndModificationPolicyTrueTrue()
+        {
+            //DataCopyPolicy.Copy & DataModifyPolicy.Modify
+            CopyPolicyTrue t = new CopyPolicyTrue();
+            Start.Publisher(t);
+            TestSubscriber s = new TestSubscriber();
+            s.SubscribeWithModifyTrue();
+            t.PublishEvent();
+            Assert.IsFalse(ReferenceEquals(t.data, s.rec));
+        }
+
+        [TestMethod]
+        public void AdhereToCopyAndModificationPolicyFalseFalse()
+        {
+            //DataCopyPolicy.None & DataModifyPolicy.NoModify
+            CopyPolicyFalse t = new CopyPolicyFalse();
+            Start.Publisher(t);
+            TestSubscriber s = new TestSubscriber();
+            s.SubscribeWithModifyFalse();
+            t.PublishEvent();
+            Assert.IsTrue(ReferenceEquals(t.data,s.rec));
+        }
+
+        [TestMethod]
+        public void AdhereToCopyAndModificationPolicyTrueFalse()
+        {
+            //DataCopyPolicy.Copy & DataModifyPolicy.NoModify
+            CopyPolicyTrue t = new CopyPolicyTrue();
+            Start.Publisher(t);
+            TestSubscriber s = new TestSubscriber();
+            s.SubscribeWithModifyFalse();
+            t.PublishEvent();
+            Assert.IsFalse(ReferenceEquals(t.data, s.rec));
+        }
+
+        [TestMethod]
+        public void AdhereToCopyAndModificationPolicyFalseTrue()
+        {
+            //DataCopyPolicy.None & DataModifyPolicy.Modify
+            CopyPolicyFalse t = new CopyPolicyFalse();
+            Start.Publisher(t);
+            TestSubscriber s = new TestSubscriber();
+            s.SubscribeWithModifyTrue();
+            t.PublishEvent();
+            Assert.IsFalse(ReferenceEquals(t.data, s.rec));
+        }
+
     }
 }
