@@ -44,6 +44,8 @@ namespace Ella.Network
             return new Stub();
         }
 
+        internal SubscriptionHandle Handle { get; set; }
+
         /// <summary>
         /// Handles a new message containing a published event from a remote host
         /// </summary>

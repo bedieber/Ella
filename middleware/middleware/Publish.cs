@@ -33,7 +33,7 @@ namespace Ella
             if (Is.Publisher(publisher.GetType()))
             {
                 //check if this one was started before
-                if (!EllaModel.Instance.ActivePublishers.Contains(publisher))
+                if (!EllaModel.Instance.IsActivePublisher(publisher))
                 {
                     _log.ErrorFormat("Publisher {0} is not in the list of active publishers", publisher);
                     throw new StateException("Publisher is not in the list of active publishers");

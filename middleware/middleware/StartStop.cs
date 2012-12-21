@@ -17,7 +17,7 @@ namespace Ella
     /// </summary>
     public static class Start
     {
-        private static ILog _log = LogManager.GetLogger(typeof (Start));
+        private static ILog _log = LogManager.GetLogger(typeof(Start));
         /// <summary>
         /// Starts the publisher.
         /// </summary>
@@ -40,7 +40,7 @@ namespace Ella
                 }
                 if (!method.GetParameters().Any())
                 {
-                    EllaModel.Instance.ActivePublishers.Add(instance);
+                    EllaModel.Instance.AddActivePublisher(instance);
                     Thread t = new Thread(() => method.Invoke(instance, null));
                     t.Start();
                 }
@@ -98,8 +98,7 @@ namespace Ella
                 if (!method.GetParameters().Any())
                 {
                     method.Invoke(instance, null);
-                    if (EllaModel.Instance.ActivePublishers.Contains(instance))
-                        EllaModel.Instance.ActivePublishers.Remove(instance);
+                    EllaModel.Instance.RemoveActivePublisher(instance);
                 }
                 else
                 {

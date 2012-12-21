@@ -12,6 +12,7 @@ namespace Ella.Network.Communication
     {
         Discover = 0,
         Subscribe = 1,
+        SubscribeResponse,
         RequestTemplate,
         Publish
     }

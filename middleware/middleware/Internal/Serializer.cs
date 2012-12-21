@@ -9,7 +9,7 @@ namespace Ella.Internal
 {
     internal class Serializer
     {
-        internal static BinaryFormatter _formatter=new BinaryFormatter();
+        internal static BinaryFormatter _formatter = new BinaryFormatter();
 
         /// <summary>
         /// Serializes the specified data.
@@ -18,7 +18,7 @@ namespace Ella.Internal
         /// <returns>A byte[] containing the serialized <paramref name="data"/></returns>
         internal static byte[] Serialize(object data)
         {
-            MemoryStream ms=new MemoryStream();
+            MemoryStream ms = new MemoryStream();
             _formatter.Serialize(ms, data);
             ms.Seek(0, SeekOrigin.Begin);
             return ms.ToArray();
@@ -31,11 +31,11 @@ namespace Ella.Internal
         /// <typeparam name="T"></typeparam>
         /// <param name="data">The data.</param>
         /// <returns>The deserialized object of type <typeparamref name="T"/></returns>
-        internal static T Deserialize<T>(byte[] data)
+        internal static T Deserialize<T>(byte[] data, int offset = 0)
         {
-            MemoryStream ms=new MemoryStream(data);
-            ms.Seek(0, SeekOrigin.Begin);
-            T result = (T) _formatter.Deserialize(ms);
+            MemoryStream ms = new MemoryStream(data);
+            ms.Seek(offset, SeekOrigin.Begin);
+            T result = (T)_formatter.Deserialize(ms);
             return result;
         }
 
@@ -47,7 +47,7 @@ namespace Ella.Internal
         /// <returns>A clone of <paramref name="data"/></returns>
         internal static T SerializeCopy<T>(T data)
         {
-            MemoryStream ms=new MemoryStream();
+            MemoryStream ms = new MemoryStream();
             _formatter.Serialize(ms, data);
             ms.Seek(0, SeekOrigin.Begin);
             T result = (T)_formatter.Deserialize(ms);

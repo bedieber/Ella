@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using Ella.Internal;
+using Ella.Model;
 using Ella.Network.Communication;
 using log4net;
 
@@ -14,9 +15,9 @@ namespace Ella.Network
         private static readonly NetworkController _instance = new NetworkController();
 
         private Server _server;
-        private Dictionary<int, EndPoint> _remoteHosts = new Dictionary<int, EndPoint>();
+        private readonly Dictionary<int, EndPoint> _remoteHosts = new Dictionary<int, EndPoint>();
 
-        private static ILog _log = LogManager.GetLogger(typeof (NetworkController));
+        private static ILog _log = LogManager.GetLogger(typeof(NetworkController));
 
         /// <summary>
         /// Starts the network controller.
@@ -24,6 +25,7 @@ namespace Ella.Network
         internal static void Start()
         {
             _instance._server = new Server(33333, IPAddress.Any);
+            _instance._server.NewMessage += _instance.NewMessage;
             _instance._server.Start();
         }
 
@@ -31,12 +33,14 @@ namespace Ella.Network
         /// <summary>
         /// Subscribes to remote host.
         /// </summary>
-        /// <param name="type">The type.</param>
-        internal static void SubscribeToRemoteHost(Type type)
+        /// <typeparam name="T">The type to subscribe to</typeparam>
+        internal static void SubscribeToRemoteHost<T>()
         {
-            _instance.SubscribeTo(type);
+            //TODO we're never creating a stub
+            _instance.SubscribeTo(typeof(T));
         }
 
+        internal static bool IsRunning { get { return _instance._server != null; } }
         /// <summary>
         /// Subscribes to a remote host.
         /// </summary>
@@ -75,28 +79,44 @@ namespace Ella.Network
                     {
                         /*
                          * Remote publisher is identified by
-                         * Remote node ID
+                         * Remote node ID (contained in the message object)
                          * Remote publisher ID
                          * Remote publisher-event ID
                          * Assume shorts for all
                          */
-
-                        short nodeID = BitConverter.ToInt16(e.Message.Data, 0);
-                        short publisherID = BitConverter.ToInt16(e.Message.Data, 2);
-                        short eventID = BitConverter.ToInt16(e.Message.Data, 4);
-                        byte[] data = new byte[e.Message.Data.Length - 6];
-                        Buffer.BlockCopy(e.Message.Data, 6, data, 0, data.Length);
-                        //TODO call stub
+                        short publisherID = BitConverter.ToInt16(e.Message.Data, 0);
+                        short eventID = BitConverter.ToInt16(e.Message.Data, 2);
+                        RemoteSubscriptionHandle handle = new RemoteSubscriptionHandle
+                            {
+                                EventID = eventID,
+                                PublisherID = publisherID,
+                                RemoteNodeID = e.Message.Sender,
+                            };
+                        byte[] data = new byte[e.Message.Data.Length - 4];
+                        Buffer.BlockCopy(e.Message.Data, 4, data, 0, data.Length);
+                        var subscriptions = from s in EllaModel.Instance.Subscriptions let h = (s.Handle as RemoteSubscriptionHandle) where h != null && h == handle select s;
+                        foreach (var sub in subscriptions)
+                        {
+                            (sub.Subscriber as Stub).NewMessage(data);
+                        }
 
                         break;
                     }
-                    case MessageType.Subscribe:
+                case MessageType.Subscribe:
                     {
                         Type type = Serializer.Deserialize<Type>(e.Message.Data);
-                        Subscribe.RemoteSubscriber(type);
+                        Subscribe.RemoteSubscriber(type, e.Message.Sender);
                         break;
                     }
-
+                case MessageType.SubscribeResponse:
+                    {
+                        var type = Serializer.Deserialize<Type>(e.Message.Data, 0);
+                        var stubs = from s in EllaModel.Instance.Subscriptions
+                                    where s.Event.Publisher is Stub && (s.Event.Publisher as Stub).DataType == type
+                                    select s;
+                        //TODO what now? Here would be the place for a template object
+                        break;
+                    }
             }
 
         }

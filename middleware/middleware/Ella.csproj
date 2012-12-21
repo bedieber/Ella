@@ -83,6 +83,7 @@
     <Compile Include="Publish.cs" />
     <Compile Include="StartStop.cs" />
     <Compile Include="Subscribe.cs" />
+    <Compile Include="SubscriptionHandle.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

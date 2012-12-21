@@ -8,7 +8,6 @@ namespace Ella.Model
     /// </summary>
     internal class Subscription<T> : SubscriptionBase
     {
-
         /// <summary>
         /// Initializes a new instance of the <see cref="Subscription{T}" /> class.
         /// </summary>
@@ -23,27 +22,12 @@ namespace Ella.Model
         /// <param name="subscriber">The subscriber.</param>
         /// <param name="ev">The ev.</param>
         /// <param name="callback">The callback.</param>
-        public Subscription(object subscriber, Event ev, Action<T> callback)
+        public Subscription(object subscriber, Event ev, Action<T> callback):this()
         {
             Subscriber = subscriber;
             Event = ev;
             Callback = callback;
         }
-        /// <summary>
-        /// Gets or sets the subscriber.
-        /// </summary>
-        /// <value>
-        /// The subscriber.
-        /// </value>
-        internal object Subscriber { get; set; }
-
-        /// <summary>
-        /// Gets or sets the event associated with this subscription.
-        /// </summary>
-        /// <value>
-        /// The event.
-        /// </value>
-        internal Event Event { get; set; }
 
         /// <summary>
         /// Gets or sets the callback which is used to notify a subscriber of a new event.
@@ -52,14 +36,6 @@ namespace Ella.Model
         /// The callback.
         /// </value>
         internal Action<T> Callback { get; set; }
-
-        /// <summary>
-        /// Gets or sets the modify policy which is used to indicate whether a subscriber modifies the data or not.
-        /// </summary>
-        /// <value>
-        /// The ModifyPolicy.
-        /// </value>
-        internal DataModifyPolicy ModifyPolicy { get; set; }
 
         /// <summary>
         /// Determines whether the specified <see cref="System.Object" /> is equal to this instance.

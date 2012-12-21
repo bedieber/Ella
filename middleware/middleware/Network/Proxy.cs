@@ -7,6 +7,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using Ella.Attributes;
 using Ella.Data;
+using Ella.Internal;
 using Ella.Model;
 using Ella.Network.Communication;
 
@@ -34,6 +35,8 @@ namespace Ella.Network
         /// <param name="data">The data.</param>
         internal void HandleEvent(object data)
         {
+            //TODO this is only a placeholder, the real handle should be provided by the publishing mechanism
+            SubscriptionHandle handle=null;
             /*
              * check that incoming data object is serializable
              * Serialize it
@@ -44,24 +47,16 @@ namespace Ella.Network
                 Message m = new Message();
                 m.Type = MessageType.Publish;
                 //TODO message sender
-                BinaryFormatter bf = new BinaryFormatter();
-                using (MemoryStream ms = new MemoryStream())
-                {
-
-                    try
-                    {
-                        bf.Serialize(ms, data);
-                    }
-                    catch (Exception)
-                    {
-                        //TODO log
-                        return;
-                    }
-                    ms.Seek(0, SeekOrigin.Begin);
-                    m.Data = ms.ToArray();
-
-                    Client.Send(m, TargetNode.Address.ToString(), TargetNode.Port);
-                }
+                byte[] serialize = Serializer.Serialize(data);
+                //PublisherID
+                //EventID
+                //data
+                byte[] payload = new byte[serialize.Length + 4];
+                Array.Copy(BitConverter.GetBytes(handle.PublisherID), payload, 2);
+                Array.Copy(BitConverter.GetBytes(handle.EventID), 0, payload, 2, 2);
+                Array.Copy(serialize, 0, payload, 4, serialize.Length);
+                m.Data = payload;
+                Client.Send(m, TargetNode.Address.ToString(), TargetNode.Port);
             }
 
         }
