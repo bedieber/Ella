@@ -50,6 +50,7 @@ namespace Ella
         }
     }
 
+    [Serializable]
     /// <summary>
     /// Identifies a subscription to a remote publisher
     /// </summary>

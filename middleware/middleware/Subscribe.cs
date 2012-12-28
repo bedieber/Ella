@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using Ella.Attributes;
 using Ella.Internal;
 using Ella.Data;
 using Ella.Internal;
@@ -40,7 +42,11 @@ namespace Ella
                     Event e = new Event { Publisher = s, EventDetail = new Attributes.PublishesAttribute(typeof(T), 1) };
                     Start.Publisher(s);
                     EllaModel.Instance.Subscriptions.Add(new Subscription<T>(subscriberInstance, e, newDataCallback));
-                    NetworkController.SubscribeToRemoteHost<T>();
+                    Func<T, bool> eval = evaluateTemplateObject;
+                    Action<RemoteSubscriptionHandle> callback =
+                        handle => ToRemotePublisher<T>(handle, subscriberInstance, newDataCallback, policy,
+                                                       eval);
+                    NetworkController.SubscribeToRemoteHost<T>(callback);
                 }
             }
             if (evaluateTemplateObject == null)
@@ -107,38 +113,56 @@ namespace Ella
         /// </summary>
         /// <param name="type">The type to subscribe to.</param>
         /// <param name="nodeId">The node id of the remote node.</param>
-        internal static void RemoteSubscriber(Type type, int nodeId)
+        internal static IEnumerable<RemoteSubscriptionHandle> RemoteSubscriber(Type type, int nodeId)
         {
             _log.DebugFormat("Performing remote subscription for type {0}", type);
             var matches = EllaModel.Instance.ActiveEvents.FirstOrDefault(g => g.Key == type);
 
 
             if (matches != null)
+            {
+                List<RemoteSubscriptionHandle> handles = new List<RemoteSubscriptionHandle>();
                 foreach (var match in matches)
                 {
                     //TODO endpoint
-                    var proxy = new Proxy() { EventToHandle = match };
+                    var proxy = new Proxy() {EventToHandle = match};
                     EllaModel.Instance.AddActiveSubscriber(proxy);
                     RemoteSubscriptionHandle handle = new RemoteSubscriptionHandle
-                    {
-                        EventID = match.EventDetail.ID,
-                        PublisherID = EllaModel.Instance.GetPublisherId(match.Publisher),
-                        RemoteNodeID = nodeId,
-                        SubscriberId = EllaModel.Instance.GetSubscriberId(proxy)
-                    };
+                        {
+                            EventID = match.EventDetail.ID,
+                            PublisherID = EllaModel.Instance.GetPublisherId(match.Publisher),
+                            RemoteNodeID = nodeId,
+                            SubscriberId = EllaModel.Instance.GetSubscriberId(proxy)
+                        };
                     SubscriptionBase subscription = ReflectionUtils.CreateGenericSubscription(type, match, proxy);
                     subscription.Handle = handle;
                     _log.InfoFormat("Subscribing remote subscriber to {0} for type {1}", match.Publisher,
-                              match.EventDetail.DataType);
+                                    match.EventDetail.DataType);
                     EllaModel.Instance.Subscriptions.Add(subscription);
+                    handles.Add(handle);
                 }
+                return handles;
+            }
+            return null;
         }
+
         /// <summary>
         /// Performs a subscription to a remote publisher for a local subscriber
         /// </summary>
-        internal static void ToRemoteSubscriber<T>(T template, Func<T, bool> evaluateTemplateObject)
+        internal static void ToRemotePublisher<T>(RemoteSubscriptionHandle handle, object subscriberInstance, Action<T> newDataCallBack, DataModifyPolicy policy, Func<T, bool> evaluateTemplateObject)
         {
-
+            _log.DebugFormat("Completing subscription to remote publisher {0} on node {1}, remote event id: {2}",
+                             handle.PublisherID, handle.RemoteNodeID, handle.EventID);
+            //Create a stub
+            Stub s = new Stub {DataType = typeof(T), Handle = handle};
+            Start.Publisher(s);
+            Event ev = new Event
+                {
+                    Publisher = s,
+                    EventDetail = (PublishesAttribute)s.GetType().GetCustomAttributes(typeof (PublishesAttribute), false).First()
+                };
+            Subscription<T> sub = new Subscription<T>(subscriberInstance, ev, newDataCallBack);
+            EllaModel.Instance.Subscriptions.Add(sub);
         }
 
 

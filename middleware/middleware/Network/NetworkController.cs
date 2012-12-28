@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -19,6 +20,9 @@ namespace Ella.Network
 
         private static ILog _log = LogManager.GetLogger(typeof(NetworkController));
 
+        private Dictionary<int, Action<RemoteSubscriptionHandle>> _pendingSubscriptions =
+            new Dictionary<int, Action<RemoteSubscriptionHandle>>();
+
         /// <summary>
         /// Starts the network controller.
         /// </summary>
@@ -34,21 +38,25 @@ namespace Ella.Network
         /// Subscribes to remote host.
         /// </summary>
         /// <typeparam name="T">The type to subscribe to</typeparam>
-        internal static void SubscribeToRemoteHost<T>()
+        internal static void SubscribeToRemoteHost<T>(Action<RemoteSubscriptionHandle> callback)
         {
             //TODO we're never creating a stub
-            _instance.SubscribeTo(typeof(T));
+            _instance.SubscribeTo(typeof(T), callback);
         }
 
         internal static bool IsRunning { get { return _instance._server != null; } }
+
         /// <summary>
         /// Subscribes to a remote host.
         /// </summary>
         /// <param name="type">The type.</param>
-        private void SubscribeTo(Type type)
+        /// <param name="callback"></param>
+        private void SubscribeTo(Type type, Action<RemoteSubscriptionHandle> callback)
         {
             //TODO Sender
             Message m = new Message { Type = MessageType.Subscribe, Data = Serializer.Serialize(type) };
+            //TODO when to remove?
+            _pendingSubscriptions.Add(m.Id, callback);
             foreach (IPEndPoint address in _remoteHosts.Values)
             {
                 Client.SendAsync(m, address.Address.ToString(), address.Port);
@@ -105,16 +113,40 @@ namespace Ella.Network
                 case MessageType.Subscribe:
                     {
                         Type type = Serializer.Deserialize<Type>(e.Message.Data);
-                        Subscribe.RemoteSubscriber(type, e.Message.Sender);
+                        IEnumerable<RemoteSubscriptionHandle> handles = Subscribe.RemoteSubscriber(type, e.Message.Sender);
+                        if (handles != null)
+                        {
+                            //Send reply
+                            byte[] handledata = Serializer.Serialize(handles);
+                            byte[] reply = new byte[handledata.Length + 4];
+                            byte[] idbytes = BitConverter.GetBytes(e.Message.Id);
+                            Array.Copy(idbytes, reply, idbytes.Length);
+                            Array.Copy(handledata, 0, reply, idbytes.Length, handledata.Length);
+                            Message m = new Message { Type = MessageType.SubscribeResponse, Data = reply };
+                            //TODO check port
+                            Client.Send(m, e.Address.ToString(), (e.Address as IPEndPoint).Port);
+                        }
                         break;
                     }
                 case MessageType.SubscribeResponse:
                     {
-                        var type = Serializer.Deserialize<Type>(e.Message.Data, 0);
-                        var stubs = from s in EllaModel.Instance.Subscriptions
-                                    where s.Event.Publisher is Stub && (s.Event.Publisher as Stub).DataType == type
-                                    select s;
-                        //TODO what now? Here would be the place for a template object
+                        if (e.Message.Data.Length > 0)
+                        {
+                            int inResponseTo = BitConverter.ToInt32(e.Message.Data, 0);
+                            ICollection<RemoteSubscriptionHandle> handles = Serializer.Deserialize<ICollection<RemoteSubscriptionHandle>>(e.Message.Data, 4);
+                            //var stubs = from s in EllaModel.Instance.Subscriptions
+                            //            where s.Event.Publisher is Stub && (s.Event.Publisher as Stub).DataType == type
+                            //            select s;
+
+                            if (_pendingSubscriptions.ContainsKey(inResponseTo))
+                            {
+                                Action<RemoteSubscriptionHandle> action = _pendingSubscriptions[inResponseTo];
+                                foreach (var handle in handles)
+                                {
+                                    action(handle);
+                                }
+                            }
+                        }
                         break;
                     }
             }
