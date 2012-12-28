@@ -54,5 +54,14 @@ namespace Ella.Network.Communication
                 }
             }).Start();
         }
+
+        public static void Broadcast()
+        {
+            UdpClient client = new UdpClient();
+            byte[] bytes = BitConverter.GetBytes(Properties.Ella.Default.NodeID);
+            //TODO port
+            IPEndPoint ip = new IPEndPoint(IPAddress.Parse("255.255.255.255"), 44556);
+            client.Send(bytes, bytes.Length, ip);
+        }
     }
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using log4net;
 
 namespace Ella.Network.Communication
 {
@@ -12,6 +13,8 @@ namespace Ella.Network.Communication
     /// </summary>
     internal class Server
     {
+
+        private ILog _log = LogManager.GetLogger(typeof(Server));
         /// <summary>
         /// Definition for the eventhandler which will be notified of new messages
         /// </summary>
@@ -25,7 +28,8 @@ namespace Ella.Network.Communication
 
         private int _port;
         private IPAddress _address;
-        private Thread _listenerThread;
+        private Thread _tpcListenerThread;
+        private Thread _udpListenerThread;
         public Dictionary<int, string> NodeDictionary { get; set; }
 
         /// <summary>
@@ -44,12 +48,12 @@ namespace Ella.Network.Communication
         /// </summary>
         public void Start()
         {
-            _listenerThread = new Thread((ThreadStart)delegate
+            _tpcListenerThread = new Thread((ThreadStart)delegate
                                                           {
                                                               TcpListener listener = new TcpListener(_address, _port);
                                                               listener.Start();
-                                                              UdpClient client = new UdpClient(_address, _port);
-                                                              Console.WriteLine("Server: Started");
+
+                                                              _log.DebugFormat("Server: Started");
                                                               try
                                                               {
                                                                   while (true)
@@ -65,15 +69,15 @@ namespace Ella.Network.Communication
                                                               }
                                                               catch (ThreadInterruptedException)
                                                               {
-                                                                  Console.WriteLine("Server Listener thread interrupted");
+                                                                  _log.DebugFormat("Server Listener thread interrupted");
                                                               }
                                                               catch (ThreadAbortException)
                                                               {
-                                                                  Console.WriteLine("Server Listener Thread aborted. Exiting");
+                                                                  _log.DebugFormat("Server Listener Thread aborted. Exiting");
                                                               }
                                                               catch (Exception e)
                                                               {
-                                                                  Console.WriteLine("Exception in Server: {0}",
+                                                                  _log.ErrorFormat("Exception in Server: {0}",
                                                                                     e.Message);
                                                               }
                                                               finally
@@ -81,7 +85,59 @@ namespace Ella.Network.Communication
                                                                   listener.Stop();
                                                               }
                                                           });
-            _listenerThread.Start();
+            _tpcListenerThread.Start();
+
+            _udpListenerThread = new Thread((ThreadStart)delegate
+            {
+                //TODO port
+                UdpClient listener = new UdpClient(44556);
+                try
+                {
+                    while (true)
+                    {
+                        IPEndPoint ep = new IPEndPoint(IPAddress.Any, 0);
+
+                        byte[] datagram = listener.Receive(ref ep);
+                        IPEndPoint sender = ep;
+                        ThreadPool.QueueUserWorkItem(delegate
+                        {
+                            ProcessUdpMessage
+                                (datagram, ep);
+                        });
+                    }
+                }
+                catch (ThreadInterruptedException)
+                {
+                    _log.DebugFormat("Server Listener thread interrupted");
+                }
+                catch (ThreadAbortException)
+                {
+                    _log.DebugFormat("Server Listener Thread aborted. Exiting");
+                }
+                catch (Exception e)
+                {
+                    _log.ErrorFormat("Exception in Server: {0}",
+                                      e.Message);
+                }
+                finally
+                {
+
+                }
+            });
+            _udpListenerThread.Start();
+
+        }
+
+        private void ProcessUdpMessage(byte[] datagram, IPEndPoint ep)
+        {
+            //TODO msg id: necessary? then put it into datagram
+            Message msg = new Message(-1) { Data = datagram, Sender = Convert.ToInt32(datagram), Type = MessageType.Discover };
+            if (NewMessage != null)
+            {
+                NewMessage(this, new MessageEventArgs(msg) { Address = ep });
+            }
+            else
+                _log.DebugFormat("Server: No listeners for new messages attached");
         }
 
         /// <summary>
@@ -115,7 +171,7 @@ namespace Ella.Network.Communication
             if (sendernodes == null || sendernodes.Count() == 0)
             {
                 Console.ForegroundColor = ConsoleColor.DarkRed;
-                Console.WriteLine("Could not resolve nodeID for address {0}", addressString);
+                _log.ErrorFormat("Could not resolve nodeID for address {0}", addressString);
                 Console.ResetColor();
             }
             else
@@ -129,10 +185,10 @@ namespace Ella.Network.Communication
             if (NewMessage != null)
             {
                 Message m = new Message(id) { Data = data, Type = ((MessageType)messageType), Sender = senderid };
-                NewMessage(this, new MessageEventArgs(m){Address = client.Client.RemoteEndPoint});
+                NewMessage(this, new MessageEventArgs(m) { Address = client.Client.RemoteEndPoint });
             }
             else
-                Console.WriteLine("Server: No listeners for new messages attached");
+                _log.DebugFormat("Server: No listeners for new messages attached");
             stream.Close();
             client.Close();
         }
@@ -143,15 +199,22 @@ namespace Ella.Network.Communication
         /// </summary>
         public void Stop()
         {
-            Console.WriteLine("Stopping server");
-            _listenerThread.Interrupt();
-            _listenerThread.Join(1000);
-            if (_listenerThread.IsAlive)
+            _log.DebugFormat("Stopping server");
+            _tpcListenerThread.Interrupt();
+            _tpcListenerThread.Join(1000);
+            if (_tpcListenerThread.IsAlive)
             {
-                _listenerThread.Abort();
+                _tpcListenerThread.Abort();
+            }
+            _udpListenerThread.Interrupt();
+            _udpListenerThread.Join(1000);
+            if (_tpcListenerThread.IsAlive)
+            {
+                _udpListenerThread.Abort();
             }
 
-            Console.WriteLine("Server stopped");
+
+            _log.DebugFormat("Server stopped");
         }
     }
 }
