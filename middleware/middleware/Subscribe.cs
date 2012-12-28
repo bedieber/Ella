@@ -76,7 +76,8 @@ namespace Ella
                 _log.DebugFormat("Found {0} matches for subsription to {1}", matches.Count(), typeof(T));
                 foreach (var m in matches)
                 {
-                    T templateObject = (T)Create.TemplateObject(m.Publisher, m.EventDetail.ID);
+                    object templateObject = Create.TemplateObject(m.Publisher, m.EventDetail.ID);
+                    T template = templateObject != null ? (T)templateObject : default(T);
                     //SubscriptionID in the handle is set automatically when assigning it to a subscription
                     SubscriptionHandle handle = new SubscriptionHandle
                     {
@@ -92,7 +93,7 @@ namespace Ella
                         Callback = newDataCallback,
                         Handle = handle
                     };
-                    if (templateObject == null || evaluateTemplateObject(templateObject))
+                    if (templateObject == null || evaluateTemplateObject(template))
                     {
                         if (!EllaModel.Instance.Subscriptions.Contains(subscription))
                         {
@@ -153,6 +154,8 @@ namespace Ella
         {
             _log.DebugFormat("Completing subscription to remote publisher {0} on node {1}, remote event id: {2}",
                              handle.PublisherID, handle.RemoteNodeID, handle.EventID);
+            //TODO template object
+
             //Create a stub
             Stub s = new Stub {DataType = typeof(T), Handle = handle};
             Start.Publisher(s);

@@ -72,6 +72,7 @@ namespace Ella.Network.Communication
         public Message()
         {
             Id = Interlocked.Increment(ref _nextId);
+            Sender = Properties.Ella.Default.NodeID;
         }
 
         /// <summary>

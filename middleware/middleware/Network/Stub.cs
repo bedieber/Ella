@@ -20,7 +20,7 @@ namespace Ella.Network
         /// Starts this instance.
         /// </summary>
         [Start]
-        internal void Start()
+        public void Start()
         {
 
         }
@@ -29,7 +29,7 @@ namespace Ella.Network
         /// Stops this instance.
         /// </summary>
         [Stop]
-        internal void Stop()
+        public void Stop()
         {
 
         }
@@ -39,7 +39,7 @@ namespace Ella.Network
         /// </summary>
         /// <returns></returns>
         [Factory]
-        internal Stub CreateInstance()
+        public Stub CreateInstance()
         {
             return new Stub();
         }

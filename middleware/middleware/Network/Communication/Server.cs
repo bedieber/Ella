@@ -48,6 +48,7 @@ namespace Ella.Network.Communication
                                                           {
                                                               TcpListener listener = new TcpListener(_address, _port);
                                                               listener.Start();
+                                                              UdpClient client = new UdpClient(_address, _port);
                                                               Console.WriteLine("Server: Started");
                                                               try
                                                               {

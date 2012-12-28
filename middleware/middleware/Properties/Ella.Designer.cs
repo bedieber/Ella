@@ -22,5 +22,29 @@ namespace Ella.Properties {
                 return defaultInstance;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("33333")]
+        public int NetworkPort {
+            get {
+                return ((int)(this["NetworkPort"]));
+            }
+            set {
+                this["NetworkPort"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int NodeID {
+            get {
+                return ((int)(this["NodeID"]));
+            }
+            set {
+                this["NodeID"] = value;
+            }
+        }
     }
 }

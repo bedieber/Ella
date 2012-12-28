@@ -53,12 +53,18 @@ namespace Ella
                      */
 
                     T data = eventData;
-
-                    if (subscriptions.ElementAt(0).Event.EventDetail.CopyPolicy == DataCopyPolicy.Copy)
+                    
+                    var subscriptionsArray = subscriptions as Subscription<T>[] ?? subscriptions.ToArray();
+                    if (subscriptionsArray.Length == 0)
+                    {
+                        _log.DebugFormat("No subscribers found for event {0} of publisher {1}", eventId, publisher);
+                        return;
+                    }
+                    if (subscriptionsArray.ElementAt(0).Event.EventDetail.CopyPolicy == DataCopyPolicy.Copy)
                     {
                         data = Serializer.SerializeCopy(eventData);
                     }
-                    foreach (var sub in subscriptions)
+                    foreach (var sub in subscriptionsArray)
                     {
                         Thread t = new Thread(() => sub.Callback(sub.ModifyPolicy==DataModifyPolicy.Modify ? Serializer.SerializeCopy(data):data));
                         t.Start();

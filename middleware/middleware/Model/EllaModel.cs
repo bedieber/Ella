@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Ella.Attributes;
+using log4net.Config;
 
 namespace Ella.Model
 {
@@ -32,6 +33,7 @@ namespace Ella.Model
             //ActivePublishers = new Dictionary<object, int>();
             //Subscriptions = new List<SubscriptionBase>();
             Reset();
+            BasicConfigurator.Configure();
         }
 
         /// <summary>

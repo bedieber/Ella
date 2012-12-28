@@ -56,6 +56,7 @@
     <Compile Include="Data\DataTransferObject.cs" />
     <Compile Include="Discover.cs" />
     <Compile Include="Exceptions\InvalidModuleException.cs" />
+    <Compile Include="Properties\Ella.cs" />
     <Compile Include="Properties\Ella.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
@@ -87,7 +88,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="Ella.config" />
+    <None Include="Ella.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Properties\Ella.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Ella.Designer.cs</LastGenOutput>

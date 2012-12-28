@@ -28,7 +28,7 @@ namespace Ella.Network
         /// </summary>
         internal static void Start()
         {
-            _instance._server = new Server(33333, IPAddress.Any);
+            _instance._server = new Server(Properties.Ella.Default.NetworkPort, IPAddress.Any);
             _instance._server.NewMessage += _instance.NewMessage;
             _instance._server.Start();
         }
@@ -40,7 +40,6 @@ namespace Ella.Network
         /// <typeparam name="T">The type to subscribe to</typeparam>
         internal static void SubscribeToRemoteHost<T>(Action<RemoteSubscriptionHandle> callback)
         {
-            //TODO we're never creating a stub
             _instance.SubscribeTo(typeof(T), callback);
         }
 
@@ -53,8 +52,7 @@ namespace Ella.Network
         /// <param name="callback"></param>
         private void SubscribeTo(Type type, Action<RemoteSubscriptionHandle> callback)
         {
-            //TODO Sender
-            Message m = new Message { Type = MessageType.Subscribe, Data = Serializer.Serialize(type) };
+            Message m = new Message { Type = MessageType.Subscribe, Data = Serializer.Serialize(type)};
             //TODO when to remove?
             _pendingSubscriptions.Add(m.Id, callback);
             foreach (IPEndPoint address in _remoteHosts.Values)
