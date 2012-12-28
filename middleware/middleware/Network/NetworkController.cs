@@ -31,6 +31,7 @@ namespace Ella.Network
             _instance._server = new Server(Properties.Ella.Default.NetworkPort, IPAddress.Any);
             _instance._server.NewMessage += _instance.NewMessage;
             _instance._server.Start();
+            Client.Broadcast();
         }
 
 

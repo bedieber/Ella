@@ -16,7 +16,7 @@ namespace Ella.Network.Communication
         /// <param name="m">The m.</param>
         /// <param name="address">The address.</param>
         /// <param name="port">The port.</param>
-        public static void Send(Message m, string address, int port)
+        internal static void Send(Message m, string address, int port)
         {
             try
             {
@@ -43,7 +43,7 @@ namespace Ella.Network.Communication
         /// <param name="address">The address.</param>
         /// <param name="port">The port.</param>
         /// <param name="sendingFinishedCallback">The sending finished callback.</param>
-        public static void SendAsync(Message m, string address, int port, Action<int> sendingFinishedCallback = null)
+        internal static void SendAsync(Message m, string address, int port, Action<int> sendingFinishedCallback = null)
         {
             new Thread((ThreadStart)delegate
             {
@@ -55,7 +55,7 @@ namespace Ella.Network.Communication
             }).Start();
         }
 
-        public static void Broadcast()
+        internal static void Broadcast()
         {
             UdpClient client = new UdpClient();
             byte[] bytes = BitConverter.GetBytes(Properties.Ella.Default.NodeID);
