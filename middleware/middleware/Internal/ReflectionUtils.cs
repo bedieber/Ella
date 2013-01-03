@@ -96,28 +96,39 @@ namespace Ella.Internal
         internal static SubscriptionBase CreateGenericSubscription(Type type, Event match, Proxy proxy)
         {
             Type subscriptionType = typeof(Subscription<>).MakeGenericType(new Type[] { type });
-            Type actionType = typeof(Action<>).MakeGenericType(new Type[] { type });
+            Type actionType;
+            Delegate @delegate;
+            if (type.IsValueType)
+            {
+                actionType = typeof(Action<>).MakeGenericType(new Type[] { type });
 
-           /* The next few lines create an expression tree to be able to handle value types
-            * If e.g. a struct is passed, we cannot directly bind to the proxy.HandleEvent method because the type system refuses to accept an (object) method for a struct
-            * Instead we create a lamda expression which perfoms a cast from the value type to object (this can be safely done but only in an explicit manner) and then calls the proxy method
-            * The delegate created from this however, is stronly typed and matches the delegate signature needed by the subscription            * 
-            * */
-            ParameterExpression parameter = Expression.Parameter(type, "data");
-            UnaryExpression convertedData = Expression.TypeAs(parameter, typeof (object));
-            MethodCallExpression e = Expression.Call(Expression.Constant(proxy), proxy.GetType().GetMethod("HandleEvent"), convertedData);
-            LambdaExpression lambda = Expression.Lambda(e, parameter);
-            Delegate @delegate = lambda.Compile();
+                /* The next few lines create an expression tree to be able to handle value types
+                * If e.g. a struct is passed, we cannot directly bind to the proxy.HandleEvent method because the type system refuses to accept an (object) method for a struct
+                * Instead we create a lamda expression which perfoms a cast from the value type to object (this can be safely done but only in an explicit manner) and then calls the proxy method
+                * The delegate created from this however, is stronly typed and matches the delegate signature needed by the subscription            * 
+                * */
+                ParameterExpression parameter = Expression.Parameter(type, "data");
+                UnaryExpression convertedData = Expression.TypeAs(parameter, typeof(object));
+                MethodCallExpression e = Expression.Call(Expression.Constant(proxy),
+                                                         proxy.GetType().GetMethod("HandleEvent"), convertedData);
+                LambdaExpression lambda = Expression.Lambda(e, parameter);
+                @delegate = lambda.Compile();
+            }
+            else
+            {
+                actionType = typeof(Action<>).MakeGenericType(new Type[] { typeof(object) });
 
+                @delegate = Action.CreateDelegate(actionType, proxy, "HandleEvent");
+            }
             //Here we call the constructor of our subscription type to generate a new subscription object
             object subscription =
                     subscriptionType.GetConstructor(new Type[] { typeof(object), typeof(Event), actionType })
                                     .Invoke(new object[] { proxy, match, @delegate });
-            return (SubscriptionBase) subscription;
+            return (SubscriptionBase)subscription;
         }
 
 
-        
+
 
 
         #endregion
