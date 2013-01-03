@@ -29,15 +29,7 @@ namespace Ella.Data
         /// <value>
         /// The publisher.
         /// </value>
-        public Guid Publisher { get; internal set; }
-
-        /// <summary>
-        /// Gets the event id.
-        /// </summary>
-        /// <value>
-        /// The event id.
-        /// </value>
-        public int EventId { get; internal set; }
+        public SubscriptionHandle Handle { get; internal set; }
 
     }
 }

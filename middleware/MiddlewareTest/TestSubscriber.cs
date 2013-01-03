@@ -23,8 +23,9 @@ namespace Ella
 
         private void Callback(string s)
         {
-            rec = s;
-            if (s == "hello")
+
+            rec = (string) s;
+            if (rec == "hello")
                 numEventsReceived++;
         }
 

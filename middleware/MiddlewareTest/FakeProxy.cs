@@ -11,13 +11,10 @@ namespace Ella
         internal bool eventReceived = false;
         public new void HandleEvent(object data)
         {
-            if (data is String)
+            if (data is String || data is DateTime)
                 eventReceived = true;
         }
 
-        public void HandleValueType(ValueType value)
-        {
 
-        }
     }
 }

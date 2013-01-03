@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using Ella.Internal;
 using Ella.Model;
@@ -15,14 +16,26 @@ namespace Ella
         [TestMethod]
         public void CreateGenericSubsription()
         {
-            FakeProxy p = new FakeProxy();
-            SubscriptionBase subscription= ReflectionUtils.CreateGenericSubscription(typeof (String), new Model.Event(), p);
-            Assert.IsInstanceOfType(subscription, typeof (Subscription<String>));
+            FakeProxy proxy = new FakeProxy();
+          
+            SubscriptionBase subscription= ReflectionUtils.CreateGenericSubscription(typeof (String), new Event(), proxy);
+            Assert.IsInstanceOfType(subscription, typeof(Subscription<String>));
             Subscription<String> sub = subscription as Subscription<String>;
             sub.Callback("Hello");
-            Assert.IsTrue(p.eventReceived);
+            Assert.IsTrue(proxy.eventReceived);
         }
 
+        [TestMethod]
+        public void CreateGenericSubsriptionForValueType()
+        {
+            FakeProxy proxy = new FakeProxy();
+         
+            SubscriptionBase subscription = ReflectionUtils.CreateGenericSubscription(typeof(DateTime), new Event(), proxy);
+            Assert.IsInstanceOfType(subscription, typeof(Subscription<DateTime>));
+            Subscription<DateTime> sub = subscription as Subscription<DateTime>;
+            sub.Callback(DateTime.Now);
+            Assert.IsTrue(proxy.eventReceived);
+        }
        
     }
 }

@@ -59,9 +59,5 @@ namespace Ella.Network
 
         }
 
-        internal void HandleEvent(System.ValueType value)
-        {
-            
-        }
-    }
+       }
 }
