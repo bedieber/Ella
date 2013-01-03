@@ -109,8 +109,9 @@ namespace Ella.Internal
                 * */
                 ParameterExpression parameter = Expression.Parameter(type, "data");
                 UnaryExpression convertedData = Expression.TypeAs(parameter, typeof(object));
+                MethodInfo methodInfo = proxy.GetType().GetMethod("HandleEvent",BindingFlags.NonPublic|BindingFlags.Instance);
                 MethodCallExpression e = Expression.Call(Expression.Constant(proxy),
-                                                         proxy.GetType().GetMethod("HandleEvent"), convertedData);
+                                                         methodInfo, convertedData);
                 LambdaExpression lambda = Expression.Lambda(e, parameter);
                 @delegate = lambda.Compile();
             }

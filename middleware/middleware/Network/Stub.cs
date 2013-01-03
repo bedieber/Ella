@@ -8,15 +8,24 @@ using Ella.Network.Communication;
 
 namespace Ella.Network
 {
+    internal abstract class Stub
+    {
+        internal Type DataType { get; set; }
+        internal SubscriptionHandle Handle { get; set; }
+
+        /// <summary>
+        /// Handles a new message containing a published event from a remote host
+        /// </summary>
+        /// <param name="data">The data.</param>
+        internal abstract void NewMessage(byte[] data);
+    }
+
     /// <summary>
     /// A stub acts as the local representative of a remote publisher
     /// </summary>
     [Publishes(typeof(Unknown), 1, CopyPolicy = DataCopyPolicy.None)]
-    internal class Stub
+    internal class Stub<T> : Stub
     {
-
-        internal Type DataType { get; set; }
-
         /// <summary>
         /// Starts this instance.
         /// </summary>
@@ -40,23 +49,24 @@ namespace Ella.Network
         /// </summary>
         /// <returns></returns>
         [Factory]
-        public Stub CreateInstance()
+        public Stub<T> CreateInstance()
         {
-            return new Stub();
+            return new Stub<T>();
         }
-
-        internal SubscriptionHandle Handle { get; set; }
 
         /// <summary>
         /// Handles a new message containing a published event from a remote host
         /// </summary>
         /// <param name="data">The data.</param>
-        internal void NewMessage(byte[] data)
+        internal override void NewMessage(byte[] data)
         {
             BinaryFormatter bf = new BinaryFormatter();
             var dto = bf.Deserialize(new MemoryStream(data));
-            if (dto.GetType() == this.DataType)
-                Publish.Event(dto, this, 1);
+            if (dto.GetType() == typeof (T))
+            {
+                T d = (T)dto;
+                Publish.Event(d, this, 1);
+            }
             //TODO log any irregularities
         }
     }

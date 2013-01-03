@@ -100,6 +100,7 @@ namespace Ella
         /// </remarks>
         public static void Publisher(object instance)
         {
+            if (instance == null) return;
             _log.InfoFormat("Stopping publisher {0}", instance);
             var type = instance.GetType();
             if (Is.Publisher(type))

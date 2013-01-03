@@ -5,7 +5,6 @@ using System.Net;
 using Ella.Attributes;
 using Ella.Internal;
 using Ella.Data;
-using Ella.Internal;
 using Ella.Model;
 using Ella.Network;
 using log4net;
@@ -153,19 +152,19 @@ namespace Ella
         /// </summary>
         internal static void ToRemotePublisher<T>(RemoteSubscriptionHandle handle, object subscriberInstance, Action<T> newDataCallBack, DataModifyPolicy policy, Func<T, bool> evaluateTemplateObject)
         {
-            _log.DebugFormat("Completing subscription to remote publisher {0} on node {1}, remote event id: {2}",
-                             handle.PublisherId, handle.RemoteNodeID, handle.EventID);
+            _log.DebugFormat("Completing subscription to remote publisher {0} on node {1},handle: {2}",
+                             handle.PublisherId, handle.RemoteNodeID, handle);
             //TODO template object
 
             //Create a stub
-            Stub s = new Stub {DataType = typeof(T), Handle = handle};
+            Stub<T> s = new Stub<T> {DataType = typeof(T), Handle = handle};
             Start.Publisher(s);
             Event ev = new Event
                 {
                     Publisher = s,
                     EventDetail = (PublishesAttribute)s.GetType().GetCustomAttributes(typeof (PublishesAttribute), false).First()
                 };
-            Subscription<T> sub = new Subscription<T>(subscriberInstance, ev, newDataCallBack);
+            Subscription<T> sub = new Subscription<T>(subscriberInstance, ev, newDataCallBack) {Handle = handle};
             EllaModel.Instance.Subscriptions.Add(sub);
         }
 

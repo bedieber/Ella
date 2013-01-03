@@ -81,7 +81,6 @@ namespace Ella.Network
                     {
                         if (!_remoteHosts.ContainsKey(e.Message.Sender))
                         {
-                            //TODO Exclude local endpoint from this list
                             int port = BitConverter.ToInt32(e.Message.Data, 4);
                             IPEndPoint ep = (IPEndPoint) e.Address;
                             ep.Port = port;
@@ -113,7 +112,7 @@ namespace Ella.Network
                         var subscriptions = from s in EllaModel.Instance.Subscriptions let h = (s.Handle as RemoteSubscriptionHandle) where h != null && h == handle select s;
                         foreach (var sub in subscriptions)
                         {
-                            (sub.Subscriber as Stub).NewMessage(data);
+                            (sub.Event.Publisher as Stub).NewMessage(data);
                         }
 
                         break;
@@ -133,7 +132,9 @@ namespace Ella.Network
                             Array.Copy(idbytes, reply, idbytes.Length);
                             Array.Copy(handledata, 0, reply, idbytes.Length, handledata.Length);
                             Message m = new Message { Type = MessageType.SubscribeResponse, Data = reply };
-                            Client.Send(m, e.Address.ToString(), ((IPEndPoint)_remoteHosts[e.Message.Sender]).Port);
+                            IPEndPoint ep = (IPEndPoint) _remoteHosts[e.Message.Sender];
+                            _log.DebugFormat("Replying to subscription request at {0}", ep);
+                            Client.Send(m, ep.Address.ToString(), ep.Port);
                         }
                         break;
                     }
@@ -152,6 +153,8 @@ namespace Ella.Network
                                 Action<RemoteSubscriptionHandle> action = _pendingSubscriptions[inResponseTo];
                                 foreach (var handle in handles)
                                 {
+                                    //TODO for some reason the remote node ID is not serialized, find out why.
+                                    handle.RemoteNodeID = e.Message.Sender;
                                     action(handle);
                                 }
                             }

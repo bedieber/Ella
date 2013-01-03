@@ -90,7 +90,6 @@ namespace Ella.Network.Communication
 
             _udpListenerThread = new Thread((ThreadStart)delegate
             {
-                //TODO port
                 UdpClient listener = new UdpClient(_port);
                 try
                 {
