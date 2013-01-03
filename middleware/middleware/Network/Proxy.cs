@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using Ella.Attributes;
 using Ella.Data;
@@ -17,11 +16,10 @@ namespace Ella.Network
     /// A proxy is used to catch local events and transfer them to a remote subscriber stub
     /// </summary>
     [Subscriber()]
-    internal class Proxy
+    public class Proxy
     {
         internal Event EventToHandle { get; set; }
         internal IPEndPoint TargetNode { get; set; }
-        private BinaryFormatter _formatter = new BinaryFormatter();
 
         [Factory]
         internal Proxy()
@@ -52,13 +50,18 @@ namespace Ella.Network
                 //EventID
                 //data
                 byte[] payload = new byte[serialize.Length + 4];
-                Array.Copy(BitConverter.GetBytes(handle.PublisherID), payload, 2);
+                Array.Copy(BitConverter.GetBytes(handle.PublisherId), payload, 2);
                 Array.Copy(BitConverter.GetBytes(handle.EventID), 0, payload, 2, 2);
                 Array.Copy(serialize, 0, payload, 4, serialize.Length);
                 m.Data = payload;
                 Client.Send(m, TargetNode.Address.ToString(), TargetNode.Port);
             }
 
+        }
+
+        internal void HandleEvent(System.ValueType value)
+        {
+            
         }
     }
 }

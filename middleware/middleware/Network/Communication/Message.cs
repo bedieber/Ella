@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Text;
 using System.Threading;
+using Ella.Internal;
 
 namespace Ella.Network.Communication
 {
@@ -72,7 +73,7 @@ namespace Ella.Network.Communication
         public Message()
         {
             Id = Interlocked.Increment(ref _nextId);
-            Sender = Properties.Ella.Default.NodeID;
+            Sender = EllaConfiguration.Instance.NodeId;
         }
 
         /// <summary>
@@ -93,6 +94,8 @@ namespace Ella.Network.Communication
             MemoryStream ms = new MemoryStream();
             ms.WriteByte((byte)Type);
             byte[] bytes = BitConverter.GetBytes(Id);
+            ms.Write(bytes, 0, bytes.Length);
+            bytes = BitConverter.GetBytes(Sender);
             ms.Write(bytes, 0, bytes.Length);
             bytes = BitConverter.GetBytes(Data.Length);
             ms.Write(bytes, 0, bytes.Length);

@@ -3,6 +3,7 @@ using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using Ella.Attributes;
 using Ella.Data;
+using Ella.Internal;
 using Ella.Network.Communication;
 
 namespace Ella.Network

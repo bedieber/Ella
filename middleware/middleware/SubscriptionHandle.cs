@@ -11,7 +11,7 @@ namespace Ella
     public class SubscriptionHandle
     {
 
-        internal int PublisherID { get; set; }
+        internal int PublisherId { get; set; }
         internal int EventID { get; set; }
         internal int SubscriberId { get; set; }
 
@@ -32,7 +32,7 @@ namespace Ella
         {
             unchecked
             {
-                int hashCode = PublisherID;
+                int hashCode = PublisherId;
                 hashCode = (hashCode * 397) ^ EventID;
                 hashCode = (hashCode * 397) ^ SubscriberId;
                 return hashCode;
@@ -59,7 +59,7 @@ namespace Ella
         internal int RemoteNodeID { get; set; }
         public override int GetHashCode()
         {
-            int hashCode = PublisherID;
+            int hashCode = PublisherId;
             hashCode = (hashCode * 397) ^ EventID;
             return (hashCode * 397) ^ RemoteNodeID;
         }

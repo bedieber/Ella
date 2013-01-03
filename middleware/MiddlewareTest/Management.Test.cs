@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using Ella.Internal;
 using Ella.Model;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -14,7 +15,7 @@ namespace Ella
     public class Management
     {
         private const int NumPublishers = 6;
-        private const int NumSubscribers = 5;
+        private const int NumSubscribers = 6;
 
         [TestInitialize]
         public void InitElla()
@@ -142,6 +143,7 @@ namespace Ella
             TestSubscriber s = new TestSubscriber();
             s.SubscribeWithModifyFalse();
             t.PublishEvent();
+            Thread.Sleep(100);
             Assert.IsTrue(ReferenceEquals(t.data,s.rec));
         }
 

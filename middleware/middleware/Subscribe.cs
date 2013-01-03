@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using Ella.Attributes;
 using Ella.Internal;
 using Ella.Data;
@@ -38,10 +39,10 @@ namespace Ella
             {
                 if (NetworkController.IsRunning)
                 {
-                    Stub s = new Stub { DataType = typeof(T) };
-                    Event e = new Event { Publisher = s, EventDetail = new Attributes.PublishesAttribute(typeof(T), 1) };
-                    Start.Publisher(s);
-                    EllaModel.Instance.Subscriptions.Add(new Subscription<T>(subscriberInstance, e, newDataCallback));
+                    //Stub s = new Stub { DataType = typeof(T) };
+                    //Event e = new Event { Publisher = s, EventDetail = new Attributes.PublishesAttribute(typeof(T), 1) };
+                    //Start.Publisher(s);
+                    //EllaModel.Instance.Subscriptions.Add(new Subscription<T>(subscriberInstance, e, newDataCallback));
                     Func<T, bool> eval = evaluateTemplateObject;
                     Action<RemoteSubscriptionHandle> callback =
                         handle => ToRemotePublisher<T>(handle, subscriberInstance, newDataCallback, policy,
@@ -82,7 +83,7 @@ namespace Ella
                     SubscriptionHandle handle = new SubscriptionHandle
                     {
                         EventID = m.EventDetail.ID,
-                        PublisherID = EllaModel.Instance.GetPublisherId(m.Publisher),
+                        PublisherId = EllaModel.Instance.GetPublisherId(m.Publisher),
                         SubscriberId = EllaModel.Instance.GetSubscriberId(subscriberInstance)
                     };
 
@@ -114,8 +115,9 @@ namespace Ella
         /// </summary>
         /// <param name="type">The type to subscribe to.</param>
         /// <param name="nodeId">The node id of the remote node.</param>
-        internal static IEnumerable<RemoteSubscriptionHandle> RemoteSubscriber(Type type, int nodeId)
+        internal static IEnumerable<RemoteSubscriptionHandle> RemoteSubscriber(Type type, int nodeId, IPEndPoint subscriberAddress)
         {
+
             _log.DebugFormat("Performing remote subscription for type {0}", type);
             var matches = EllaModel.Instance.ActiveEvents.FirstOrDefault(g => g.Key == type);
 
@@ -125,13 +127,12 @@ namespace Ella
                 List<RemoteSubscriptionHandle> handles = new List<RemoteSubscriptionHandle>();
                 foreach (var match in matches)
                 {
-                    //TODO endpoint
-                    var proxy = new Proxy() {EventToHandle = match};
+                    var proxy = new Proxy() { EventToHandle = match, TargetNode = subscriberAddress };
                     EllaModel.Instance.AddActiveSubscriber(proxy);
                     RemoteSubscriptionHandle handle = new RemoteSubscriptionHandle
                         {
                             EventID = match.EventDetail.ID,
-                            PublisherID = EllaModel.Instance.GetPublisherId(match.Publisher),
+                            PublisherId = EllaModel.Instance.GetPublisherId(match.Publisher),
                             RemoteNodeID = nodeId,
                             SubscriberId = EllaModel.Instance.GetSubscriberId(proxy)
                         };
@@ -153,7 +154,7 @@ namespace Ella
         internal static void ToRemotePublisher<T>(RemoteSubscriptionHandle handle, object subscriberInstance, Action<T> newDataCallBack, DataModifyPolicy policy, Func<T, bool> evaluateTemplateObject)
         {
             _log.DebugFormat("Completing subscription to remote publisher {0} on node {1}, remote event id: {2}",
-                             handle.PublisherID, handle.RemoteNodeID, handle.EventID);
+                             handle.PublisherId, handle.RemoteNodeID, handle.EventID);
             //TODO template object
 
             //Create a stub

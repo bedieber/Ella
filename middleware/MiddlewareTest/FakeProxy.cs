@@ -6,13 +6,18 @@ using Ella.Network;
 
 namespace Ella
 {
-    internal class FakeProxy : Proxy
+    public class FakeProxy : Proxy
     {
         internal bool eventReceived = false;
-        internal new void HandleEvent(object data)
+        public new void HandleEvent(object data)
         {
             if (data is String)
                 eventReceived = true;
+        }
+
+        public void HandleValueType(ValueType value)
+        {
+
         }
     }
 }

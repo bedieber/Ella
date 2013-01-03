@@ -37,6 +37,7 @@
       <HintPath>..\packages\log4net.2.0.0\lib\net35-full\log4net.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -56,12 +57,7 @@
     <Compile Include="Data\DataTransferObject.cs" />
     <Compile Include="Discover.cs" />
     <Compile Include="Exceptions\InvalidModuleException.cs" />
-    <Compile Include="Properties\Ella.cs" />
-    <Compile Include="Properties\Ella.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-      <DependentUpon>Ella.settings</DependentUpon>
-    </Compile>
+    <Compile Include="Internal\EllaConfiguration.cs" />
     <Compile Include="Exceptions\InvalidPublisherException.cs" />
     <Compile Include="Exceptions\StateException.cs" />
     <Compile Include="Internal\ReflectionUtils.cs" />
@@ -87,14 +83,7 @@
     <Compile Include="SubscriptionHandle.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
-    <None Include="Ella.config">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Properties\Ella.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Ella.Designer.cs</LastGenOutput>
-    </None>
+    <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup />

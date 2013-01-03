@@ -1,4 +1,6 @@
-﻿namespace Ella.Properties {
+﻿using log4net.Config;
+
+namespace Ella.Properties {
     
     
     // This class allows you to handle specific events on the settings class:
@@ -15,6 +17,7 @@
             //
             // this.SettingsSaving += this.SettingsSavingEventHandler;
             //
+
         }
         
         private void SettingChangingEventHandler(object sender, System.Configuration.SettingChangingEventArgs e) {

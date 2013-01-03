@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Text;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Ella;
 using Ella.Model;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -31,6 +32,7 @@ namespace Ella
             TestSubscriber subscriber = new TestSubscriber();
             subscriber.Subscribe();
             publisher.PublishEvent();
+            Thread.Sleep(100);
             Assert.AreEqual(subscriber.numEventsReceived, 1);
         }
 
@@ -49,6 +51,10 @@ namespace Ella
         [TestMethod]
         public void SubscribeToEventByTemplateObject()
         {
+            ValueType vt = DateTime.Now;
+            DateTime dt = (DateTime)vt;
+            Console.WriteLine(dt);
+
             TestPublisher pub = new TestPublisher();
             Start.Publisher(pub);
             TestSubscriber subscriber = new TestSubscriber();

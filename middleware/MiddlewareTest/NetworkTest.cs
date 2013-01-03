@@ -22,5 +22,7 @@ namespace Ella
             sub.Callback("Hello");
             Assert.IsTrue(p.eventReceived);
         }
+
+       
     }
 }

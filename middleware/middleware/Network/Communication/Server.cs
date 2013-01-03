@@ -48,6 +48,7 @@ namespace Ella.Network.Communication
         /// </summary>
         public void Start()
         {
+            _log.InfoFormat("Starting TCP Server on Port {0}", _port);
             _tpcListenerThread = new Thread((ThreadStart)delegate
                                                           {
                                                               TcpListener listener = new TcpListener(_address, _port);
@@ -69,11 +70,11 @@ namespace Ella.Network.Communication
                                                               }
                                                               catch (ThreadInterruptedException)
                                                               {
-                                                                  _log.DebugFormat("Server Listener thread interrupted");
+                                                                  _log.DebugFormat("TCP Server Listener thread interrupted");
                                                               }
                                                               catch (ThreadAbortException)
                                                               {
-                                                                  _log.DebugFormat("Server Listener Thread aborted. Exiting");
+                                                                  _log.DebugFormat("TCP Server Listener Thread aborted. Exiting");
                                                               }
                                                               catch (Exception e)
                                                               {
@@ -90,7 +91,7 @@ namespace Ella.Network.Communication
             _udpListenerThread = new Thread((ThreadStart)delegate
             {
                 //TODO port
-                UdpClient listener = new UdpClient(44556);
+                UdpClient listener = new UdpClient(_port);
                 try
                 {
                     while (true)
@@ -108,11 +109,11 @@ namespace Ella.Network.Communication
                 }
                 catch (ThreadInterruptedException)
                 {
-                    _log.DebugFormat("Server Listener thread interrupted");
+                    _log.DebugFormat("UDP Server Listener thread interrupted");
                 }
                 catch (ThreadAbortException)
                 {
-                    _log.DebugFormat("Server Listener Thread aborted. Exiting");
+                    _log.DebugFormat("UDP Server Listener Thread aborted. Exiting");
                 }
                 catch (Exception e)
                 {
@@ -131,7 +132,7 @@ namespace Ella.Network.Communication
         private void ProcessUdpMessage(byte[] datagram, IPEndPoint ep)
         {
             //TODO msg id: necessary? then put it into datagram
-            Message msg = new Message(-1) { Data = datagram, Sender = Convert.ToInt32(datagram), Type = MessageType.Discover };
+            Message msg = new Message(-1) { Data = datagram, Sender = BitConverter.ToInt32(datagram,0), Type = MessageType.Discover };
             if (NewMessage != null)
             {
                 NewMessage(this, new MessageEventArgs(msg) { Address = ep });
@@ -151,40 +152,48 @@ namespace Ella.Network.Communication
              * Message:
              * type 1 byte
              * id 4 bytes
+             * sender 4 bytes
              * length 4 bytes
              * data <length> bytes
              */
             NetworkStream stream = client.GetStream();
+
+            //Type
             short messageType = Convert.ToInt16(stream.ReadByte());
+
+            //id
             byte[] buffer = new byte[4];
             stream.Read(buffer, 0, buffer.Length);
             int id = BitConverter.ToInt32(buffer, 0);
+
+            //sender
+            buffer = new byte[4];
+            stream.Read(buffer, 0, buffer.Length);
+            int sender = BitConverter.ToInt32(buffer, 0);
+
+            //length
             buffer = new byte[4];
             stream.Read(buffer, 0, buffer.Length);
             int length = BitConverter.ToInt32(buffer, 0);
+
+            //data
             buffer = new byte[length];
             byte[] data = new byte[length];
+
             int totalbytesRead = 0;
             string addressString = (client.Client.RemoteEndPoint as IPEndPoint).Address.ToString();
-            IEnumerable<int> sendernodes = (from n in NodeDictionary where n.Value == addressString select n.Key).DefaultIfEmpty(-1).ToArray();
-            int senderid = -1;
-            if (sendernodes == null || sendernodes.Count() == 0)
-            {
-                Console.ForegroundColor = ConsoleColor.DarkRed;
-                _log.ErrorFormat("Could not resolve nodeID for address {0}", addressString);
-                Console.ResetColor();
-            }
-            else
-            { senderid = sendernodes.FirstOrDefault(); }
+           
             while (totalbytesRead < length)
             {
                 int read = stream.Read(buffer, 0, buffer.Length);
                 Array.Copy(buffer, 0, data, totalbytesRead, read);
                 totalbytesRead += read;
             }
+
+            //TODO this could be ckecked on top, so that message can be rejected
             if (NewMessage != null)
             {
-                Message m = new Message(id) { Data = data, Type = ((MessageType)messageType), Sender = senderid };
+                Message m = new Message(id) { Data = data, Type = ((MessageType)messageType), Sender = sender };
                 NewMessage(this, new MessageEventArgs(m) { Address = client.Client.RemoteEndPoint });
             }
             else

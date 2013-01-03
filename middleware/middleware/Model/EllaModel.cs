@@ -28,12 +28,7 @@ namespace Ella.Model
         /// </summary>
         public EllaModel()
         {
-            //Publishers = new List<Type>();
-            //Subscribers = new List<Type>();
-            //ActivePublishers = new Dictionary<object, int>();
-            //Subscriptions = new List<SubscriptionBase>();
             Reset();
-            BasicConfigurator.Configure();
         }
 
         /// <summary>

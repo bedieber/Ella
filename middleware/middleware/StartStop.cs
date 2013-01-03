@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using Ella.Attributes;
@@ -9,6 +12,8 @@ using Ella.Internal;
 using Ella.Model;
 using Ella.Network;
 using log4net;
+using log4net.Config;
+using log4net.Util;
 
 namespace Ella
 {
@@ -61,6 +66,18 @@ namespace Ella
             _log.Info("Starting network controller");
             NetworkController.Start();
 
+        }
+
+        /// <summary>
+        /// Initializes the Ella Middleware system
+        /// </summary>
+        public static void Ella()
+        {
+          //  XmlConfigurator.ConfigureAndWatch(new FileInfo(
+          //Path.GetDirectoryName(
+          //      Assembly.GetAssembly(typeof(Start)).Location)
+          //     + @"\" + "Ella.dll.config"));
+          //  _log.Info("Ella started");
         }
 
 

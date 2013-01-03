@@ -2,14 +2,19 @@ using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using Ella.Internal;
+using log4net;
 
 namespace Ella.Network.Communication
 {
+
     /// <summary>
     /// The networking client used to contact a remote endpoint
     /// </summary>
     internal class Client
     {
+        private static ILog _log = LogManager.GetLogger(typeof(Client));
+
         /// <summary>
         /// Sends the specified message.
         /// </summary>
@@ -31,7 +36,7 @@ namespace Ella.Network.Communication
             }
             catch (Exception e)
             {
-                Console.WriteLine("NetworkClient: failed to send message {0} to {1}", m.Id,
+                _log.WarnFormat("NetworkClient: failed to send message {0} to {1}", m.Id,
                                   address, e.Message);
             }
         }
@@ -58,10 +63,19 @@ namespace Ella.Network.Communication
         internal static void Broadcast()
         {
             UdpClient client = new UdpClient();
-            byte[] bytes = BitConverter.GetBytes(Properties.Ella.Default.NodeID);
-            //TODO port
-            IPEndPoint ip = new IPEndPoint(IPAddress.Parse("255.255.255.255"), 44556);
-            client.Send(bytes, bytes.Length, ip);
+            byte[] idBytes = BitConverter.GetBytes(EllaConfiguration.Instance.NodeId);
+            byte[] portBytes = BitConverter.GetBytes(EllaConfiguration.Instance.NetworkPort);
+            byte[] bytes = new byte[idBytes.Length + portBytes.Length];
+            Array.Copy(idBytes, bytes, idBytes.Length);
+            Array.Copy(portBytes, 0, bytes, idBytes.Length, portBytes.Length);
+            //TODO handle invalid port range
+            for (int i = EllaConfiguration.Instance.DiscoveryPortRangeStart;
+                 i <= EllaConfiguration.Instance.DiscoveryPortRangeEnd;
+                 i++)
+            {
+                IPEndPoint ip = new IPEndPoint(IPAddress.Parse("255.255.255.255"), i);
+                client.Send(bytes, bytes.Length, ip);
+            }
         }
     }
 }

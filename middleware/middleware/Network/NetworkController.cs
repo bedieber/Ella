@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -28,7 +29,8 @@ namespace Ella.Network
         /// </summary>
         internal static void Start()
         {
-            _instance._server = new Server(Properties.Ella.Default.NetworkPort, IPAddress.Any);
+
+            _instance._server = new Server(EllaConfiguration.Instance.NetworkPort, IPAddress.Any);
             _instance._server.NewMessage += _instance.NewMessage;
             _instance._server.Start();
             Client.Broadcast();
@@ -53,7 +55,7 @@ namespace Ella.Network
         /// <param name="callback"></param>
         private void SubscribeTo(Type type, Action<RemoteSubscriptionHandle> callback)
         {
-            Message m = new Message { Type = MessageType.Subscribe, Data = Serializer.Serialize(type)};
+            Message m = new Message { Type = MessageType.Subscribe, Data = Serializer.Serialize(type) };
             //TODO when to remove?
             _pendingSubscriptions.Add(m.Id, callback);
             foreach (IPEndPoint address in _remoteHosts.Values)
@@ -70,15 +72,22 @@ namespace Ella.Network
         /// <param name="e">The <see cref="MessageEventArgs" /> instance containing the event data.</param>
         private void NewMessage(object sender, MessageEventArgs e)
         {
+            if (e.Message.Sender == EllaConfiguration.Instance.NodeId)
+                return;
             _log.DebugFormat("New {1} message from {0}", e.Address, e.Message.Type);
             switch (e.Message.Type)
             {
                 case MessageType.Discover:
                     {
-                        if (!_remoteHosts.ContainsKey(e.Message.Id))
+                        if (!_remoteHosts.ContainsKey(e.Message.Sender))
                         {
-                            _log.InfoFormat("Discovered host {0}", e.Message.Id);
-                            _remoteHosts.Add(e.Message.Sender, e.Address);
+                            //TODO Exclude local endpoint from this list
+                            int port = BitConverter.ToInt32(e.Message.Data, 4);
+                            IPEndPoint ep = (IPEndPoint) e.Address;
+                            ep.Port = port;
+                            _log.InfoFormat("Discovered host {0} on {1}", e.Message.Sender, ep);
+                            _remoteHosts.Add(e.Message.Sender, ep);
+                            Client.Broadcast();
                         }
                         break;
                     }
@@ -96,7 +105,7 @@ namespace Ella.Network
                         RemoteSubscriptionHandle handle = new RemoteSubscriptionHandle
                             {
                                 EventID = eventID,
-                                PublisherID = publisherID,
+                                PublisherId = publisherID,
                                 RemoteNodeID = e.Message.Sender,
                             };
                         byte[] data = new byte[e.Message.Data.Length - 4];
@@ -112,7 +121,9 @@ namespace Ella.Network
                 case MessageType.Subscribe:
                     {
                         Type type = Serializer.Deserialize<Type>(e.Message.Data);
-                        IEnumerable<RemoteSubscriptionHandle> handles = Subscribe.RemoteSubscriber(type, e.Message.Sender);
+                        //TODO handle case when remote host is not in remoteHosts dictionary
+                        
+                        IEnumerable<RemoteSubscriptionHandle> handles = Subscribe.RemoteSubscriber(type, e.Message.Sender, (IPEndPoint)_remoteHosts[e.Message.Sender]);
                         if (handles != null)
                         {
                             //Send reply
@@ -122,8 +133,7 @@ namespace Ella.Network
                             Array.Copy(idbytes, reply, idbytes.Length);
                             Array.Copy(handledata, 0, reply, idbytes.Length, handledata.Length);
                             Message m = new Message { Type = MessageType.SubscribeResponse, Data = reply };
-                            //TODO check port
-                            Client.Send(m, e.Address.ToString(), (e.Address as IPEndPoint).Port);
+                            Client.Send(m, e.Address.ToString(), ((IPEndPoint)_remoteHosts[e.Message.Sender]).Port);
                         }
                         break;
                     }

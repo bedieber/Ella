@@ -22,7 +22,8 @@ namespace Ella.Model
         /// <param name="subscriber">The subscriber.</param>
         /// <param name="ev">The ev.</param>
         /// <param name="callback">The callback.</param>
-        public Subscription(object subscriber, Event ev, Action<T> callback):this()
+        public Subscription(object subscriber, Event ev, Action<T> callback)
+            : this()
         {
             Subscriber = subscriber;
             Event = ev;
