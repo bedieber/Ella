@@ -114,7 +114,9 @@ namespace Ella
         /// </summary>
         /// <param name="type">The type to subscribe to.</param>
         /// <param name="nodeId">The node id of the remote node.</param>
-        internal static IEnumerable<RemoteSubscriptionHandle> RemoteSubscriber(Type type, int nodeId, IPEndPoint subscriberAddress)
+        /// <param name="subscriberAddress"></param>
+        /// <param name="id"></param>
+        internal static IEnumerable<RemoteSubscriptionHandle> RemoteSubscriber(Type type, int nodeId, IPEndPoint subscriberAddress, int subscriptionReference)
         {
 
             _log.DebugFormat("Performing remote subscription for type {0}", type);
@@ -133,7 +135,8 @@ namespace Ella
                             EventID = match.EventDetail.ID,
                             PublisherId = EllaModel.Instance.GetPublisherId(match.Publisher),
                             RemoteNodeID = nodeId,
-                            SubscriberId = EllaModel.Instance.GetSubscriberId(proxy)
+                            SubscriberId = EllaModel.Instance.GetSubscriberId(proxy),
+                            SubscriptionReference=subscriptionReference
                         };
                     SubscriptionBase subscription = ReflectionUtils.CreateGenericSubscription(type, match, proxy);
                     subscription.Handle = handle;

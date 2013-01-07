@@ -15,7 +15,8 @@ namespace Ella.Network.Communication
         Subscribe = 1,
         SubscribeResponse,
         RequestTemplate,
-        Publish
+        Publish,
+        DiscoverResponse
     }
     
     
@@ -25,7 +26,7 @@ namespace Ella.Network.Communication
     /// </summary>
     internal class Message
     {
-        private static int _nextId = 0;
+        private static int _nextId = new Random().Next(100);
         /// <summary>
         /// Gets or sets the type.
         /// </summary>

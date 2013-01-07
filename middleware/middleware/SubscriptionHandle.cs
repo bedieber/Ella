@@ -59,6 +59,10 @@ namespace Ella
     [Serializable]
     internal class RemoteSubscriptionHandle : SubscriptionHandle
     {
+        [NonSerialized]
+        private int _subscriptionReference;
+
+
         /// <summary>
         /// Gets or sets the remote node ID.
         /// </summary>
@@ -66,6 +70,20 @@ namespace Ella
         /// The remote node ID.
         /// </value>
         internal int RemoteNodeID { get; set; }
+
+        /// <summary>
+        /// Gets or sets the subscription reference.<br />
+        /// This is the message ID with which the subscription was made
+        /// </summary>
+        /// <value>
+        /// The subscription reference.
+        /// </value>
+        internal int SubscriptionReference
+        {
+            get { return _subscriptionReference; }
+            set { _subscriptionReference = value; }
+        }
+
 
         public override int GetHashCode()
         {
