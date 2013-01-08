@@ -17,11 +17,11 @@ namespace Ella
         public void CreateGenericSubsription()
         {
             FakeProxy proxy = new FakeProxy();
-          
-            SubscriptionBase subscription= ReflectionUtils.CreateGenericSubscription(typeof (String), new Event(), proxy);
+
+            SubscriptionBase subscription = ReflectionUtils.CreateGenericSubscription(typeof(String), new Event(), proxy);
             Assert.IsInstanceOfType(subscription, typeof(Subscription<String>));
             Subscription<String> sub = subscription as Subscription<String>;
-            sub.Callback("Hello");
+            sub.Callback("Hello", null);
             Assert.IsTrue(proxy.eventReceived);
         }
 
@@ -29,13 +29,13 @@ namespace Ella
         public void CreateGenericSubsriptionForValueType()
         {
             FakeProxy proxy = new FakeProxy();
-         
+
             SubscriptionBase subscription = ReflectionUtils.CreateGenericSubscription(typeof(DateTime), new Event(), proxy);
             Assert.IsInstanceOfType(subscription, typeof(Subscription<DateTime>));
             Subscription<DateTime> sub = subscription as Subscription<DateTime>;
-            sub.Callback(DateTime.Now);
+            sub.Callback(DateTime.Now, null);
             Assert.IsTrue(proxy.eventReceived);
         }
-       
+
     }
 }

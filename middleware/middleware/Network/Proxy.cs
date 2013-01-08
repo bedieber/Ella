@@ -31,7 +31,7 @@ namespace Ella.Network
         /// Handles a new event by serializing and sending it to the remote subscriber
         /// </summary>
         /// <param name="data">The data.</param>
-        internal void HandleEvent(object data)
+        internal void HandleEvent(object data, SubscriptionHandle handle)
         {
           
             /*

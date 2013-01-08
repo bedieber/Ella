@@ -28,7 +28,7 @@ namespace Ella
         /// As an alternative, a <paramref name="evaluateTemplateObject" /> can be provided to request templates for the data to be published from every single publisher.</param>
         /// <param name="forbidRemote">if set to <c>true</c> no remote publishers will be considered.</param>
         /// <exception cref="System.ArgumentException">subscriberInstance must be a valid subscriber</exception>
-        public static void To<T>(object subscriberInstance, Action<T> newDataCallback, DataModifyPolicy policy = DataModifyPolicy.NoModify, Func<T, bool> evaluateTemplateObject = null, bool forbidRemote = false)
+        public static void To<T>(object subscriberInstance, Action<T, SubscriptionHandle> newDataCallback, DataModifyPolicy policy = DataModifyPolicy.NoModify, Func<T, bool> evaluateTemplateObject = null, bool forbidRemote = false)
         {
             _log.DebugFormat("Subscribing {0} to type {1} {2}", subscriberInstance, typeof(T),
                              (evaluateTemplateObject != null ? "with template object" : string.Empty));
@@ -56,7 +56,7 @@ namespace Ella
 
         }
 
-        private static void DoLocalSubscription<T>(object subscriberInstance, Action<T> newDataCallback,
+        private static void DoLocalSubscription<T>(object subscriberInstance, Action<T, SubscriptionHandle> newDataCallback,
                                                    Func<T, bool> evaluateTemplateObject)
         {
             /*
@@ -136,7 +136,7 @@ namespace Ella
                             PublisherId = EllaModel.Instance.GetPublisherId(match.Publisher),
                             RemoteNodeID = nodeId,
                             SubscriberId = EllaModel.Instance.GetSubscriberId(proxy),
-                            SubscriptionReference=subscriptionReference
+                            SubscriptionReference = subscriptionReference
                         };
                     SubscriptionBase subscription = ReflectionUtils.CreateGenericSubscription(type, match, proxy);
                     subscription.Handle = handle;
@@ -153,24 +153,22 @@ namespace Ella
         /// <summary>
         /// Performs a subscription to a remote publisher for a local subscriber
         /// </summary>
-        internal static void ToRemotePublisher<T>(RemoteSubscriptionHandle handle, object subscriberInstance, Action<T> newDataCallBack, DataModifyPolicy policy, Func<T, bool> evaluateTemplateObject)
+        internal static void ToRemotePublisher<T>(RemoteSubscriptionHandle handle, object subscriberInstance, Action<T, SubscriptionHandle> newDataCallBack, DataModifyPolicy policy, Func<T, bool> evaluateTemplateObject)
         {
             _log.DebugFormat("Completing subscription to remote publisher {0} on node {1},handle: {2}",
                              handle.PublisherId, handle.RemoteNodeID, handle);
             //TODO template object
 
             //Create a stub
-            Stub<T> s = new Stub<T> {DataType = typeof(T), Handle = handle};
+            Stub<T> s = new Stub<T> { DataType = typeof(T), Handle = handle };
             Start.Publisher(s);
             Event ev = new Event
                 {
                     Publisher = s,
-                    EventDetail = (PublishesAttribute)s.GetType().GetCustomAttributes(typeof (PublishesAttribute), false).First()
+                    EventDetail = (PublishesAttribute)s.GetType().GetCustomAttributes(typeof(PublishesAttribute), false).First()
                 };
-            Subscription<T> sub = new Subscription<T>(subscriberInstance, ev, newDataCallBack) {Handle = handle};
+            Subscription<T> sub = new Subscription<T>(subscriberInstance, ev, newDataCallBack) { Handle = handle };
             EllaModel.Instance.Subscriptions.Add(sub);
         }
-
-
     }
 }

@@ -53,7 +53,7 @@ namespace Ella
                      */
 
                     T data = eventData;
-                    
+
                     var subscriptionsArray = subscriptions as Subscription<T>[] ?? subscriptions.ToArray();
                     if (subscriptionsArray.Length == 0)
                     {
@@ -66,7 +66,7 @@ namespace Ella
                     }
                     foreach (var sub in subscriptionsArray)
                     {
-                        Thread t = new Thread(() => sub.Callback(sub.ModifyPolicy==DataModifyPolicy.Modify ? Serializer.SerializeCopy(data):data));
+                        Thread t = new Thread(() => sub.Callback(sub.ModifyPolicy == DataModifyPolicy.Modify ? Serializer.SerializeCopy(data) : data, sub.Handle));
                         t.Start();
                         //TODO should be joined somewhere
                     }

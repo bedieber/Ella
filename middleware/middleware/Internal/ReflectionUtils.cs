@@ -100,7 +100,7 @@ namespace Ella.Internal
             Delegate @delegate;
             if (type.IsValueType)
             {
-                actionType = typeof(Action<>).MakeGenericType(new Type[] { type });
+                actionType = typeof(Action<,>).MakeGenericType(new Type[] { type, typeof(SubscriptionHandle) });
 
                 /* The next few lines create an expression tree to be able to handle value types
                 * If e.g. a struct is passed, we cannot directly bind to the proxy.HandleEvent method because the type system refuses to accept an (object) method for a struct
@@ -109,15 +109,16 @@ namespace Ella.Internal
                 * */
                 ParameterExpression parameter = Expression.Parameter(type, "data");
                 UnaryExpression convertedData = Expression.TypeAs(parameter, typeof(object));
+                ParameterExpression handle = Expression.Parameter(typeof (SubscriptionHandle), "handle");
                 MethodInfo methodInfo = proxy.GetType().GetMethod("HandleEvent",BindingFlags.NonPublic|BindingFlags.Instance);
                 MethodCallExpression e = Expression.Call(Expression.Constant(proxy),
-                                                         methodInfo, convertedData);
-                LambdaExpression lambda = Expression.Lambda(e, parameter);
+                                                         methodInfo, convertedData, handle);
+                LambdaExpression lambda = Expression.Lambda(e, parameter, handle);
                 @delegate = lambda.Compile();
             }
             else
             {
-                actionType = typeof(Action<>).MakeGenericType(new Type[] { typeof(object) });
+                actionType = typeof(Action<,>).MakeGenericType(new Type[] { typeof(object), typeof(SubscriptionHandle) });
 
                 @delegate = Action.CreateDelegate(actionType, proxy, "HandleEvent");
             }

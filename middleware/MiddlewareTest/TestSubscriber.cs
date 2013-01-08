@@ -21,7 +21,7 @@ namespace Ella
             Ella.Subscribe.To<string>(this, Callback);
         }
 
-        private void Callback(string s)
+        private void Callback(string s, SubscriptionHandle handle)
         {
 
             rec = (string) s;

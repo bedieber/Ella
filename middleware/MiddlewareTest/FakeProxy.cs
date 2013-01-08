@@ -9,7 +9,7 @@ namespace Ella
     public class FakeProxy : Proxy
     {
         internal bool eventReceived = false;
-        internal new void HandleEvent(object data)
+        internal new void HandleEvent(object data, SubscriptionHandle handle)
         {
             if (data is String || data is DateTime)
                 eventReceived = true;

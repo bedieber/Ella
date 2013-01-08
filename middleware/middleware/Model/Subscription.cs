@@ -22,7 +22,7 @@ namespace Ella.Model
         /// <param name="subscriber">The subscriber.</param>
         /// <param name="ev">The ev.</param>
         /// <param name="callback">The callback.</param>
-        public Subscription(object subscriber, Event ev, Action<T> callback)
+        public Subscription(object subscriber, Event ev, Action<T, SubscriptionHandle> callback)
             : this()
         {
             Subscriber = subscriber;
@@ -36,7 +36,7 @@ namespace Ella.Model
         /// <value>
         /// The callback.
         /// </value>
-        internal Action<T> Callback { get; set; }
+        internal Action<T, SubscriptionHandle> Callback { get; set; }
 
         /// <summary>
         /// Determines whether the specified <see cref="System.Object" /> is equal to this instance.
