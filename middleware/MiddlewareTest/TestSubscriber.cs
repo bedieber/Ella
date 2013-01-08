@@ -13,18 +13,27 @@ namespace Ella
     {
         internal String rec = "";
         internal int numEventsReceived = 0;
+        internal List<SubscriptionHandle> SubscriptionCallBackHandle = new List<SubscriptionHandle>();
+        internal List<SubscriptionHandle> NewDataHandle = new List<SubscriptionHandle>();
+
+
         [Factory]
         public TestSubscriber() { }
 
         internal void Subscribe()
         {
-            Ella.Subscribe.To<string>(this, Callback);
+            Ella.Subscribe.To<string>(this, Callback, forbidRemote: true, subscriptionCallback: SubscriptionCallback);
+        }
+
+        private void SubscriptionCallback(Type arg1, SubscriptionHandle arg2)
+        {
+            SubscriptionCallBackHandle.Add(arg2);
         }
 
         private void Callback(string s, SubscriptionHandle handle)
         {
-
-            rec = (string) s;
+            NewDataHandle.Add(handle);
+            rec = (string)s;
             if (rec == "hello")
                 numEventsReceived++;
         }

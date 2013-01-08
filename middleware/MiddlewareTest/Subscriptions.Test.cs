@@ -14,6 +14,12 @@ namespace Ella
     [TestClass]
     public class Subscriptions
     {
+        
+        [TestInitialize]
+        public void InitElla()
+        {
+            EllaModel.Instance.Reset();
+        }
 
         [TestMethod]
         public void ProvideTemplateObject()
@@ -62,5 +68,19 @@ namespace Ella
             Assert.AreEqual(1, EllaModel.Instance.Subscriptions.Count());
         }
 
+        [TestMethod]
+        public void SubscriptionHandleIsEqualOnNotificationAndReceivedEvent()
+        {
+            TestPublisher tp = new TestPublisher();
+            Start.Publisher(tp);
+            TestSubscriber s = new TestSubscriber();
+            s.Subscribe();
+            tp.PublishEvent();
+            Thread.Sleep(100);
+            Assert.IsTrue(s.NewDataHandle.Count > 0);
+            Assert.IsTrue(s.SubscriptionCallBackHandle.Count > 0);
+            Assert.IsTrue(s.NewDataHandle.TrueForAll(h=>s.SubscriptionCallBackHandle.Contains(h)));
+            
+        }
     }
 }

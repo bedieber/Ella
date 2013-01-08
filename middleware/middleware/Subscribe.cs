@@ -27,8 +27,9 @@ namespace Ella
         /// <param name="evaluateTemplateObject">Pass a Func to subscribe using template objects. If no Func is given, <paramref name="subscriberInstance" /> will be subscribed to every event with matching <typeparamref name="T" />.<br />
         /// As an alternative, a <paramref name="evaluateTemplateObject" /> can be provided to request templates for the data to be published from every single publisher.</param>
         /// <param name="forbidRemote">if set to <c>true</c> no remote publishers will be considered.</param>
+        /// <param name="subscriptionCallback">A callback method used to notify the subscriber of a new subscription. It passes a <seealso cref="SubscriptionHandle"/> instance used to identify the 1:1 relation between one publisher event and one subscriber</param>
         /// <exception cref="System.ArgumentException">subscriberInstance must be a valid subscriber</exception>
-        public static void To<T>(object subscriberInstance, Action<T, SubscriptionHandle> newDataCallback, DataModifyPolicy policy = DataModifyPolicy.NoModify, Func<T, bool> evaluateTemplateObject = null, bool forbidRemote = false)
+        public static void To<T>(object subscriberInstance, Action<T, SubscriptionHandle> newDataCallback, DataModifyPolicy policy = DataModifyPolicy.NoModify, Func<T, bool> evaluateTemplateObject = null, bool forbidRemote = false, Action<Type, SubscriptionHandle> subscriptionCallback = null)
         {
             _log.DebugFormat("Subscribing {0} to type {1} {2}", subscriberInstance, typeof(T),
                              (evaluateTemplateObject != null ? "with template object" : string.Empty));
@@ -45,19 +46,27 @@ namespace Ella
                     Func<T, bool> eval = evaluateTemplateObject;
                     Action<RemoteSubscriptionHandle> callback =
                         handle => ToRemotePublisher<T>(handle, subscriberInstance, newDataCallback, policy,
-                                                       eval);
+                                                       eval, subscriptionCallback);
                     NetworkController.SubscribeToRemoteHost<T>(callback);
                 }
             }
             if (evaluateTemplateObject == null)
                 evaluateTemplateObject = (o => true);
 
-            DoLocalSubscription(subscriberInstance, newDataCallback, evaluateTemplateObject);
+            DoLocalSubscription(subscriberInstance, newDataCallback, evaluateTemplateObject, subscriptionCallback);
 
         }
 
-        private static void DoLocalSubscription<T>(object subscriberInstance, Action<T, SubscriptionHandle> newDataCallback,
-                                                   Func<T, bool> evaluateTemplateObject)
+        /// <summary>
+        /// Does the local subscription.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="subscriberInstance">The subscriber instance.</param>
+        /// <param name="newDataCallback">The new data callback.</param>
+        /// <param name="evaluateTemplateObject">The evaluate template object.</param>
+        /// <param name="subscriptionCallback">The subscription callback.</param>
+        /// <exception cref="System.ArgumentException">subscriberInstance must be a valid subscriber</exception>
+        private static void DoLocalSubscription<T>(object subscriberInstance, Action<T, SubscriptionHandle> newDataCallback, Func<T, bool> evaluateTemplateObject, Action<Type, SubscriptionHandle> subscriptionCallback)
         {
             /*
                          * find all matching events from currently active publishers
@@ -100,6 +109,10 @@ namespace Ella
                             _log.InfoFormat("Subscribing {0} to {1} for type {2}", subscriberInstance, m.Publisher,
                                             m.EventDetail.DataType);
                             EllaModel.Instance.Subscriptions.Add(subscription);
+                            if (subscriptionCallback != null)
+                            {
+                                subscriptionCallback(typeof (T), subscription.Handle);
+                            }
                         }
                     }
                     else
@@ -151,9 +164,10 @@ namespace Ella
         }
 
         /// <summary>
-        /// Performs a subscription to a remote publisher for a local subscriber
+        /// Performs a subscription to a remote publisher for a local subscriber<br />#
+        /// In this method, the remote subscription is completed
         /// </summary>
-        internal static void ToRemotePublisher<T>(RemoteSubscriptionHandle handle, object subscriberInstance, Action<T, SubscriptionHandle> newDataCallBack, DataModifyPolicy policy, Func<T, bool> evaluateTemplateObject)
+        internal static void ToRemotePublisher<T>(RemoteSubscriptionHandle handle, object subscriberInstance, Action<T, SubscriptionHandle> newDataCallBack, DataModifyPolicy policy, Func<T, bool> evaluateTemplateObject, Action<Type, SubscriptionHandle> subscriptionCallback)
         {
             _log.DebugFormat("Completing subscription to remote publisher {0} on node {1},handle: {2}",
                              handle.PublisherId, handle.RemoteNodeID, handle);
@@ -169,6 +183,10 @@ namespace Ella
                 };
             Subscription<T> sub = new Subscription<T>(subscriberInstance, ev, newDataCallBack) { Handle = handle };
             EllaModel.Instance.Subscriptions.Add(sub);
+            if (subscriptionCallback != null)
+            {
+                subscriptionCallback(typeof (T), sub.Handle);
+            }
         }
     }
 }

@@ -6,7 +6,8 @@ using System.Text;
 namespace Ella
 {
     /// <summary>
-    /// Represents one specific subscription of one subscriber to one publisher
+    /// Represents one specific subscription of one subscriber to one publisher<br />
+    /// Comparing two subscription handles is guaranteed to evaluate to <c>true</c> if both handles describe the same subscription
     /// </summary>
     [Serializable]
     public class SubscriptionHandle

@@ -13,6 +13,13 @@ namespace Ella
     [TestClass]
     public class NetworkTest
     {
+
+        [TestInitialize]
+        public void InitElla()
+        {
+            EllaModel.Instance.Reset();
+        }
+
         [TestMethod]
         public void CreateGenericSubsription()
         {
