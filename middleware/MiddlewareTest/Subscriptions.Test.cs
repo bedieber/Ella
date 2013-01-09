@@ -14,7 +14,7 @@ namespace Ella
     [TestClass]
     public class Subscriptions
     {
-        
+
         [TestInitialize]
         public void InitElla()
         {
@@ -79,7 +79,7 @@ namespace Ella
             Thread.Sleep(100);
             Assert.IsTrue(s.NewDataHandle.Count > 0);
             Assert.IsTrue(s.SubscriptionCallBackHandle.Count > 0);
-            Assert.IsTrue(s.NewDataHandle.TrueForAll(h=>s.SubscriptionCallBackHandle.Contains(h)));
+            Assert.IsTrue(s.NewDataHandle.TrueForAll(h => s.SubscriptionCallBackHandle.Contains(h)));
         }
 
         [TestMethod]
@@ -106,17 +106,18 @@ namespace Ella
             Start.Publisher(p);
 
             TestSubscriber s = new TestSubscriber();
-            
+
             //SubscriptionHandle
-            
+
             s.Subscribe();
             p.PublishEvent();
             Thread.Sleep(100);
-            Assert.IsTrue(EllaModel.Instance.Subscriptions.Count > 0);
+            int count = EllaModel.Instance.Subscriptions.Count;
+            Assert.IsTrue(count > 0);
             Thread.Sleep(100);
 
-            //s.UnsubscribeByHandle(handle);
-            Assert.IsTrue(EllaModel.Instance.Subscriptions.Count == 0);
+            s.UnsubscribeByHandle();
+            Assert.IsTrue(EllaModel.Instance.Subscriptions.Count == count - 1);
         }
     }
 }

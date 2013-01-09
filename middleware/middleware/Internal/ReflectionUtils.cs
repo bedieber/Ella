@@ -109,8 +109,8 @@ namespace Ella.Internal
                 * */
                 ParameterExpression parameter = Expression.Parameter(type, "data");
                 UnaryExpression convertedData = Expression.TypeAs(parameter, typeof(object));
-                ParameterExpression handle = Expression.Parameter(typeof (SubscriptionHandle), "handle");
-                MethodInfo methodInfo = proxy.GetType().GetMethod("HandleEvent",BindingFlags.NonPublic|BindingFlags.Instance);
+                ParameterExpression handle = Expression.Parameter(typeof(SubscriptionHandle), "handle");
+                MethodInfo methodInfo = proxy.GetType().GetMethod("HandleEvent", BindingFlags.NonPublic | BindingFlags.Instance);
                 MethodCallExpression e = Expression.Call(Expression.Constant(proxy),
                                                          methodInfo, convertedData, handle);
                 LambdaExpression lambda = Expression.Lambda(e, parameter, handle);
@@ -128,11 +128,6 @@ namespace Ella.Internal
                                     .Invoke(new object[] { proxy, match, @delegate });
             return (SubscriptionBase)subscription;
         }
-
-
-
-
-
         #endregion
 
     }

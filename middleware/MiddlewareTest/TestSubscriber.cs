@@ -63,9 +63,9 @@ namespace Ella
             Ella.Unsubscribe.From<String>(this);
         }
 
-        internal void UnsubscribeByHandle(SubscriptionHandle handle)
+        internal void UnsubscribeByHandle()
         {
-            Ella.Unsubscribe.From(this,handle);
+            Ella.Unsubscribe.From(this,SubscriptionCallBackHandle[0]);
         }
     }
 
