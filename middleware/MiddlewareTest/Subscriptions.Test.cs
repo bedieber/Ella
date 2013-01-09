@@ -107,8 +107,6 @@ namespace Ella
 
             TestSubscriber s = new TestSubscriber();
 
-            //SubscriptionHandle
-
             s.Subscribe();
             p.PublishEvent();
             Thread.Sleep(100);

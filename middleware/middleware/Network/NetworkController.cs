@@ -103,6 +103,11 @@ namespace Ella.Network
                         ProcessSubscribeResponse(e);
                         break;
                     }
+                case MessageType.Unsubscribe:
+                    {
+                        ProcessUnsubscribe(e);
+                        break;
+                    }
             }
         }
     }

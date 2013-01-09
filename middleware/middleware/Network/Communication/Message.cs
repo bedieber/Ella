@@ -13,6 +13,7 @@ namespace Ella.Network.Communication
     {
         Discover = 0,
         Subscribe = 1,
+        Unsubscribe,
         SubscribeResponse,
         RequestTemplate,
         Publish,

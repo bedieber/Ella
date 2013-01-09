@@ -121,6 +121,22 @@ namespace Ella.Network
                 Client.Send(m, ep.Address.ToString(), ep.Port);
             }
         }
+
+        private void ProcessUnsubscribe(MessageEventArgs e)
+        {
+            int ID = e.Message.Id;
+
+            List<SubscriptionBase> remoteSubs =
+                EllaModel.Instance.Subscriptions.FindAll(s => s.Handle is RemoteSubscriptionHandle);
+
+            remoteSubs = remoteSubs.FindAll(s => s.Event.EventDetail.ID == ID);
+
+            foreach (var sub in remoteSubs)
+            {
+                Unsubscribe.From(sub.Subscriber as Proxy,sub.Handle);
+            }
+
+        }
         #endregion
         #region Publish
         private static void ProcessPublish(MessageEventArgs e)

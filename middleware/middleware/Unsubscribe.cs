@@ -15,7 +15,7 @@ namespace Ella
     {
         private static readonly ILog _log = LogManager.GetLogger(typeof(Subscribe));
 
-
+       
         /// <summary>
         /// Unsubscribes the <paramref name="subscriberInstance" /> from type <typeparamref name="T" />
         /// </summary>
