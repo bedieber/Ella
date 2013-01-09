@@ -57,6 +57,16 @@ namespace Ella
         {
             Ella.Subscribe.To<String>(this, Callback, DataModifyPolicy.NoModify);
         }
+
+        internal void UnsubscribeFromString()
+        {
+            Ella.Unsubscribe.From<String>(this);
+        }
+
+        internal void UnsubscribeByHandle(SubscriptionHandle handle)
+        {
+            Ella.Unsubscribe.From(this,handle);
+        }
     }
 
     [Subscriber]

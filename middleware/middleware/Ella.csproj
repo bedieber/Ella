@@ -92,6 +92,7 @@
     <Compile Include="StartStop.cs" />
     <Compile Include="Subscribe.cs" />
     <Compile Include="SubscriptionHandle.cs" />
+    <Compile Include="Unsubscribe.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

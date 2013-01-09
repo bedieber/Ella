@@ -81,5 +81,42 @@ namespace Ella
             Assert.IsTrue(s.SubscriptionCallBackHandle.Count > 0);
             Assert.IsTrue(s.NewDataHandle.TrueForAll(h=>s.SubscriptionCallBackHandle.Contains(h)));
         }
+
+        [TestMethod]
+        public void UnsubscribeFromType()
+        {
+            TestPublisher p = new TestPublisher();
+            Start.Publisher(p);
+
+            TestSubscriber s = new TestSubscriber();
+            s.Subscribe();
+            p.PublishEvent();
+            Thread.Sleep(100);
+            Assert.IsTrue(EllaModel.Instance.Subscriptions.Count > 0);
+            Thread.Sleep(100);
+
+            s.UnsubscribeFromString();
+            Assert.IsTrue(EllaModel.Instance.Subscriptions.Count == 0);
+        }
+
+        [TestMethod]
+        public void UnsubscribeByHandle()
+        {
+            TestPublisher p = new TestPublisher();
+            Start.Publisher(p);
+
+            TestSubscriber s = new TestSubscriber();
+            
+            //SubscriptionHandle
+            
+            s.Subscribe();
+            p.PublishEvent();
+            Thread.Sleep(100);
+            Assert.IsTrue(EllaModel.Instance.Subscriptions.Count > 0);
+            Thread.Sleep(100);
+
+            //s.UnsubscribeByHandle(handle);
+            Assert.IsTrue(EllaModel.Instance.Subscriptions.Count == 0);
+        }
     }
 }
