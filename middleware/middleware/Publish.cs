@@ -8,6 +8,7 @@ using Ella.Data;
 using Ella.Exceptions;
 using Ella.Internal;
 using Ella.Model;
+using log4net;
 
 namespace Ella
 {
@@ -16,7 +17,9 @@ namespace Ella
     /// </summary>
     public static class Publish
     {
-        
+
+        private static readonly ILog _log = LogManager.GetLogger(typeof(Publish));
+
         /// <summary>
         /// This method is called to publish a new event
         /// </summary>
@@ -25,13 +28,15 @@ namespace Ella
         /// <param name="publisher">The publisher publishing the event.</param>
         /// <param name="eventId">The publisher-internal event ID associated with this event </param>
         /// <exception cref="InvalidPublisherException"></exception>
-        public static void PublishEvent<T>(T eventData, object publisher, int eventId)
+        public static void Event<T>(T eventData, object publisher, int eventId)
         {
+            _log.DebugFormat("{0} publishes {1} for event {2}", publisher, eventData, eventId);
             if (Is.Publisher(publisher.GetType()))
             {
                 //check if this one was started before
-                if (!EllaModel.Instance.ActivePublishers.Contains(publisher))
+                if (!EllaModel.Instance.IsActivePublisher(publisher))
                 {
+                    _log.ErrorFormat("Publisher {0} is not in the list of active publishers", publisher);
                     throw new StateException("Publisher is not in the list of active publishers");
                 }
                 else
@@ -53,26 +58,24 @@ namespace Ella
                     var subscriptionsArray = subscriptions as Subscription<T>[] ?? subscriptions.ToArray();
                     if (subscriptionsArray.Length == 0)
                     {
-                        //_log.DebugFormat("No subscribers found for event {0} of publisher {1}", eventId, publisher);
+                        _log.DebugFormat("No subscribers found for event {0} of publisher {1}", eventId, publisher);
                         return;
                     }
                     if (subscriptionsArray.ElementAt(0).Event.EventDetail.CopyPolicy == DataCopyPolicy.Copy)
                     {
                         data = Serializer.SerializeCopy(eventData);
                     }
-                   if (subscriptionsArray.ElementAt(0).Event.EventDetail.CopyPolicy == DataCopyPolicy.Copy)
-                    {
-                        data = Serializer.SerializeCopy(eventData);
-                    }
                     foreach (var sub in subscriptionsArray)
                     {
-                        Thread t = new Thread(() => sub.Callback(sub.ModifyPolicy==DataModifyPolicy.Modify ? Serializer.SerializeCopy(data):data));
+                        Thread t = new Thread(() => sub.Callback(sub.ModifyPolicy == DataModifyPolicy.Modify ? Serializer.SerializeCopy(data) : data, sub.Handle));
                         t.Start();
+                        //TODO should be joined somewhere
                     }
                 }
             }
             else
             {
+                _log.ErrorFormat("{0} is not a publisher and may not publish any events", publisher.GetType());
                 throw new InvalidPublisherException(string.Format("{0} is not a publisher and may not publish any events", publisher.GetType()));
             }
         }

@@ -11,20 +11,30 @@ namespace Ella
     [Subscriber]
     public class TestSubscriber
     {
-        internal String rec="";
+        internal String rec = "";
         internal int numEventsReceived = 0;
+        internal List<SubscriptionHandle> SubscriptionCallBackHandle = new List<SubscriptionHandle>();
+        internal List<SubscriptionHandle> NewDataHandle = new List<SubscriptionHandle>();
+
+
         [Factory]
         public TestSubscriber() { }
 
         internal void Subscribe()
         {
-            Ella.Subscribe.To<string>(this, Callback);
+            Ella.Subscribe.To<string>(this, Callback, forbidRemote: true, subscriptionCallback: SubscriptionCallback);
         }
 
-        private void Callback(string s)
+        private void SubscriptionCallback(Type arg1, SubscriptionHandle arg2)
         {
-            rec = s;
-            if (s == "hello")
+            SubscriptionCallBackHandle.Add(arg2);
+        }
+
+        private void Callback(string s, SubscriptionHandle handle)
+        {
+            NewDataHandle.Add(handle);
+            rec = (string)s;
+            if (rec == "hello")
                 numEventsReceived++;
         }
 
@@ -40,12 +50,12 @@ namespace Ella
 
         internal void SubscribeWithModifyTrue()
         {
-            Ella.Subscribe.To<String>(this,Callback,DataModifyPolicy.Modify);
+            Ella.Subscribe.To<String>(this, Callback, DataModifyPolicy.Modify);
         }
 
         internal void SubscribeWithModifyFalse()
         {
-            Ella.Subscribe.To<String>(this,Callback,DataModifyPolicy.NoModify);
+            Ella.Subscribe.To<String>(this, Callback, DataModifyPolicy.NoModify);
         }
     }
 

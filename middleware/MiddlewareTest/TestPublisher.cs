@@ -30,7 +30,7 @@ namespace Ella
 
         internal void PublishEvent()
         {
-            Publish.PublishEvent("hello", this, 1);
+            Publish.Event("hello", this, 1);
         }
     }
 
@@ -103,7 +103,7 @@ namespace Ella
 
         internal void PublishEvent()
         {
-            Publish.PublishEvent(data, this, 1);
+            Publish.Event(data, this, 1);
         }
     }
 
@@ -123,7 +123,7 @@ namespace Ella
 
         internal void PublishEvent()
         {
-            Publish.PublishEvent(data, this, 1);
+            Publish.Event(data, this, 1);
         }
     }
 }

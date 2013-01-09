@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Ella.Attributes;
+using log4net.Config;
 
 namespace Ella.Model
 {
@@ -10,6 +12,8 @@ namespace Ella.Model
     /// </summary>
     internal class EllaModel
     {
+        private int _nextModuleID = 0;
+
         #region internal Singleton
         private static readonly EllaModel _instance = new EllaModel();
 
@@ -24,10 +28,7 @@ namespace Ella.Model
         /// </summary>
         public EllaModel()
         {
-            Publishers = new List<Type>();
-            Subscribers = new List<Type>();
-            ActivePublishers = new List<object>();
-            Subscriptions=new List<SubscriptionBase>();
+            Reset();
         }
 
         /// <summary>
@@ -54,28 +55,100 @@ namespace Ella.Model
         /// <summary>
         /// List of all started publishers
         /// </summary>
-        internal ICollection<object> ActivePublishers { get; set; }
+        private IDictionary<object, int> ActivePublishers { get; set; }
 
-
+        private IDictionary<object, int> ActiveSubscribers { get; set; }
 
         internal IEnumerable<IGrouping<Type, Event>> ActiveEvents
         {
             get
             {
                 //from all active publishers, take their subscribes attributes as one flat list
-                IEnumerable<Event> atr = (from p in ActivePublishers let a = (((IEnumerable<PublishesAttribute>)p.GetType().GetCustomAttributes(typeof(PublishesAttribute), true))).Select(e => new Event { Publisher = p, EventDetail = e }) select a).SelectMany(i => i);
+                IEnumerable<Event> atr = (from p in ActivePublishers.Keys let a = (((IEnumerable<PublishesAttribute>)p.GetType().GetCustomAttributes(typeof(PublishesAttribute), true))).Select(e => new Event { Publisher = p, EventDetail = e }) select a).SelectMany(i => i);
                 //make a dictionary out of that list, where the key is the type of published data
                 return atr.GroupBy(a => a.EventDetail.DataType);
                 //return atr.ToLookup(a => a.EventDetail.DataType);
             }
         }
 
+        /// <summary>
+        /// Resets this instance.
+        /// </summary>
         internal void Reset()
         {
             Publishers = new List<Type>();
             Subscribers = new List<Type>();
-            ActivePublishers = new List<object>();
+            ActivePublishers = new Dictionary<object, int>();
             Subscriptions = new List<SubscriptionBase>();
+            ActiveSubscribers = new Dictionary<object, int>();
+        }
+
+        /// <summary>
+        /// Adds an active publisher.
+        /// </summary>
+        /// <param name="instance">The instance.</param>
+        internal void AddActivePublisher(object instance)
+        {
+            //TODO check if valid publisher
+            if (!ActivePublishers.ContainsKey(instance))
+            {
+                ActivePublishers.Add(instance, Interlocked.Increment(ref _nextModuleID));
+            }
+        }
+
+        /// <summary>
+        /// Adds an active subscriber.
+        /// </summary>
+        /// <param name="instance">The instance.</param>
+        internal void AddActiveSubscriber(object instance)
+        {
+            //TODO check if valid subscriber
+            if (!ActiveSubscribers.ContainsKey(instance))
+            {
+                ActiveSubscribers.Add(instance, Interlocked.Increment(ref _nextModuleID));
+            }
+        }
+
+        /// <summary>
+        /// Removes the active publisher.
+        /// </summary>
+        /// <param name="instance">The instance.</param>
+        internal void RemoveActivePublisher(object instance)
+        {
+            if (ActivePublishers.ContainsKey(instance))
+                ActivePublishers.Remove(instance);
+        }
+
+        /// <summary>
+        /// Determines whether <paramref name="publisher"/> is an active publisher.
+        /// </summary>
+        /// <param name="publisher">The publisher.</param>
+        /// <returns>
+        ///   <c>true</c> if [is active publisher] [the specified publisher]; otherwise, <c>false</c>.
+        /// </returns>
+        internal bool IsActivePublisher(object publisher)
+        {
+            return ActivePublishers.ContainsKey(publisher);
+        }
+
+        /// <summary>
+        /// Gets the publisher id.
+        /// </summary>
+        /// <param name="p">The p.</param>
+        /// <returns></returns>
+        internal int GetPublisherId(object p)
+        {
+            return ActivePublishers[p];
+        }
+
+        /// <summary>
+        /// Gets the subscriber id.
+        /// </summary>
+        /// <param name="p">The p.</param>
+        /// <returns></returns>
+        internal int GetSubscriberId(object p)
+        {
+            return ActiveSubscribers[p];
         }
     }
 }

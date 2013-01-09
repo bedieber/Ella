@@ -6,6 +6,7 @@ using System.Text;
 using Ella.Attributes;
 using Ella.Exceptions;
 using Ella.Internal;
+using log4net;
 
 namespace Ella
 {
@@ -14,6 +15,7 @@ namespace Ella
     /// </summary>
     public static class Create
     {
+        private static ILog _log = LogManager.GetLogger(typeof(Create));
         /// <summary>
         /// Creates an instance of a module type.
         /// </summary>
@@ -22,10 +24,12 @@ namespace Ella
         /// <exception cref="System.ArgumentException">Class does not define static factory method defining the [Factory] Attribute</exception>
         public static object ModuleInstance(Type type)
         {
+            _log.DebugFormat("Creating instance of {0}", type);
             if (Is.Publisher(type) || Is.Subscriber(type))
             {
                 var methodInfo = ReflectionUtils.GetAttributedMethod(type, typeof(FactoryAttribute), true);
-                if (methodInfo != null && !methodInfo.GetParameters().Any() && (methodInfo is ConstructorInfo || (methodInfo is MethodInfo && methodInfo.IsStatic)))
+                if (methodInfo != null && !methodInfo.GetParameters().Any() &&
+                    (methodInfo is ConstructorInfo || (methodInfo is MethodInfo && methodInfo.IsStatic)))
                 {
                     object instance = null;
                     if (methodInfo is ConstructorInfo)
@@ -34,8 +38,18 @@ namespace Ella
                         instance = methodInfo.Invoke(new object[] { }, null);
                     return instance;
                 }
+                else
+                {
+                    _log.ErrorFormat("{0} does not define static factory method defining the [Factory] Attribute", type);
+                    throw new ArgumentException(
+                        "Class does not define static factory method defining the [Factory] Attribute");
+                }
             }
-            throw new ArgumentException("Class does not define static factory method defining the [Factory] Attribute");
+            else
+            {
+                _log.ErrorFormat("{0} is no valid publisher or subscriber", type);
+                throw new InvalidModuleException(string.Format("{0} is no valid pubisher or subscriber", type));
+            }
         }
 
         /// <summary>
@@ -48,11 +62,13 @@ namespace Ella
         /// <exception cref="InvalidPublisherException">TemplateData Method may require at most one parameter</exception>
         public static object TemplateObject(object instance, int eventId)
         {
+            _log.DebugFormat("Creating template object of event {0} defined in type {1} using instance {2}", eventId,
+                             instance.GetType(), instance);
             if (Is.ValidPublisher(instance.GetType()))
             {
                 /*
                  * OK -- Resolve the method or property attributed with TemplateDataAttribute
-                 * Return value must be of the same type as the published event
+                 * OK -- Return value must be of the same type as the published event
                  * OK -- methods may have one parameter which is the integer eventID
                  * OK -- the eventId supplied in the TemplateDataAttribute must match
                  * 
@@ -76,7 +92,12 @@ namespace Ella
                             var methodInfo = m.Key as MethodInfo;
                             var parameters = methodInfo.GetParameters();
                             if (parameters.Count() > 1)
+                            {
+                                _log.ErrorFormat(
+                                    "{0} is not well defined for being a template method. It may require at most one parameter, which is the Event ID (int)",
+                                    m.Key);
                                 throw new InvalidPublisherException("TemplateData Method may require at most one parameter");
+                            }
                             if (parameters.Count() == 1)
                                 templateObject = methodInfo.Invoke(instance, new object[] { eventId });
                             else
@@ -89,7 +110,12 @@ namespace Ella
                             var propertyInfo = m.Key as PropertyInfo;
                             ParameterInfo[] parameters = propertyInfo.GetIndexParameters();
                             if (parameters.Count() > 1)
+                            {
+                                _log.ErrorFormat(
+                                    "{0} is not well defined for being a template method. It may require at most one parameter, which is the Event ID (int)",
+                                    m.Key);
                                 throw new InvalidPublisherException("TemplateData Property may require at most one index variable");
+                            }
                             if (parameters.Count() == 1)
                                 templateObject = propertyInfo.GetValue(instance, new object[] { eventId });
                             else
@@ -99,13 +125,22 @@ namespace Ella
                         }
                         //check if the template object is of the same type as defined in the PublishesAttribute
                         if (targetType != templateObject.GetType())
+                        {
+                            _log.ErrorFormat("Template object {0} is not of type {1}", templateObject.GetType(),
+                                             targetType);
                             throw new InvalidOperationException("Template objects was not of the same type as defined in the PublishesAttribute");
+                        }
                         return templateObject;
                     }
+                    else
+                        _log.WarnFormat("{0} does not provide any template objects for event ID {1}", instance.GetType(),
+                                        eventId);
                 }
+                
             }
             else
             {
+                _log.ErrorFormat("{0} is not a valid publisher", instance.GetType().ToString());
                 throw new InvalidPublisherException(instance.GetType().ToString());
             }
             return null;

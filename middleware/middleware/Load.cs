@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using Ella.Model;
+using log4net;
 
 namespace Ella
 {
@@ -12,15 +13,16 @@ namespace Ella
     /// </summary>
     public static class Load
     {
+        private static ILog _log = LogManager.GetLogger(typeof (Load));
         /// <summary>
         /// Loads all publishers from a given assembly and adds them to the Ella-internal management
         /// </summary>
         /// <param name="a">The assembly where to search publishers in</param>
         public static void Publishers(Assembly a)
         {
-
             if (a == (Assembly)null)
                 throw new ArgumentNullException("a");
+            _log.DebugFormat("Loading publishers from {0}", a.FullName);
             //AssemblyName[] referencedAssemblies = a.GetReferencedAssemblies();
             //foreach (AssemblyName name in referencedAssemblies)
             //{
@@ -31,6 +33,7 @@ namespace Ella
             {
                 if (Is.ValidPublisher(t))
                 {
+                    _log.DebugFormat("Found publisher {0} in assembly {1}", t, a.FullName);
                     if (!EllaModel.Instance.Publishers.Contains(t))
                         EllaModel.Instance.Publishers.Add(t);
                 }
@@ -46,11 +49,15 @@ namespace Ella
             if (a == (Assembly)null)
                 throw new ArgumentNullException("a");
 
+            _log.DebugFormat("Loading subscribers from {0}", a.FullName);
             Type[] exportedTypes = a.GetExportedTypes();
             foreach (Type t in exportedTypes)
             {
                 if (Is.Subscriber(t))
+                {
+                    _log.DebugFormat("Found subscriber {0} in assembly {1}", t, a.FullName);
                     EllaModel.Instance.Subscribers.Add(t);
+                }
             }
         }
     }

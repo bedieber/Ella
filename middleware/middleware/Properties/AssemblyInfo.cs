@@ -5,8 +5,8 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("middleware")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("Ella")]
+[assembly: AssemblyDescription("Ella Publish/Subscribe Middleware")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("middleware")]
@@ -15,6 +15,8 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyCulture("")]
 [assembly: InternalsVisibleTo("MiddlewareTest")]
 
+//Log4net
+[assembly: log4net.Config.XmlConfigurator(Watch = false, ConfigFile = "Ella.dll.config")]
 
 // Setting ComVisible to false makes the types in this assembly not visible 
 // to COM components.  If you need to access a type in this assembly from 
