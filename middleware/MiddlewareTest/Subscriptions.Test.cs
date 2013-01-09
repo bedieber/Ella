@@ -80,7 +80,6 @@ namespace Ella
             Assert.IsTrue(s.NewDataHandle.Count > 0);
             Assert.IsTrue(s.SubscriptionCallBackHandle.Count > 0);
             Assert.IsTrue(s.NewDataHandle.TrueForAll(h=>s.SubscriptionCallBackHandle.Contains(h)));
-            
         }
     }
 }

@@ -128,7 +128,6 @@ namespace Ella
         /// <param name="type">The type to subscribe to.</param>
         /// <param name="nodeId">The node id of the remote node.</param>
         /// <param name="subscriberAddress"></param>
-        /// <param name="id"></param>
         internal static IEnumerable<RemoteSubscriptionHandle> RemoteSubscriber(Type type, int nodeId, IPEndPoint subscriberAddress, int subscriptionReference)
         {
 
@@ -167,7 +166,7 @@ namespace Ella
         /// Performs a subscription to a remote publisher for a local subscriber<br />#
         /// In this method, the remote subscription is completed
         /// </summary>
-        internal static void ToRemotePublisher<T>(RemoteSubscriptionHandle handle, object subscriberInstance, Action<T, SubscriptionHandle> newDataCallBack, DataModifyPolicy policy, Func<T, bool> evaluateTemplateObject, Action<Type, SubscriptionHandle> subscriptionCallback)
+        private static void ToRemotePublisher<T>(RemoteSubscriptionHandle handle, object subscriberInstance, Action<T, SubscriptionHandle> newDataCallBack, DataModifyPolicy policy, Func<T, bool> evaluateTemplateObject, Action<Type, SubscriptionHandle> subscriptionCallback)
         {
             _log.DebugFormat("Completing subscription to remote publisher {0} on node {1},handle: {2}",
                              handle.PublisherId, handle.RemoteNodeID, handle);
