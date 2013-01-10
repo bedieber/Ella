@@ -122,18 +122,18 @@ namespace Ella.Network
             }
         }
 
-        private void ProcessUnsubscribe(MessageEventArgs e)
+        internal static void ProcessUnsubscribe(MessageEventArgs e)
         {
             int ID = e.Message.Id;
 
             List<SubscriptionBase> remoteSubs =
                 EllaModel.Instance.Subscriptions.FindAll(s => s.Handle is RemoteSubscriptionHandle);
 
-            remoteSubs = remoteSubs.FindAll(s => s.Event.EventDetail.ID == ID);
+            remoteSubs = remoteSubs.FindAll(s => (s.Handle as RemoteSubscriptionHandle).SubscriptionReference == ID);
 
             foreach (var sub in remoteSubs)
             {
-                Unsubscribe.From(sub.Subscriber as Proxy,sub.Handle);
+                Unsubscribe.From(sub.Subscriber as Proxy, sub.Handle);
             }
 
         }
