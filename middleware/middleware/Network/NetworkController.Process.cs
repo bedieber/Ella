@@ -69,10 +69,13 @@ namespace Ella.Network
                 }
                 else
                 {
-                    //TODO perform unsubscribe, reference may be relict from previous run
                     _log.WarnFormat(
                         "Detected invalid subscription reference {0}, may be from previous application run. Unsubscribing...",
                         inResponseTo);
+                    //TODO this is not a clean solution, might clash with other msgIDs
+                    Message m = new Message(inResponseTo) { Type = MessageType.Unsubscribe };
+                    var ipEndPoint = ((IPEndPoint) _remoteHosts[e.Message.Sender]);
+                    Client.SendAsync(m, ipEndPoint.Address.ToString(), ipEndPoint.Port);
                 }
             }
         }

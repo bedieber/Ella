@@ -174,21 +174,23 @@ namespace Ella.Network.Communication
             buffer = new byte[4];
             stream.Read(buffer, 0, buffer.Length);
             int length = BitConverter.ToInt32(buffer, 0);
-
-            //data
-            buffer = new byte[length];
-            byte[] data = new byte[length];
-
-            int totalbytesRead = 0;
-            string addressString = (client.Client.RemoteEndPoint as IPEndPoint).Address.ToString();
-           
-            while (totalbytesRead < length)
+            byte[] data = new byte[0];
+            if (length > 0)
             {
-                int read = stream.Read(buffer, 0, buffer.Length);
-                Array.Copy(buffer, 0, data, totalbytesRead, read);
-                totalbytesRead += read;
-            }
+                //data
+                buffer = new byte[length];
+                data = new byte[length];
 
+                int totalbytesRead = 0;
+                string addressString = (client.Client.RemoteEndPoint as IPEndPoint).Address.ToString();
+
+                while (totalbytesRead < length)
+                {
+                    int read = stream.Read(buffer, 0, buffer.Length);
+                    Array.Copy(buffer, 0, data, totalbytesRead, read);
+                    totalbytesRead += read;
+                }
+            }
             //TODO this could be ckecked on top, so that message can be rejected
             if (NewMessage != null)
             {

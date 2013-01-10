@@ -54,7 +54,7 @@ namespace Ella
             }
 
             int removedSubscriptions = EllaModel.Instance.Subscriptions.RemoveAll(s => s.Handle == handle);
-            _log.DebugFormat("{0} subscriptions have been removed.");
+            _log.DebugFormat("{0} subscriptions have been removed.", removedSubscriptions);
         }
     }
 }

@@ -90,6 +90,7 @@ namespace Ella
         {
             int hashCode = PublisherId;
             hashCode = (hashCode * 397) ^ EventID;
+            hashCode = (hashCode * 397) ^ SubscriptionReference;
             return (hashCode * 397) ^ RemoteNodeID;
         }
 

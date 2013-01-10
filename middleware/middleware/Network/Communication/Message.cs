@@ -99,9 +99,17 @@ namespace Ella.Network.Communication
             ms.Write(bytes, 0, bytes.Length);
             bytes = BitConverter.GetBytes(Sender);
             ms.Write(bytes, 0, bytes.Length);
-            bytes = BitConverter.GetBytes(Data.Length);
-            ms.Write(bytes, 0, bytes.Length);
-            ms.Write(Data, 0, Data.Length);
+            if (Data != null)
+            {
+                bytes = BitConverter.GetBytes(Data.Length);
+                ms.Write(bytes, 0, bytes.Length);
+                ms.Write(Data, 0, Data.Length);
+            }
+            else
+            {
+                bytes = BitConverter.GetBytes(0);
+                ms.Write(bytes, 0, bytes.Length);
+            }
             return ms.ToArray();
         }
 
