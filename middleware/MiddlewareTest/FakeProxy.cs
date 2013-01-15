@@ -6,7 +6,7 @@ using Ella.Network;
 
 namespace Ella
 {
-    public class FakeProxy : Proxy
+    internal class FakeProxy : Proxy
     {
         internal bool eventReceived = false;
         internal new void HandleEvent(object data, SubscriptionHandle handle)

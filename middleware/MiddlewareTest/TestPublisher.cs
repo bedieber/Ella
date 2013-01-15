@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Ella;
 using Ella.Attributes;
+using Ella.Control;
 using Ella.Data;
 
 namespace Ella
@@ -12,6 +13,7 @@ namespace Ella
     [Publishes(typeof(String), 2)]
     public class TestPublisher
     {
+        internal bool MessageReceived = false;
         [Factory]
         public TestPublisher() { }
 
@@ -32,6 +34,13 @@ namespace Ella
         {
             Publish.Event("hello", this, 1);
         }
+
+        [ReceiveMessage]
+        public void ReceiveMessage(ApplicationMessage message)
+        {
+            if (message != null)
+                MessageReceived = true;
+        }
     }
 
     [Publishes(typeof(string), 1)]
@@ -39,7 +48,6 @@ namespace Ella
     [Publishes(typeof(string), 2)]
     public class TestPublisherNonUniqueEventID
     {
-
     }
 
     [Publishes(typeof(int), 1)]
@@ -86,13 +94,13 @@ namespace Ella
         }
     }
 
- 
+
     [Publishes(typeof(String), 1, CopyPolicy = DataCopyPolicy.Copy)]
     public class CopyPolicyTrue
     {
-        internal String data="hello";
+        internal String data = "hello";
 
-         [Factory]
+        [Factory]
         public CopyPolicyTrue() { }
 
         [Start]
@@ -107,12 +115,12 @@ namespace Ella
         }
     }
 
-    [Publishes(typeof(string),1,CopyPolicy = DataCopyPolicy.None)]
+    [Publishes(typeof(string), 1, CopyPolicy = DataCopyPolicy.None)]
     public class CopyPolicyFalse
     {
-         internal String data="hello";
+        internal String data = "hello";
 
-         [Factory]
+        [Factory]
         public CopyPolicyFalse() { }
 
         [Start]

@@ -17,7 +17,8 @@ namespace Ella.Network.Communication
         SubscribeResponse,
         RequestTemplate,
         Publish,
-        DiscoverResponse
+        DiscoverResponse,
+        ApplicationMessage,
     }
     
     

@@ -31,7 +31,10 @@ namespace Ella.Internal
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="data">The data.</param>
-        /// <returns>The deserialized object of type <typeparamref name="T"/></returns>
+        /// <param name="offset">The offset.</param>
+        /// <returns>
+        /// The deserialized object of type <typeparamref name="T" />
+        /// </returns>
         internal static T Deserialize<T>(byte[] data, int offset = 0)
         {
             MemoryStream ms = new MemoryStream(data);

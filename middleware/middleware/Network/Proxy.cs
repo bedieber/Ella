@@ -16,7 +16,7 @@ namespace Ella.Network
     /// A proxy is used to catch local events and transfer them to a remote subscriber stub
     /// </summary>
     [Subscriber()]
-    public class Proxy
+    internal class Proxy
     {
         internal Event EventToHandle { get; set; }
         internal IPEndPoint TargetNode { get; set; }
@@ -31,6 +31,7 @@ namespace Ella.Network
         /// Handles a new event by serializing and sending it to the remote subscriber
         /// </summary>
         /// <param name="data">The data.</param>
+        /// <param name="handle">The handle.</param>
         internal void HandleEvent(object data, SubscriptionHandle handle)
         {
           

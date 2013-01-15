@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Ella.Attributes;
 using Ella;
+using Ella.Control;
 using Ella.Data;
 
 namespace Ella
@@ -66,6 +67,13 @@ namespace Ella
         internal void UnsubscribeByHandle()
         {
             Ella.Unsubscribe.From(this,SubscriptionCallBackHandle[0]);
+        }
+
+        internal void SendMessage()
+        {
+            ApplicationMessage msg = new ApplicationMessage {Data = new byte[1], MessageId = 0, MessageType = 1};
+
+            Send.Message(msg, SubscriptionCallBackHandle[0], this);
         }
     }
 

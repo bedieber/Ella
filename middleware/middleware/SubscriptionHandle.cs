@@ -17,6 +17,13 @@ namespace Ella
         internal int EventID { get; set; }
         internal int SubscriberId { get; set; }
 
+        /// <summary>
+        /// Determines whether the specified <see cref="System.Object" /> is equal to this instance.
+        /// </summary>
+        /// <param name="obj">The <see cref="System.Object" /> to compare with this instance.</param>
+        /// <returns>
+        ///   <c>true</c> if the specified <see cref="System.Object" /> is equal to this instance; otherwise, <c>false</c>.
+        /// </returns>
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(null, obj)) return false;
@@ -25,11 +32,22 @@ namespace Ella
             return Equals((SubscriptionHandle)obj);
         }
 
+        /// <summary>
+        /// Equalses the specified other.
+        /// </summary>
+        /// <param name="other">The other.</param>
+        /// <returns></returns>
         protected bool Equals(SubscriptionHandle other)
         {
             return GetHashCode() == other.GetHashCode();
         }
 
+        /// <summary>
+        /// Returns a hash code for this instance.
+        /// </summary>
+        /// <returns>
+        /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table. 
+        /// </returns>
         public override int GetHashCode()
         {
             unchecked
@@ -41,6 +59,12 @@ namespace Ella
             }
         }
 
+        /// <summary>
+        /// Operator overload for ==
+        /// </summary>
+        /// <param name="one">The one.</param>
+        /// <param name="two">The two.</param>
+        /// <returns></returns>
         public static bool operator ==(SubscriptionHandle one, SubscriptionHandle two)
         {
             if (ReferenceEquals(one, null))
@@ -48,6 +72,12 @@ namespace Ella
             return one.Equals((object)two);
         }
 
+        /// <summary>
+        /// operator overload for !=
+        /// </summary>
+        /// <param name="one">The one.</param>
+        /// <param name="two">The two.</param>
+        /// <returns></returns>
         public static bool operator !=(SubscriptionHandle one, SubscriptionHandle two)
         {
             return !(one == two);
@@ -86,6 +116,12 @@ namespace Ella
         }
 
 
+        /// <summary>
+        /// Returns a hash code for this instance.
+        /// </summary>
+        /// <returns>
+        /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table. 
+        /// </returns>
         public override int GetHashCode()
         {
             int hashCode = PublisherId;
@@ -94,6 +130,12 @@ namespace Ella
             return (hashCode * 397) ^ RemoteNodeID;
         }
 
+        /// <summary>
+        /// Returns a <see cref="System.String" /> that represents this instance.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="System.String" /> that represents this instance.
+        /// </returns>
         public override string ToString()
         {
             return string.Format("{0}/{1}/{2}:{3}", RemoteNodeID, PublisherId, EventID, GetHashCode());

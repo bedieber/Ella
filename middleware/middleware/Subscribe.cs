@@ -127,7 +127,9 @@ namespace Ella
         /// </summary>
         /// <param name="type">The type to subscribe to.</param>
         /// <param name="nodeId">The node id of the remote node.</param>
-        /// <param name="subscriberAddress"></param>
+        /// <param name="subscriberAddress">The subscriber address.</param>
+        /// <param name="subscriptionReference">The subscription reference.</param>
+        /// <returns>An enumerable of <seealso cref="RemoteSubscriptionHandle"/> containing all new subscriptions for this object</returns>
         internal static IEnumerable<RemoteSubscriptionHandle> RemoteSubscriber(Type type, int nodeId, IPEndPoint subscriberAddress, int subscriptionReference)
         {
 

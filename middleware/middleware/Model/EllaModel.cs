@@ -12,6 +12,8 @@ namespace Ella.Model
     /// </summary>
     internal class EllaModel
     {
+        //TODO synchronize methods and accessors here
+
         private int _nextModuleID = 0;
 
         #region internal Singleton

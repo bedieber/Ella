@@ -5,6 +5,7 @@ using System.Configuration;
 using System.Linq;
 using System.Net;
 using System.Text;
+using Ella.Control;
 using Ella.Internal;
 using Ella.Model;
 using Ella.Network.Communication;
@@ -64,6 +65,24 @@ namespace Ella.Network
             }
         }
 
+        public static bool SendApplicationMessage(ApplicationMessage message, RemoteSubscriptionHandle remoteSubscriptionHandle)
+        {
+            return _instance.SendMessage(message, remoteSubscriptionHandle);
+        }
+
+        private bool SendMessage(ApplicationMessage message, RemoteSubscriptionHandle remoteSubscriptionHandle)
+        {
+            Message m = new Message { Data = Serializer.Serialize(message), Type = MessageType.ApplicationMessage };
+
+            IPEndPoint ep = (IPEndPoint)_remoteHosts[remoteSubscriptionHandle.RemoteNodeID];
+            if (ep != null)
+            {
+                Client.SendAsync(m, ep.Address.ToString(), ep.Port);
+                return true;
+            }
+            return false;
+        }
+
 
         /// <summary>
         /// Handles a new message from the network
@@ -108,7 +127,16 @@ namespace Ella.Network
                         ProcessUnsubscribe(e);
                         break;
                     }
+                case MessageType.ApplicationMessage:
+                    {
+                        ApplicationMessage msg = Serializer.Deserialize<ApplicationMessage>(e.Message.Data);
+                        Send.DeliverApplicationMessage(msg);
+                        throw new NotImplementedException();
+                        break;
+                    }
             }
         }
+
+
     }
 }
