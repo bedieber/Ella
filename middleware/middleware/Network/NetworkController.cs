@@ -65,16 +65,16 @@ namespace Ella.Network
             }
         }
 
-        public static bool SendApplicationMessage(ApplicationMessage message, RemoteSubscriptionHandle remoteSubscriptionHandle)
+        public static bool SendApplicationMessage(ApplicationMessage message, RemoteSubscriptionHandle remoteSubscriptionHandle, bool isReply = false)
         {
             return _instance.SendMessage(message, remoteSubscriptionHandle);
         }
 
-        private bool SendMessage(ApplicationMessage message, RemoteSubscriptionHandle remoteSubscriptionHandle)
+        private bool SendMessage(ApplicationMessage message, RemoteSubscriptionHandle remoteSubscriptionHandle, bool isReply = false)
         {
-            Message m = new Message { Data = Serializer.Serialize(message), Type = MessageType.ApplicationMessage };
+            Message m = new Message { Data = Serializer.Serialize(message), Type = isReply ? MessageType.ApplicationMessageResponse : MessageType.ApplicationMessage };
 
-            IPEndPoint ep = (IPEndPoint)_remoteHosts[remoteSubscriptionHandle.RemoteNodeID];
+            IPEndPoint ep = (IPEndPoint)_remoteHosts[remoteSubscriptionHandle.PublisherNodeID];
             if (ep != null)
             {
                 Client.SendAsync(m, ep.Address.ToString(), ep.Port);
@@ -131,7 +131,11 @@ namespace Ella.Network
                     {
                         ApplicationMessage msg = Serializer.Deserialize<ApplicationMessage>(e.Message.Data);
                         Send.DeliverApplicationMessage(msg);
-                        throw new NotImplementedException();
+                        break;
+                    }
+                    case MessageType.ApplicationMessageResponse:
+                    {
+                        //TODO implement application message responce reception
                         break;
                     }
             }

@@ -15,7 +15,7 @@ namespace Ella
     public class Management
     {
         private const int NumPublishers = 6;
-        private const int NumSubscribers = 6;
+        private const int NumSubscribers = 5;
 
         [TestInitialize]
         public void InitElla()

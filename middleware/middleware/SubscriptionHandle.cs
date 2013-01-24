@@ -100,8 +100,9 @@ namespace Ella
         /// <value>
         /// The remote node ID.
         /// </value>
-        internal int RemoteNodeID { get; set; }
+        internal int PublisherNodeID { get; set; }
 
+        internal int SubscriberNodeID { get; set; }
         /// <summary>
         /// Gets or sets the subscription reference.<br />
         /// This is the message ID with which the subscription was made
@@ -127,7 +128,8 @@ namespace Ella
             int hashCode = PublisherId;
             hashCode = (hashCode * 397) ^ EventID;
             hashCode = (hashCode * 397) ^ SubscriptionReference;
-            return (hashCode * 397) ^ RemoteNodeID;
+            hashCode = (hashCode * 397) ^ SubscriberNodeID;
+            return (hashCode * 397) ^ PublisherNodeID;
         }
 
         /// <summary>
@@ -138,7 +140,7 @@ namespace Ella
         /// </returns>
         public override string ToString()
         {
-            return string.Format("{0}/{1}/{2}:{3}", RemoteNodeID, PublisherId, EventID, GetHashCode());
+            return string.Format("{0}/{1}/{2}:{3}", PublisherNodeID, PublisherId, EventID, GetHashCode());
         }
     }
 

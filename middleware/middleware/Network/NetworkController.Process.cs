@@ -63,7 +63,7 @@ namespace Ella.Network
                     foreach (var handle in handles)
                     {
                         //TODO for some reason the remote node ID is not serialized, find out why.
-                        handle.RemoteNodeID = e.Message.Sender;
+                        handle.PublisherNodeID = e.Message.Sender;
                         action(handle);
                     }
                 }
@@ -88,7 +88,7 @@ namespace Ella.Network
             var currentHandles = (from s in EllaModel.Instance.Subscriptions
                                   let s1 = (s.Handle as RemoteSubscriptionHandle)
                                   where
-                                      s1 != null && s1.RemoteNodeID == e.Message.Sender && s.Event.EventDetail.DataType == type
+                                      s1 != null && s1.SubscriberNodeID == e.Message.Sender && s.Event.EventDetail.DataType == type
                                   select s1).ToList().GroupBy(s => s.SubscriptionReference);
 
             IEnumerable<RemoteSubscriptionHandle> handles = Subscribe.RemoteSubscriber(type, e.Message.Sender,
@@ -145,19 +145,22 @@ namespace Ella.Network
         private static void ProcessPublish(MessageEventArgs e)
         {
             /*
-                                     * Remote publisher is identified by
-                                     * Remote node ID (contained in the message object)
-                                     * Remote publisher ID
-                                     * Remote publisher-event ID
-                                     * Assume shorts for all
-                                     */
+                * Remote publisher is identified by
+                * Remote node ID (contained in the message object)
+                * Remote publisher ID
+                * Remote publisher-event ID
+                * The message reference (message ID used for the subscribe message)
+                * Subscriber node ID
+                * Assume shorts for all
+            */
             short publisherID = BitConverter.ToInt16(e.Message.Data, 0);
             short eventID = BitConverter.ToInt16(e.Message.Data, 2);
             RemoteSubscriptionHandle handle = new RemoteSubscriptionHandle
             {
                 EventID = eventID,
                 PublisherId = publisherID,
-                RemoteNodeID = e.Message.Sender,
+                PublisherNodeID = e.Message.Sender,
+                SubscriberNodeID = EllaConfiguration.Instance.NodeId
             };
             byte[] data = new byte[e.Message.Data.Length - 4];
             Buffer.BlockCopy(e.Message.Data, 4, data, 0, data.Length);

@@ -40,7 +40,7 @@ namespace Ella
         public void RemoteAndLocalAreNotEqual()
         {
             SubscriptionHandle h = new SubscriptionHandle { EventID = 1, SubscriberId = 2, PublisherId = 3 };
-            RemoteSubscriptionHandle h2 = new RemoteSubscriptionHandle { EventID = 1, SubscriberId = 2, PublisherId = 3, RemoteNodeID = 15, SubscriptionReference=1 };
+            RemoteSubscriptionHandle h2 = new RemoteSubscriptionHandle { EventID = 1, SubscriberId = 2, PublisherId = 3, PublisherNodeID = 15, SubscriptionReference = 1 };
             Assert.AreNotEqual(h, h2);
             Assert.IsFalse(h == h2);
         }
@@ -48,8 +48,8 @@ namespace Ella
         [TestMethod]
         public void SameRemoteAreEqual()
         {
-            RemoteSubscriptionHandle h = new RemoteSubscriptionHandle { EventID = 1, SubscriberId = 2, PublisherId = 3, RemoteNodeID = 15 };
-            RemoteSubscriptionHandle h2 = new RemoteSubscriptionHandle { EventID = 1, SubscriberId = 2, PublisherId = 3, RemoteNodeID = 15 };
+            RemoteSubscriptionHandle h = new RemoteSubscriptionHandle { EventID = 1, SubscriberId = 2, PublisherId = 3, PublisherNodeID = 15 };
+            RemoteSubscriptionHandle h2 = new RemoteSubscriptionHandle { EventID = 1, SubscriberId = 2, PublisherId = 3, PublisherNodeID = 15 };
             Assert.AreEqual(h, h2);
             Assert.IsTrue(h == h2);
         }
@@ -57,8 +57,8 @@ namespace Ella
         [TestMethod]
         public void DifferentRemoteIdsAreNotEqual()
         {
-            RemoteSubscriptionHandle h = new RemoteSubscriptionHandle { EventID = 1, SubscriberId = 2, PublisherId = 3, RemoteNodeID = 15 };
-            RemoteSubscriptionHandle h2 = new RemoteSubscriptionHandle { EventID = 1, SubscriberId = 2, PublisherId = 3, RemoteNodeID = 14 };
+            RemoteSubscriptionHandle h = new RemoteSubscriptionHandle { EventID = 1, SubscriberId = 2, PublisherId = 3, PublisherNodeID = 15 };
+            RemoteSubscriptionHandle h2 = new RemoteSubscriptionHandle { EventID = 1, SubscriberId = 2, PublisherId = 3, PublisherNodeID = 14 };
             Assert.AreNotEqual(h, h2);
             Assert.IsTrue(h != h2);
         }
@@ -67,7 +67,25 @@ namespace Ella
         public void CastedRemoteAreNotEqual()
         {
             SubscriptionHandle h = new SubscriptionHandle { EventID = 1, SubscriberId = 2, PublisherId = 3 };
-            SubscriptionHandle h2 = new RemoteSubscriptionHandle { EventID = 1, SubscriberId = 2, PublisherId = 3, RemoteNodeID = 15 };
+            SubscriptionHandle h2 = new RemoteSubscriptionHandle { EventID = 1, SubscriberId = 2, PublisherId = 3, PublisherNodeID = 15 };
+            Assert.AreNotEqual(h, h2);
+            Assert.IsFalse(h == h2);
+        }
+
+        [TestMethod]
+        public void SamePublisherDifferentSubscriberNodeAreNotEqual()
+        {
+            RemoteSubscriptionHandle h = new RemoteSubscriptionHandle { EventID = 1, SubscriberId = 2, PublisherId = 3, PublisherNodeID = 15, SubscriberNodeID = 1 };
+            RemoteSubscriptionHandle h2 = new RemoteSubscriptionHandle { EventID = 1, SubscriberId = 2, PublisherId = 3, PublisherNodeID = 15, SubscriberNodeID = 2};
+            Assert.AreNotEqual(h, h2);
+            Assert.IsFalse(h == h2);
+        }
+
+        [TestMethod]
+        public void SamePublisherAndSubscriberNodeDifferentSubscriberAreNotEqual()
+        {
+            RemoteSubscriptionHandle h = new RemoteSubscriptionHandle { EventID = 1, SubscriberId = 2, PublisherId = 3, PublisherNodeID = 15, SubscriberNodeID = 1, SubscriptionReference = 35};
+            RemoteSubscriptionHandle h2 = new RemoteSubscriptionHandle { EventID = 1, SubscriberId = 3, PublisherId = 3, PublisherNodeID = 15, SubscriberNodeID = 1, SubscriptionReference = 34};
             Assert.AreNotEqual(h, h2);
             Assert.IsFalse(h == h2);
         }

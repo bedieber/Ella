@@ -111,7 +111,7 @@ namespace Ella
                             EllaModel.Instance.Subscriptions.Add(subscription);
                             if (subscriptionCallback != null)
                             {
-                                subscriptionCallback(typeof (T), subscription.Handle);
+                                subscriptionCallback(typeof(T), subscription.Handle);
                             }
                         }
                     }
@@ -148,7 +148,8 @@ namespace Ella
                         {
                             EventID = match.EventDetail.ID,
                             PublisherId = EllaModel.Instance.GetPublisherId(match.Publisher),
-                            RemoteNodeID = nodeId,
+                            SubscriberNodeID = nodeId,
+                            PublisherNodeID = EllaConfiguration.Instance.NodeId,
                             SubscriberId = EllaModel.Instance.GetSubscriberId(proxy),
                             SubscriptionReference = subscriptionReference
                         };
@@ -171,7 +172,7 @@ namespace Ella
         private static void ToRemotePublisher<T>(RemoteSubscriptionHandle handle, object subscriberInstance, Action<T, SubscriptionHandle> newDataCallBack, DataModifyPolicy policy, Func<T, bool> evaluateTemplateObject, Action<Type, SubscriptionHandle> subscriptionCallback)
         {
             _log.DebugFormat("Completing subscription to remote publisher {0} on node {1},handle: {2}",
-                             handle.PublisherId, handle.RemoteNodeID, handle);
+                             handle.PublisherId, handle.PublisherNodeID, handle);
             //TODO template object
 
             //Create a stub
@@ -186,7 +187,7 @@ namespace Ella
             EllaModel.Instance.Subscriptions.Add(sub);
             if (subscriptionCallback != null)
             {
-                subscriptionCallback(typeof (T), sub.Handle);
+                subscriptionCallback(typeof(T), sub.Handle);
             }
         }
     }

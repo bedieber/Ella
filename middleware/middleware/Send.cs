@@ -76,5 +76,26 @@ namespace Ella
                 }
                 return true;
         }
+
+        /// <summary>
+        /// Replies to a previously received message
+        /// </summary>
+        /// <param name="reply">The reply message to be sent</param>
+        /// <param name="inReplyTo">The message in reply to (which was originally received).</param>
+        /// <param name="sender">The sender instance.</param>
+        /// <returns></returns>
+        public static bool Reply(ApplicationMessage reply, ApplicationMessage inReplyTo, object sender)
+        {
+            reply.Sender = EllaModel.Instance.GetPublisherId(sender);
+            reply.Handle = inReplyTo.Handle;
+            if (inReplyTo.Handle is RemoteSubscriptionHandle)
+            {
+                return NetworkController.SendApplicationMessage(reply, inReplyTo.Handle as RemoteSubscriptionHandle,isReply:true)
+            }
+            else
+            {
+                //TODO implement local delivery
+            }
+        }
     }
 }

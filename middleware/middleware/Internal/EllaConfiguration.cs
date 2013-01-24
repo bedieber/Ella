@@ -14,7 +14,7 @@ namespace Ella.Internal
     {
         private static EllaConfiguration _instance;
         private static object _lock = new object();
-        
+
         /// <summary>
         /// Gets the instance.
         /// </summary>
@@ -49,7 +49,8 @@ namespace Ella.Internal
         /// <value>
         /// The node id.
         /// </value>
-        [ConfigurationProperty("NodeId", IsRequired = true, IsKey = true, DefaultValue = (int)0)]
+        [ConfigurationProperty("NodeId", IsRequired = true, IsKey = true, DefaultValue = (int)1)]
+        [IntegerValidator(MinValue = 0, MaxValue = 0, ExcludeRange = true)]
         public int NodeId
         {
             get { return (int)this["NodeId"]; }
@@ -63,7 +64,7 @@ namespace Ella.Internal
         /// The network port.
         /// </value>
         [ConfigurationProperty("NetworkPort", DefaultValue = (int)33333, IsRequired = false)]
-        [IntegerValidator(MinValue=0, MaxValue=65535, ExcludeRange=false)]
+        [IntegerValidator(MinValue = 1, MaxValue = 65535, ExcludeRange = false)]
         public int NetworkPort
         {
             get { return (int)this["NetworkPort"]; }
@@ -77,7 +78,7 @@ namespace Ella.Internal
         /// The network port range start.
         /// </value>
         [ConfigurationProperty("DiscoveryPortRangeStart", DefaultValue = (int)33333, IsRequired = false)]
-        [IntegerValidator(MinValue = 0, MaxValue = 65535, ExcludeRange = false)]
+        [IntegerValidator(MinValue = 1, MaxValue = 65535, ExcludeRange = false)]
         public int DiscoveryPortRangeStart
         {
             get { return (int)this["DiscoveryPortRangeStart"]; }
