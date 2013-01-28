@@ -48,34 +48,70 @@ namespace Ella
         internal static bool DeliverApplicationMessage(ApplicationMessage message)
         {
             object publisher = (from s in EllaModel.Instance.Subscriptions
-                                    where s.Handle == message.Handle
-                                    select s.Event.Publisher).SingleOrDefault();
-                if (publisher != null)
-                {
-                    MethodBase method = ReflectionUtils.GetAttributedMethod(publisher.GetType(),
-                                                                            typeof(ReceiveMessageAttribute));
-                    if (method != null)
-                    {
-                        ParameterInfo[] parameterInfos = method.GetParameters();
-                        if (parameterInfos.Length == 1 && parameterInfos[0].ParameterType == typeof (ApplicationMessage))
-                        {
-                            //TODO should this be done in a separate thread?
-                            method.Invoke(publisher, new object[] {message});
-                        }
-                    }
-                    else
-                    {
-                        _log.WarnFormat("Publisher {0} does not define a ReceiveMessage method", publisher);
-                        return false;
-                    }
-                }
-                else
-                {
-                    _log.FatalFormat("Found no suitable publisher for handle {0}", message.Handle);
-                    return false;
-                }
-                return true;
+                                where s.Handle == message.Handle
+                                select s.Event.Publisher).SingleOrDefault();
+            if (publisher != null)
+            {
+                return DeliverMessage(message, publisher);
+            }
+            else
+            {
+                _log.FatalFormat("Found no suitable publisher for handle {0}", message.Handle);
+                return false;
+            }
         }
+
+        /// <summary>
+        /// Delivers a reply to a message
+        /// </summary>
+        /// <param name="message">The message.</param>
+        /// <returns></returns>
+        internal static bool DeliverMessageReply(ApplicationMessage message)
+        {
+            object subscriber = (from s in EllaModel.Instance.Subscriptions
+                                where s.Handle == message.Handle
+                                select s.Subscriber).SingleOrDefault();
+            if (subscriber != null)
+            {
+                return DeliverMessage(message, subscriber);
+            }
+            else
+            {
+                _log.FatalFormat("Found no suitable subscriber for handle {0}", message.Handle);
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Delivers an application message to a module
+        /// </summary>
+        /// <param name="message">The message.</param>
+        /// <param name="instance">The instance.</param>
+        /// <returns></returns>
+        private static bool DeliverMessage(ApplicationMessage message, object instance)
+        {
+
+            MethodBase method = ReflectionUtils.GetAttributedMethod(instance.GetType(),
+                                                                    typeof(ReceiveMessageAttribute));
+            if (method != null)
+            {
+                ParameterInfo[] parameterInfos = method.GetParameters();
+                if (parameterInfos.Length == 1 && parameterInfos[0].ParameterType == typeof(ApplicationMessage))
+                {
+                    //TODO should this be done in a separate thread?
+                    method.Invoke(instance, new object[] { message });
+                }
+            }
+            else
+            {
+                _log.WarnFormat("Instance {0} does not define a ReceiveMessage method", instance);
+                return false;
+            }
+
+            return true;
+        }
+
+
 
         /// <summary>
         /// Replies to a previously received message
@@ -90,11 +126,13 @@ namespace Ella
             reply.Handle = inReplyTo.Handle;
             if (inReplyTo.Handle is RemoteSubscriptionHandle)
             {
-                return NetworkController.SendApplicationMessage(reply, inReplyTo.Handle as RemoteSubscriptionHandle,isReply:true)
+                return NetworkController.SendApplicationMessage(reply, inReplyTo.Handle as RemoteSubscriptionHandle,
+                                                                isReply: true);
             }
             else
             {
-                //TODO implement local delivery
+                DeliverMessageReply(reply);
+                return true;
             }
         }
     }

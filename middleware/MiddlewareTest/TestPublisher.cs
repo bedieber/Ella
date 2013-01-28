@@ -40,6 +40,7 @@ namespace Ella
         {
             if (message != null)
                 MessageReceived = true;
+            Send.Reply(new ApplicationMessage(), message, this);
         }
     }
 

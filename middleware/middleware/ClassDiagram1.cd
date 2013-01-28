@@ -1,0 +1,298 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="Ella.Attributes.FactoryAttribute" Collapsed="true">
+    <Position X="7.75" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Attributes\FactoryAttribute.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Ella.Attributes.PublishesAttribute" Collapsed="true">
+    <Position X="12.75" Y="5.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAIACAAIAgAAAAABAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Attributes\PublishesAttribute.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Ella.Attributes.ReceiveMessageAttribute" Collapsed="true">
+    <Position X="13" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Attributes\ReceiveMessageAttribute.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Ella.Attributes.StartAttribute" Collapsed="true">
+    <Position X="13" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Attributes\StartAttribute.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Ella.Attributes.StopAttribute" Collapsed="true">
+    <Position X="7.75" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Attributes\StopAttribute.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Ella.Attributes.SubscriberAttribute" Collapsed="true">
+    <Position X="11.25" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Attributes\SubscriberAttribute.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Ella.Attributes.TemplateDataAttribute" Collapsed="true">
+    <Position X="13" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ACAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Attributes\TemplateDataAttribute.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Ella.Control.ApplicationMessage" Collapsed="true">
+    <Position X="6" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAEAAAAAAAAAAAAAAAAABIEAAAAAAAIAAA=</HashCode>
+      <FileName>Control\ApplicationMessage.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Ella.Create" Collapsed="true">
+    <Position X="20.25" Y="4" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAIAAAEAAAAAAAAAAAAAAAAAAgAAAAAAAAAA=</HashCode>
+      <FileName>Create.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Ella.Discover" Collapsed="true">
+    <Position X="22" Y="4" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Discover.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Ella.Is" Collapsed="true">
+    <Position X="20.25" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAABAAAAAAACCAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Is.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Ella.Load" Collapsed="true">
+    <Position X="22" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AEAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAQAAAAA=</HashCode>
+      <FileName>Load.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Ella.Publish" Collapsed="true">
+    <Position X="25.5" Y="4" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAEAAAAAAAAAAAgAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Publish.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Ella.Send" Collapsed="true">
+    <Position X="18.5" Y="4" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAUEAAAAAAAAAAAAAAAAAAAAAIAAAAAA=</HashCode>
+      <FileName>Send.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Ella.Start" Collapsed="true">
+    <Position X="23.75" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAABAAAAEAACAAAAAAAAAAAAAAAAAAAAAQAAAA=</HashCode>
+      <FileName>StartStop.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Ella.Stop" Collapsed="true">
+    <Position X="18.5" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAEAACAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>StartStop.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Ella.Subscribe" Collapsed="true">
+    <Position X="23.75" Y="4" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAgAAAAAAAAAEAgBAAAAAAAAAAIAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Subscribe.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Ella.SubscriptionHandle" Collapsed="true">
+    <Position X="3.5" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ACAAAAAAQAAAAAAAgAAAAAAAAQAAAIAAAAAAAAAAAiA=</HashCode>
+      <FileName>SubscriptionHandle.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Ella.RemoteSubscriptionHandle" Collapsed="true">
+    <Position X="3.5" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAEAQAAEAAAAAAAAIAABAAAAAAAEAA=</HashCode>
+      <FileName>SubscriptionHandle.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Ella.Unsubscribe" Collapsed="true">
+    <Position X="25.5" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AgAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Unsubscribe.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Ella.Exceptions.InvalidModuleException" Collapsed="true">
+    <Position X="0.5" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Exceptions\InvalidModuleException.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Ella.Exceptions.InvalidPublisherException" Collapsed="true">
+    <Position X="0.5" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Exceptions\InvalidPublisherException.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Ella.Exceptions.StateException" Collapsed="true">
+    <Position X="14.75" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Exceptions\StateException.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Ella.Internal.EllaConfiguration" Collapsed="true">
+    <Position X="13" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAEABAAAIAAAAAgAAAAAAAAACAAAAAASAAAAAAAAAA=</HashCode>
+      <FileName>Internal\EllaConfiguration.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Ella.Internal.ReflectionUtils" Collapsed="true">
+    <Position X="14.75" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAEAAAgQAAAAAAAAAAEAAAAAAQAAAAA=</HashCode>
+      <FileName>Internal\ReflectionUtils.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Ella.Internal.Serializer" Collapsed="true">
+    <Position X="7.75" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAACBAAAAAAAABAAAAAQA=</HashCode>
+      <FileName>Internal\Serializer.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Ella.Model.EllaModel" Collapsed="true">
+    <Position X="14.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>gEAFAAAQAAABBAAAAAJABAACAAAAAIAAQAAECQAAAAA=</HashCode>
+      <FileName>Model\EllaModel.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Ella.Model.Event" Collapsed="true">
+    <Position X="6" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAiAAAAAAAAAAAAIAAAAAAIAAAAAA=</HashCode>
+      <FileName>Model\Event.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Ella.Model.Subscription&lt;T&gt;" Collapsed="true">
+    <Position X="3.5" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAgAAAAAAAAAAAAIAAAAAAAAAAQAA=</HashCode>
+      <FileName>Model\Subscription.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Ella.Model.SubscriptionBase" Collapsed="true">
+    <Position X="3.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAEAAAAAAEAAAAAAACAAAAAAAgAAAAIBAAAQAAAAAAA=</HashCode>
+      <FileName>Model\SubscriptionBase.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Ella.Network.Communication.Client" Collapsed="true">
+    <Position X="7.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AABAAAAAAACAAEAAAEAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Network\Communication\Client.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Ella.Network.Communication.Message" Collapsed="true">
+    <Position X="13" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAAAAEAAAAAAAAAAAAKAAABAAAQAAAAAIAAA=</HashCode>
+      <FileName>Network\Communication\Message.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Ella.Network.Communication.MessageEventArgs" Collapsed="true">
+    <Position X="14.75" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAIAAAAAA=</HashCode>
+      <FileName>Network\Communication\MessageEventArgs.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Ella.Network.Communication.Server" Collapsed="true">
+    <Position X="9.5" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAACAAgEgAEAAAAAAACAQEAAAAIAAEAEAAAAA=</HashCode>
+      <FileName>Network\Communication\Server.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Ella.Network.NetworkController" Collapsed="true">
+    <Position X="6" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AFQEAAAAASAAQEAAUCAAQAAIgIAAAAAAAAAgAAIAAIA=</HashCode>
+      <FileName>Network\NetworkController.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Ella.Network.Proxy" Collapsed="true">
+    <Position X="7.75" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAIAAAAAAAQAAAAAIAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Network\Proxy.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Ella.Network.Stub" Collapsed="true">
+    <Position X="0.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAIAAAAAEAAAAAAAAAAAAAIAAAAAAAAAAAA=</HashCode>
+      <FileName>Network\Stub.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Ella.Network.Stub&lt;T&gt;" Collapsed="true">
+    <Position X="0.5" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAABAAAACAAAAAAEAAAAAAAAAAAAAAAIAAAAAAAAAA=</HashCode>
+      <FileName>Network\Stub.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Ella.Network.Unknown" Collapsed="true">
+    <Position X="14.75" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Network\Unknown.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Enum Name="Ella.Data.DataCopyPolicy" Collapsed="true">
+    <Position X="6" Y="6.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAEAAAA=</HashCode>
+      <FileName>Data\DataCopyPolicy.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="Ella.Data.DataModifyPolicy" Collapsed="true">
+    <Position X="7.75" Y="6.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAA=</HashCode>
+      <FileName>Data\DataModifyPolicy.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="Ella.Network.Communication.MessageType" Collapsed="true">
+    <Position X="9.5" Y="6.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAEAAAAAAAAAAAAEAAABAAAAACAAggQAAAEAAAAAA=</HashCode>
+      <FileName>Network\Communication\Message.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

@@ -152,6 +152,7 @@ namespace Ella.Network
                 * The message reference (message ID used for the subscribe message)
                 * Subscriber node ID
                 * Assume shorts for all
+                *   
             */
             short publisherID = BitConverter.ToInt16(e.Message.Data, 0);
             short eventID = BitConverter.ToInt16(e.Message.Data, 2);

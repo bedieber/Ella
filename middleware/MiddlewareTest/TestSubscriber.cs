@@ -21,6 +21,10 @@ namespace Ella
         [Factory]
         public TestSubscriber() { }
 
+        internal bool ReplyReceived { get; set; }
+
+
+
         internal void Subscribe()
         {
             Ella.Subscribe.To<string>(this, Callback, forbidRemote: true, subscriptionCallback: SubscriptionCallback);
@@ -38,7 +42,7 @@ namespace Ella
             if (rec == "hello")
                 numEventsReceived++;
         }
-
+        #region Subscriptions
         internal void SubscribeWithObject()
         {
             Ella.Subscribe.To<String>(this, Callback, evaluateTemplateObject: EvaluateTemplateObject);
@@ -69,11 +73,19 @@ namespace Ella
             Ella.Unsubscribe.From(this,SubscriptionCallBackHandle[0]);
         }
 
+        #endregion
         internal void SendMessage()
         {
             ApplicationMessage msg = new ApplicationMessage {Data = new byte[1], MessageId = 0, MessageType = 1};
 
             Send.Message(msg, SubscriptionCallBackHandle[0], this);
+        }
+
+        [ReceiveMessage]
+        public void ReceiveMessage(ApplicationMessage message)
+        {
+            if (message != null)
+                ReplyReceived = true;
         }
     }
 

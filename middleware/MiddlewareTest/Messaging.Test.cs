@@ -21,5 +21,15 @@ namespace Ella
         }
 
         //TODO tests for: Not subscribed
+        [TestMethod]
+        public void ReplyToApplicationMessage()
+        {
+            TestPublisher tp = new TestPublisher();
+            Start.Publisher(tp);
+            TestSubscriber s = new TestSubscriber();
+            s.Subscribe();
+            s.SendMessage();
+            Assert.IsTrue(s.ReplyReceived);
+        }
     }
 }
