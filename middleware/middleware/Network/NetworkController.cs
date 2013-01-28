@@ -74,7 +74,7 @@ namespace Ella.Network
         {
             Message m = new Message { Data = Serializer.Serialize(message), Type = isReply ? MessageType.ApplicationMessageResponse : MessageType.ApplicationMessage };
 
-            IPEndPoint ep = (IPEndPoint)_remoteHosts[remoteSubscriptionHandle.PublisherNodeID];
+            IPEndPoint ep = (IPEndPoint)_remoteHosts[isReply ? remoteSubscriptionHandle.SubscriberNodeID : remoteSubscriptionHandle.PublisherNodeID];
             if (ep != null)
             {
                 Client.SendAsync(m, ep.Address.ToString(), ep.Port);
@@ -133,14 +133,12 @@ namespace Ella.Network
                         Send.DeliverApplicationMessage(msg);
                         break;
                     }
-                    case MessageType.ApplicationMessageResponse:
+                case MessageType.ApplicationMessageResponse:
                     {
-                        //TODO implement application message responce reception
+                        ProcessApplicationMessageResponse(e);
                         break;
                     }
             }
         }
-
-
     }
 }

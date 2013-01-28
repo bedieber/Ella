@@ -183,6 +183,7 @@ namespace Ella
                     Publisher = s,
                     EventDetail = (PublishesAttribute)s.GetType().GetCustomAttributes(typeof(PublishesAttribute), false).First()
                 };
+            handle.SubscriberId = EllaModel.Instance.GetSubscriberId(subscriberInstance);
             Subscription<T> sub = new Subscription<T>(subscriberInstance, ev, newDataCallBack) { Handle = handle };
             EllaModel.Instance.Subscriptions.Add(sub);
             if (subscriptionCallback != null)

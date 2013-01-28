@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using Ella.Control;
 using Ella.Internal;
 using Ella.Model;
 using Ella.Network.Communication;
@@ -175,5 +176,18 @@ namespace Ella.Network
             }
         }
         #endregion
+        private static void ProcessApplicationMessageResponse(MessageEventArgs e)
+        {
+            ApplicationMessage msg = Serializer.Deserialize<ApplicationMessage>(e.Message.Data);
+            object subscriber = (from s in EllaModel.Instance.Subscriptions
+                                 where EllaModel.Instance.GetSubscriberId(s.Subscriber) == msg.Handle.SubscriberId
+                                 select s.Subscriber).FirstOrDefault();
+            if (subscriber != null)
+                Send.DeliverMessage(msg, subscriber);
+            else
+            {
+                _log.FatalFormat("No suitable subscriber for message reply found", msg);
+            }
+        }
     }
 }

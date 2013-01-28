@@ -88,7 +88,7 @@ namespace Ella
         /// <param name="message">The message.</param>
         /// <param name="instance">The instance.</param>
         /// <returns></returns>
-        private static bool DeliverMessage(ApplicationMessage message, object instance)
+        internal static bool DeliverMessage(ApplicationMessage message, object instance)
         {
 
             MethodBase method = ReflectionUtils.GetAttributedMethod(instance.GetType(),
