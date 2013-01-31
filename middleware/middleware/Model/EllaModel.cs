@@ -14,7 +14,7 @@ namespace Ella.Model
     {
         //TODO synchronize methods and accessors here
 
-        private int _nextModuleID = 0;
+        private int _nextModuleID = new Random().Next(100);
 
         #region internal Singleton
         private static readonly EllaModel _instance = new EllaModel();

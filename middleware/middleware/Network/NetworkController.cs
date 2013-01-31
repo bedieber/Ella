@@ -24,13 +24,13 @@ namespace Ella.Network
 
         private Dictionary<int, Action<RemoteSubscriptionHandle>> _pendingSubscriptions =
             new Dictionary<int, Action<RemoteSubscriptionHandle>>();
+        private Dictionary<int, Type> _subscriptionCache = new Dictionary<int, Type>();
 
         /// <summary>
         /// Starts the network controller.
         /// </summary>
         internal static void Start()
         {
-
             _instance._server = new Server(EllaConfiguration.Instance.NetworkPort, IPAddress.Any);
             _instance._server.NewMessage += _instance.NewMessage;
             _instance._server.Start();
@@ -59,6 +59,7 @@ namespace Ella.Network
             Message m = new Message { Type = MessageType.Subscribe, Data = Serializer.Serialize(type) };
             //TODO when to remove?
             _pendingSubscriptions.Add(m.Id, callback);
+            _subscriptionCache.Add(m.Id, type);
             foreach (IPEndPoint address in _remoteHosts.Values)
             {
                 Client.SendAsync(m, address.Address.ToString(), address.Port);

@@ -82,6 +82,11 @@ namespace Ella
         {
             return !(one == two);
         }
+
+        public override string ToString()
+        {
+            return string.Format("S{0}/P{1}/E{2}:H{3}", SubscriberId, PublisherId, EventID, GetHashCode());
+        }
     }
 
     /// <summary>
@@ -140,7 +145,7 @@ namespace Ella
         /// </returns>
         public override string ToString()
         {
-            return string.Format("{0}/{1}/{2}:{3}", PublisherNodeID, PublisherId, EventID, GetHashCode());
+            return string.Format("S{0}/PN{1}/P{2}/E{3}:H{4}", SubscriberId, PublisherNodeID, PublisherId, EventID, GetHashCode());
         }
     }
 

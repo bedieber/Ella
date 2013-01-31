@@ -40,8 +40,9 @@ namespace Ella
         public void RemoteAndLocalAreNotEqual()
         {
             SubscriptionHandle h = new SubscriptionHandle { EventID = 1, SubscriberId = 2, PublisherId = 3 };
-            RemoteSubscriptionHandle h2 = new RemoteSubscriptionHandle { EventID = 1, SubscriberId = 2, PublisherId = 3, PublisherNodeID = 15, SubscriptionReference = 1 };
+            RemoteSubscriptionHandle h2 = new RemoteSubscriptionHandle { EventID = 1, SubscriberId = 2, PublisherId = 3, PublisherNodeID = 15, SubscriptionReference = 1,SubscriberNodeID = 1};
             Assert.AreNotEqual(h, h2);
+            Assert.IsFalse(h.Equals(h2));
             Assert.IsFalse(h == h2);
         }
 

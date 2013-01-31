@@ -87,6 +87,7 @@ namespace Ella.Network.Communication
         public Message(int id)
         {
             Id = id;
+            Sender = EllaConfiguration.Instance.NodeId;
         }
 
         /// <summary>

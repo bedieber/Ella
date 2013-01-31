@@ -30,7 +30,16 @@ namespace Ella.Network
             //Array.Copy(idBytes, bytes, idBytes.Length);
             //Array.Copy(portBytes, 0, bytes, idBytes.Length, portBytes.Length);
             Message m = new Message { Type = MessageType.DiscoverResponse, Data = portBytes };
-            Client.SendAsync(m, ep.Address.ToString(), ep.Port);
+            Client.Send(m, ep.Address.ToString(), ep.Port);
+
+            /*
+             * Send a message to the new host and inquiry about possible new publishers
+             */
+            foreach (var sub in _subscriptionCache)
+            {
+                Message subscription = new Message(sub.Key) { Type = MessageType.Subscribe, Data = Serializer.Serialize(sub.Value) };
+                Client.SendAsync(subscription, ep.Address.ToString(), ep.Port);
+            }
         }
 
         private void ProcessDiscoverResponse(MessageEventArgs e)
@@ -75,7 +84,7 @@ namespace Ella.Network
                         inResponseTo);
                     //TODO this is not a clean solution, might clash with other msgIDs
                     Message m = new Message(inResponseTo) { Type = MessageType.Unsubscribe };
-                    var ipEndPoint = ((IPEndPoint) _remoteHosts[e.Message.Sender]);
+                    var ipEndPoint = ((IPEndPoint)_remoteHosts[e.Message.Sender]);
                     Client.SendAsync(m, ipEndPoint.Address.ToString(), ipEndPoint.Port);
                 }
             }
@@ -85,11 +94,9 @@ namespace Ella.Network
         {
             Type type = Serializer.Deserialize<Type>(e.Message.Data);
             //TODO handle case when remote host is not in remoteHosts dictionary
-            //get the that this node is already subscribed for, to avoid double subscriptions
-            var currentHandles = (from s in EllaModel.Instance.Subscriptions
-                                  let s1 = (s.Handle as RemoteSubscriptionHandle)
-                                  where
-                                      s1 != null && s1.SubscriberNodeID == e.Message.Sender && s.Event.EventDetail.DataType == type
+            //get the subscriptions that this node is already subscribed for, to avoid double subscriptions
+            var currentHandles = (from s1 in (EllaModel.Instance.Subscriptions.Where(s => s.Event.EventDetail.DataType == type).Select(s => s.Handle)).OfType<RemoteSubscriptionHandle>()
+                                  where s1.SubscriberNodeID == e.Message.Sender
                                   select s1).ToList().GroupBy(s => s.SubscriptionReference);
 
             IEnumerable<RemoteSubscriptionHandle> handles = Subscribe.RemoteSubscriber(type, e.Message.Sender,
@@ -170,6 +177,7 @@ namespace Ella.Network
                                 let h = (s.Handle as RemoteSubscriptionHandle)
                                 where h != null && h == handle
                                 select s;
+
             foreach (var sub in subscriptions)
             {
                 (sub.Event.Publisher as Stub).NewMessage(data);

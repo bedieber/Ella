@@ -94,7 +94,7 @@
   <Class Name="Ella.Send" Collapsed="true">
     <Position X="18.5" Y="4" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAUEAAAAAAAAAAAAAAAAAAAAAIAAAAAA=</HashCode>
+      <HashCode>AAAAAAAAAAAAAUEAAAAAAAAAAAAAAAAgAIAAIAAAAAA=</HashCode>
       <FileName>Send.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -119,15 +119,15 @@
       <FileName>Subscribe.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="Ella.SubscriptionHandle" Collapsed="true">
-    <Position X="3.5" Y="3.5" Width="1.5" />
+  <Class Name="Ella.SubscriptionHandle">
+    <Position X="3" Y="2.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>ACAAAAAAQAAAAAAAgAAAAAAAAQAAAIAAAAAAAAAAAiA=</HashCode>
       <FileName>SubscriptionHandle.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="Ella.RemoteSubscriptionHandle" Collapsed="true">
-    <Position X="3.5" Y="4.75" Width="1.5" />
+  <Class Name="Ella.RemoteSubscriptionHandle">
+    <Position X="3" Y="6" Width="2.75" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAEAQAAEAAAAAAAAIAABAAAAAAAEAA=</HashCode>
       <FileName>SubscriptionHandle.cs</FileName>
@@ -241,7 +241,7 @@
   <Class Name="Ella.Network.NetworkController" Collapsed="true">
     <Position X="6" Y="2.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AFQEAAAAASAAQEAAUCAAQAAIgIAAAAAAAAAgAAIAAIA=</HashCode>
+      <HashCode>AFQEAAAAASAAQEAAUCAAQAAIgIAAAAAAACAgAAIAAIA=</HashCode>
       <FileName>Network\NetworkController.cs</FileName>
     </TypeIdentifier>
   </Class>

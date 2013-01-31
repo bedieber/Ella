@@ -146,61 +146,72 @@ namespace Ella.Network.Communication
         /// <param name="client">The client.</param>
         private void ProcessMessage(TcpClient client)
         {
-
-            /*
-             * Message:
-             * type 1 byte
-             * id 4 bytes
-             * sender 4 bytes
-             * length 4 bytes
-             * data <length> bytes
-             */
             NetworkStream stream = client.GetStream();
 
-            //Type
-            short messageType = Convert.ToInt16(stream.ReadByte());
-
-            //id
-            byte[] buffer = new byte[4];
-            stream.Read(buffer, 0, buffer.Length);
-            int id = BitConverter.ToInt32(buffer, 0);
-
-            //sender
-            buffer = new byte[4];
-            stream.Read(buffer, 0, buffer.Length);
-            int sender = BitConverter.ToInt32(buffer, 0);
-
-            //length
-            buffer = new byte[4];
-            stream.Read(buffer, 0, buffer.Length);
-            int length = BitConverter.ToInt32(buffer, 0);
-            byte[] data = new byte[0];
-            if (length > 0)
+            try
             {
-                //data
-                buffer = new byte[length];
-                data = new byte[length];
+                /*
+                    * Message:
+                    * type 1 byte
+                    * id 4 bytes
+                    * sender 4 bytes
+                    * length 4 bytes
+                    * data <length> bytes
+                    */
 
-                int totalbytesRead = 0;
-                string addressString = (client.Client.RemoteEndPoint as IPEndPoint).Address.ToString();
+                //Type
+                short messageType = Convert.ToInt16(stream.ReadByte());
 
-                while (totalbytesRead < length)
+                //id
+                byte[] buffer = new byte[4];
+                stream.Read(buffer, 0, buffer.Length);
+                int id = BitConverter.ToInt32(buffer, 0);
+
+                //sender
+                buffer = new byte[4];
+                stream.Read(buffer, 0, buffer.Length);
+                int sender = BitConverter.ToInt32(buffer, 0);
+
+                //length
+                buffer = new byte[4];
+                stream.Read(buffer, 0, buffer.Length);
+                int length = BitConverter.ToInt32(buffer, 0);
+                byte[] data = new byte[0];
+                if (length > 0)
                 {
-                    int read = stream.Read(buffer, 0, buffer.Length);
-                    Array.Copy(buffer, 0, data, totalbytesRead, read);
-                    totalbytesRead += read;
+                    //data
+                    buffer = new byte[length];
+                    data = new byte[length];
+
+                    int totalbytesRead = 0;
+                    string addressString = (client.Client.RemoteEndPoint as IPEndPoint).Address.ToString();
+
+                    while (totalbytesRead < length)
+                    {
+                        int read = stream.Read(buffer, 0, buffer.Length);
+                        Array.Copy(buffer, 0, data, totalbytesRead, read);
+                        totalbytesRead += read;
+                    }
                 }
+                //TODO this could be ckecked on top, so that message can be rejected
+                if (NewMessage != null)
+                {
+                    Message m = new Message(id) { Data = data, Type = ((MessageType)messageType), Sender = sender };
+                    NewMessage(this, new MessageEventArgs(m) { Address = client.Client.RemoteEndPoint });
+                }
+                else
+                    _log.DebugFormat("Server: No listeners for new messages attached");
             }
-            //TODO this could be ckecked on top, so that message can be rejected
-            if (NewMessage != null)
+            catch (Exception ex)
             {
-                Message m = new Message(id) { Data = data, Type = ((MessageType)messageType), Sender = sender };
-                NewMessage(this, new MessageEventArgs(m) { Address = client.Client.RemoteEndPoint });
+                _log.ErrorFormat("Exception during processing network message: {0}", ex.Message);
+                throw;
             }
-            else
-                _log.DebugFormat("Server: No listeners for new messages attached");
-            stream.Close();
-            client.Close();
+            finally
+            {
+                stream.Close();
+                client.Close();
+            }
         }
 
 
