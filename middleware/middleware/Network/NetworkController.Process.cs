@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Threading;
 using Ella.Control;
 using Ella.Internal;
 using Ella.Model;
@@ -35,6 +36,9 @@ namespace Ella.Network
             /*
              * Send a message to the new host and inquiry about possible new publishers
              */
+            //TODO a delay makes sense here because the other node may still be starting publishers when the local node already inquires. However this only covers most of an automatic startup
+            //TODO think about regular inquiries to known nodes or a notification mechanism about a newly started publisher
+            Thread.Sleep(2000);
             foreach (var sub in _subscriptionCache)
             {
                 Message subscription = new Message(sub.Key) { Type = MessageType.Subscribe, Data = Serializer.Serialize(sub.Value) };
