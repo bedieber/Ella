@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -146,7 +147,7 @@ namespace Ella.Network.Communication
         /// <param name="client">The client.</param>
         private void ProcessMessage(TcpClient client)
         {
-            NetworkStream stream = client.GetStream();
+            GZipStream stream = new GZipStream(client.GetStream(), CompressionMode.Decompress);
 
             try
             {

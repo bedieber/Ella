@@ -1,4 +1,5 @@
 using System;
+using System.IO.Compression;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -27,7 +28,7 @@ namespace Ella.Network.Communication
             {
                 TcpClient client = new TcpClient();
                 client.Connect(IPAddress.Parse(address), port);
-                NetworkStream stream = client.GetStream();
+                GZipStream stream=new GZipStream(client.GetStream(),CompressionMode.Compress);
                 byte[] serialize = m.Serialize();
                 stream.Write(serialize, 0, serialize.Length);
                 stream.Flush();
