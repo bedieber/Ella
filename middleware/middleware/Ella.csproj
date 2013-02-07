@@ -55,6 +55,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Associate.cs" />
     <Compile Include="Attributes\FactoryAttribute.cs" />
     <Compile Include="Attributes\PublishesAttribute.cs" />
     <Compile Include="Attributes\ReceiveMessageAttribute.cs" />

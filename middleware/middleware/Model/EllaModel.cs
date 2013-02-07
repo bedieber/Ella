@@ -144,6 +144,20 @@ namespace Ella.Model
         }
 
         /// <summary>
+        /// Gets the publisher to a certain ID.
+        /// </summary>
+        /// <param name="id">The id.</param>
+        /// <returns>The publisher object associated with the specified <paramref name="id"/>, or <c>null</c> if no such id has been issued</returns>
+        internal object GetPublisher(int id)
+        {
+            if (ActivePublishers.Values.Contains(id))
+            {
+                return ActivePublishers.Where(p => p.Value == id).Select(p => p.Key).FirstOrDefault();
+            }
+            return null;
+        }
+
+        /// <summary>
         /// Gets the subscriber id.
         /// </summary>
         /// <param name="p">The p.</param>
