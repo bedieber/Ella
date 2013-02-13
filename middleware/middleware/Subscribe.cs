@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 using Ella.Attributes;
 using Ella.Internal;
 using Ella.Data;
@@ -155,7 +156,7 @@ namespace Ella
                             SubscriptionReference = subscriptionReference
                         };
                     //SubscriptionBase subscription = ReflectionUtils.CreateGenericSubscription(type, match, proxy);
-                    SubscriptionBase subscription = new Subscription(proxy, match, proxy.GetType().GetMethod("HandleEvent"), proxy);
+                    SubscriptionBase subscription = new Subscription(proxy, match, proxy.GetType().GetMethod("HandleEvent", BindingFlags.NonPublic | BindingFlags.Instance), proxy);
                     subscription.Handle = handle;
                     _log.InfoFormat("Subscribing remote subscriber to {0} for type {1}", match.Publisher,
                                     match.EventDetail.DataType);
