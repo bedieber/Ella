@@ -46,7 +46,7 @@ namespace Ella
                     /*
                      * Check if event ID matches
                      */
-                    IEnumerable<Subscription<T>> subscriptions = from s in EllaModel.Instance.Subscriptions let s1 = s as Subscription<T> where s1 != null && s1.Event.Publisher == publisher && s1.Event.EventDetail.ID == eventId select s1;
+                    IEnumerable<Subscription> subscriptions = from s in EllaModel.Instance.Subscriptions  where s.Event.EventDetail.DataType==typeof(T) && s.Event.Publisher == publisher && s.Event.EventDetail.ID == eventId select s as Subscription;
                     /*
                      * Data modification and data policies
                      * No copy: publisher has DataCopyPolicy.None && All subscribers have DataModificationPolicy.NoModify
@@ -56,7 +56,7 @@ namespace Ella
 
                     T data = eventData;
 
-                    var subscriptionsArray = subscriptions as Subscription<T>[] ?? subscriptions.ToArray();
+                    var subscriptionsArray = subscriptions as Subscription[] ?? subscriptions.ToArray();
                     if (subscriptionsArray.Length == 0)
                     {
                         _log.DebugFormat("No subscribers found for event {0} of publisher {1}", eventId, publisher);
@@ -68,7 +68,7 @@ namespace Ella
                     }
                     foreach (var sub in subscriptionsArray)
                     {
-                        Thread t = new Thread(() => sub.Callback(sub.ModifyPolicy == DataModifyPolicy.Modify ? Serializer.SerializeCopy(data) : data, sub.Handle));
+                        Thread t = new Thread(() => sub.CallbackMethod.Invoke(sub.CallbackTarget,new object[]{sub.ModifyPolicy == DataModifyPolicy.Modify ? Serializer.SerializeCopy(data) : data, sub.Handle}));
                         t.Start();
                         //TODO should be joined somewhere
                     }

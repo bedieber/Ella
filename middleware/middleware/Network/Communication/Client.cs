@@ -1,6 +1,7 @@
 using System;
 using System.IO.Compression;
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Threading;
 using Ella.Internal;
@@ -28,7 +29,7 @@ namespace Ella.Network.Communication
             {
                 TcpClient client = new TcpClient();
                 client.Connect(IPAddress.Parse(address), port);
-                GZipStream stream=new GZipStream(client.GetStream(),CompressionMode.Compress);
+                GZipStream stream = new GZipStream(client.GetStream(), CompressionMode.Compress);
                 byte[] serialize = m.Serialize();
                 stream.Write(serialize, 0, serialize.Length);
                 stream.Flush();
@@ -63,19 +64,41 @@ namespace Ella.Network.Communication
 
         internal static void Broadcast()
         {
-            UdpClient client = new UdpClient();
             byte[] idBytes = BitConverter.GetBytes(EllaConfiguration.Instance.NodeId);
             byte[] portBytes = BitConverter.GetBytes(EllaConfiguration.Instance.NetworkPort);
             byte[] bytes = new byte[idBytes.Length + portBytes.Length];
             Array.Copy(idBytes, bytes, idBytes.Length);
             Array.Copy(portBytes, 0, bytes, idBytes.Length, portBytes.Length);
             //TODO handle invalid port range
+
             for (int i = EllaConfiguration.Instance.DiscoveryPortRangeStart;
                  i <= EllaConfiguration.Instance.DiscoveryPortRangeEnd;
                  i++)
             {
                 IPEndPoint ip = new IPEndPoint(IPAddress.Parse("255.255.255.255"), i);
-                client.Send(bytes, bytes.Length, ip);
+
+                NetworkInterface[] allNetworkInterfaces = NetworkInterface.GetAllNetworkInterfaces();
+                foreach (NetworkInterface nIf in allNetworkInterfaces)
+                {
+                    _log.DebugFormat("Broadcasting on adapter {0}", nIf.Description);
+                    foreach (UnicastIPAddressInformation ua in nIf.GetIPProperties().UnicastAddresses)
+                    {
+                        if (ua.Address.AddressFamily != AddressFamily.InterNetwork || IPAddress.IsLoopback(ua.Address))
+                            continue;
+                        _log.DebugFormat("Broadcasting to {0}", ua.IPv4Mask!=null? ua.IPv4Mask.ToString():ua.Address.ToString());
+                        try
+                        {
+                            UdpClient client = new UdpClient(new IPEndPoint(ua.Address, 0));
+                            client.Send(bytes, bytes.Length, ip);
+                        }
+                        catch (Exception ex)
+                        {
+                            _log.DebugFormat("Could not broadcast on adapter {0} address {1}", nIf.Description, ua.IPv4Mask != null ? ua.IPv4Mask.ToString() : ua.Address.ToString());
+                        }
+                    }
+
+
+                }
             }
         }
     }

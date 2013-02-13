@@ -10,6 +10,7 @@ namespace Ella.Attributes
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
     public class PublishesAttribute : Attribute
     {
+
         #region Private Members
         private Type _dataType;
         private int _id;
@@ -44,6 +45,31 @@ namespace Ella.Attributes
             _dataType = dataType;
             _id = id;
             //CopyPolicy = policy;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((PublishesAttribute) obj);
+        }
+
+        protected bool Equals(PublishesAttribute other)
+        {
+            return Equals(_dataType, other._dataType) && _id == other._id && CopyPolicy == other.CopyPolicy;
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hashCode = base.GetHashCode();
+                hashCode = (hashCode * 397) ^ (_dataType != null ? _dataType.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ _id;
+                hashCode = (hashCode * 397) ^ (int)CopyPolicy;
+                return hashCode;
+            }
         }
 
     }

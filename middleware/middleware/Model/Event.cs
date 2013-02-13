@@ -7,6 +7,19 @@ namespace Ella.Model
     /// </summary>
     internal class Event
     {
+        protected bool Equals(Event other)
+        {
+            return Equals(Publisher, other.Publisher) && Equals(EventDetail, other.EventDetail);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                return ((Publisher != null ? Publisher.GetHashCode() : 0)*397) ^ (EventDetail != null ? EventDetail.GetHashCode() : 0);
+            }
+        }
+
         /// <summary>
         /// Gets or sets the publisher.
         /// </summary>
@@ -25,20 +38,11 @@ namespace Ella.Model
 
         public override bool Equals(object obj)
         {
-            if (obj is Event)
-                return this.GetHashCode() == obj.GetHashCode();
-            return base.Equals(obj);
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((Event) obj);
         }
 
-        /// <summary>
-        /// Returns a hash code for this instance.
-        /// </summary>
-        /// <returns>
-        /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table. 
-        /// </returns>
-        public override int GetHashCode()
-        {
-            return string.Format("{0}/{1}", Publisher.GetHashCode(), EventDetail.ID).GetHashCode();
-        }
     }
 }

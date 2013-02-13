@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Ella
@@ -17,6 +18,7 @@ namespace Ella
             TestSubscriber s = new TestSubscriber();
             s.Subscribe();
             s.SendMessage();
+            Thread.Sleep(100);
             Assert.IsTrue(tp.MessageReceived);
         }
 
