@@ -1,15 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-
-using System.Text;
-using Ella.Internal;
-using Ella.Model;
+﻿using Ella.Model;
 using Ella.Network;
 using Ella.Network.Communication;
-using Emgu.CV;
-using Emgu.CV.Structure;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Ella

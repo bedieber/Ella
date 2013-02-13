@@ -80,12 +80,12 @@ namespace Ella.Network.Communication
                 NetworkInterface[] allNetworkInterfaces = NetworkInterface.GetAllNetworkInterfaces();
                 foreach (NetworkInterface nIf in allNetworkInterfaces)
                 {
-                    _log.DebugFormat("Broadcasting on adapter {0}", nIf.Description);
+                   // _log.DebugFormat("Broadcasting on adapter {0}", nIf.Description);
                     foreach (UnicastIPAddressInformation ua in nIf.GetIPProperties().UnicastAddresses)
                     {
                         if (ua.Address.AddressFamily != AddressFamily.InterNetwork || IPAddress.IsLoopback(ua.Address))
                             continue;
-                        _log.DebugFormat("Broadcasting to {0}", ua.IPv4Mask!=null? ua.IPv4Mask.ToString():ua.Address.ToString());
+                       // _log.DebugFormat("Broadcasting to {0}", ua.IPv4Mask!=null? ua.IPv4Mask.ToString():ua.Address.ToString());
                         try
                         {
                             UdpClient client = new UdpClient(new IPEndPoint(ua.Address, 0));
@@ -93,7 +93,7 @@ namespace Ella.Network.Communication
                         }
                         catch (Exception ex)
                         {
-                            _log.DebugFormat("Could not broadcast on adapter {0} address {1}", nIf.Description, ua.IPv4Mask != null ? ua.IPv4Mask.ToString() : ua.Address.ToString());
+                           //_log.DebugFormat("Could not broadcast on adapter {0} address {1}", nIf.Description, ua.IPv4Mask != null ? ua.IPv4Mask.ToString() : ua.Address.ToString());
                         }
                     }
 
