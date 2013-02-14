@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Ella.Model;
 
 namespace Ella
 {
@@ -23,14 +24,22 @@ namespace Ella
         }
 
         /// <summary>
-        /// This mathod associates two events published by one publisher to indicate that those events have a semantic connection
+        /// This method associates two events published by one publisher to indicate that those events have a semantic connection
         /// </summary>
         /// <param name="firstEventId">The id of the first event</param>
         /// <param name="secondEventId">The id of the second event</param>
         /// <param name="publisher">The publisher.</param>
         public static void Events(int firstEventId, int secondEventId, object publisher)
         {
-            
+            if (Is.Publisher(publisher.GetType()))
+            {
+                   RemoteSubscriptionHandle first=new RemoteSubscriptionHandle
+                       {
+                           EventID = firstEventId,
+                           PublisherId = EllaModel.Instance.GetPublisherId(publisher),
+                           
+                       }
+            }
         }
     }
 }

@@ -61,6 +61,14 @@ namespace Ella.Model
 
         private IDictionary<object, int> ActiveSubscribers { get; set; }
 
+        /// <summary>
+        /// Gets or sets the event correlations.
+        /// </summary>
+        /// <value>
+        /// The event correlations.
+        /// </value>
+        private Dictionary<RemoteSubscriptionHandle, List<RemoteSubscriptionHandle>> EventCorrelations { get; set; }
+
         internal IEnumerable<IGrouping<Type, Event>> ActiveEvents
         {
             get
@@ -83,6 +91,7 @@ namespace Ella.Model
             ActivePublishers = new Dictionary<object, int>();
             Subscriptions = new List<SubscriptionBase>();
             ActiveSubscribers = new Dictionary<object, int>();
+            EventCorrelations=new Dictionary<RemoteSubscriptionHandle, List<RemoteSubscriptionHandle>>();
         }
 
         /// <summary>

@@ -36,6 +36,14 @@ namespace Ella.Model
         internal Event Event { get; set; }
 
         /// <summary>
+        /// Gets or sets the type of the data.
+        /// </summary>
+        /// <value>
+        /// The type of the data.
+        /// </value>
+        internal Type DataType { get; set; }
+
+        /// <summary>
         /// Gets or sets the modify policy which is used to indicate whether a subscriber modifies the data or not.
         /// </summary>
         /// <value>

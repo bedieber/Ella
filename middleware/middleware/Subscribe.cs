@@ -102,7 +102,8 @@ namespace Ella
                         Subscriber = subscriberInstance,
                         CallbackMethod = newDataCallback.Method,
                         CallbackTarget = newDataCallback.Target,
-                        Handle = handle
+                        Handle = handle,
+                        DataType = typeof(T)
                     };
                     if (templateObject == null || evaluateTemplateObject(template))
                     {
@@ -158,6 +159,7 @@ namespace Ella
                     //SubscriptionBase subscription = ReflectionUtils.CreateGenericSubscription(type, match, proxy);
                     SubscriptionBase subscription = new Subscription(proxy, match, proxy.GetType().GetMethod("HandleEvent", BindingFlags.NonPublic | BindingFlags.Instance), proxy);
                     subscription.Handle = handle;
+                    subscription.DataType = type;
                     _log.InfoFormat("Subscribing remote subscriber to {0} for type {1}", match.Publisher,
                                     match.EventDetail.DataType);
                     EllaModel.Instance.Subscriptions.Add(subscription);
@@ -181,13 +183,15 @@ namespace Ella
             //Create a stub
             Stub<T> s = new Stub<T> { DataType = typeof(T), Handle = handle };
             Start.Publisher(s);
+            var publishesAttribute = (PublishesAttribute) s.GetType().GetCustomAttributes(typeof (PublishesAttribute), false).First();
+            
             Event ev = new Event
                 {
                     Publisher = s,
-                    EventDetail = (PublishesAttribute)s.GetType().GetCustomAttributes(typeof(PublishesAttribute), false).First()
+                    EventDetail = publishesAttribute
                 };
             handle.SubscriberId = EllaModel.Instance.GetSubscriberId(subscriberInstance);
-            Subscription sub = new Subscription(subscriberInstance, ev, newDataCallBack.Method, newDataCallBack.Target) { Handle = handle };
+            Subscription sub = new Subscription(subscriberInstance, ev, newDataCallBack.Method, newDataCallBack.Target) { Handle = handle, DataType = typeof(T)};
             EllaModel.Instance.Subscriptions.Add(sub);
             if (subscriptionCallback != null)
             {
