@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Ella.Model;
 
 namespace Ella
 {
@@ -13,9 +14,11 @@ namespace Ella
     public class SubscriptionHandle
     {
 
-        internal int PublisherId { get; set; }
-        internal int EventID { get; set; }
+        internal int PublisherId { get { return EventHandle.PublisherId; } set { EventHandle.PublisherId = value; } }
+        internal int EventID { get { return EventHandle.EventID; } set { EventHandle.EventID = value; } }
         internal int SubscriberId { get; set; }
+
+        internal EventHandle EventHandle { get; set; }
 
         /// <summary>
         /// Determines whether the specified <see cref="System.Object" /> is equal to this instance.
@@ -105,7 +108,7 @@ namespace Ella
         /// <value>
         /// The remote node ID.
         /// </value>
-        internal int PublisherNodeID { get; set; }
+        internal int PublisherNodeID { get { return EventHandle.PublisherNodeId; } set { EventHandle.PublisherId = value; } }
 
         internal int SubscriberNodeID { get; set; }
         /// <summary>

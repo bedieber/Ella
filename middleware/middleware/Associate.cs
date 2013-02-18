@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Ella.Internal;
 using Ella.Model;
 
 namespace Ella
@@ -33,12 +34,19 @@ namespace Ella
         {
             if (Is.Publisher(publisher.GetType()))
             {
-                   RemoteSubscriptionHandle first=new RemoteSubscriptionHandle
-                       {
-                           EventID = firstEventId,
-                           PublisherId = EllaModel.Instance.GetPublisherId(publisher),
-                           
-                       }
+                EventHandle first = new EventHandle()
+                    {
+                        EventId = firstEventId,
+                        PublisherId = EllaModel.Instance.GetPublisherId(publisher),
+                        PublisherNodeId = EllaConfiguration.Instance.NodeId
+                    };
+                EventHandle second = new EventHandle()
+                    {
+                        EventId = secondEventId,
+                        PublisherId = first.PublisherId,
+                        PublisherNodeId = EllaConfiguration.Instance.NodeId
+                    };
+                EllaModel.Instance.AddEventCorrelation(first, second);    
             }
         }
     }

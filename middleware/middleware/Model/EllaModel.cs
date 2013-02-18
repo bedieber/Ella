@@ -67,7 +67,7 @@ namespace Ella.Model
         /// <value>
         /// The event correlations.
         /// </value>
-        private Dictionary<RemoteSubscriptionHandle, List<RemoteSubscriptionHandle>> EventCorrelations { get; set; }
+        private Dictionary<EventHandle, List<EventHandle>> EventCorrelations { get; set; }
 
         internal IEnumerable<IGrouping<Type, Event>> ActiveEvents
         {
@@ -91,7 +91,25 @@ namespace Ella.Model
             ActivePublishers = new Dictionary<object, int>();
             Subscriptions = new List<SubscriptionBase>();
             ActiveSubscribers = new Dictionary<object, int>();
-            EventCorrelations=new Dictionary<RemoteSubscriptionHandle, List<RemoteSubscriptionHandle>>();
+            EventCorrelations = new Dictionary<EventHandle, List<EventHandle>>();
+        }
+
+        /// <summary>
+        /// Adds a new event correlation. Checks if this pair is already present and adds it if not.
+        /// </summary>
+        /// <param name="first">The first.</param>
+        /// <param name="second">The second.</param>
+        internal void AddEventCorrelation(EventHandle first, EventHandle second)
+        {
+            if (EventCorrelations.ContainsKey(first))
+            {
+                if (!EventCorrelations[first].Contains(second))
+                    EventCorrelations[first].Add(second);
+            }
+            else
+            {
+                EventCorrelations.Add(first, new List<EventHandle>() { second });
+            }
         }
 
         /// <summary>
