@@ -19,7 +19,8 @@ namespace Ella.Network.Communication
         Publish,
         DiscoverResponse,
         ApplicationMessage,
-        ApplicationMessageResponse
+        ApplicationMessageResponse,
+        EventCorrelation
     }
     
     

@@ -122,6 +122,8 @@ namespace Ella.Network
                 _log.DebugFormat("Replying to subscription request at {0}", ep);
                 Client.Send(m, ep.Address.ToString(), ep.Port);
             }
+
+            IPEndPoint ep = (IPEndPoint)_remoteHosts[e.Message.Sender];
             foreach (var currentHandle in currentHandles)
             {
                 //Send reply
@@ -131,9 +133,27 @@ namespace Ella.Network
                 Array.Copy(idbytes, reply, idbytes.Length);
                 Array.Copy(handledata, 0, reply, idbytes.Length, handledata.Length);
                 Message m = new Message { Type = MessageType.SubscribeResponse, Data = reply };
-                IPEndPoint ep = (IPEndPoint)_remoteHosts[e.Message.Sender];
+                
                 _log.DebugFormat("Replying to subscription request at {0}", ep);
                 Client.Send(m, ep.Address.ToString(), ep.Port);
+            }
+
+            /*
+             * Process event correlations based on the subscription handles from the subscribe process
+             */
+            foreach (var handle in handles)
+            {
+                /*
+                 * 1. search for correlations of this handle
+                 * 2. send a message for each correlation#
+                 */
+                var correlations = EllaModel.Instance.GetEventCorrelations(handle.EventHandle);
+                foreach (var correlation in correlations)
+                {
+                    KeyValuePair<EventHandle, EventHandle> pair=new KeyValuePair<EventHandle, EventHandle>(handle.EventHandle, correlation);
+                    Message m = new Message() {Type = MessageType.EventCorrelation, Data = Serializer.Serialize(pair)};
+                    Client.SendAsync(m, ep.Address.ToString(), ep.Port);
+                }
             }
         }
 

@@ -5,6 +5,7 @@ using System.Text;
 
 namespace Ella.Model
 {
+    [Serializable]
     internal class EventHandle
     {
         protected bool Equals(EventHandle other)
