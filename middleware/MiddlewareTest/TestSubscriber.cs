@@ -72,13 +72,13 @@ namespace Ella
 
         internal void UnsubscribeByHandle()
         {
-            Ella.Unsubscribe.From(this,SubscriptionCallBackHandle[0]);
+            Ella.Unsubscribe.From(this, SubscriptionCallBackHandle[0]);
         }
 
         #endregion
         internal void SendMessage()
         {
-            ApplicationMessage msg = new ApplicationMessage {Data = new byte[1], MessageId = 0, MessageType = 1};
+            ApplicationMessage msg = new ApplicationMessage { Data = new byte[1], MessageId = 0, MessageType = 1 };
 
             Send.Message(msg, SubscriptionCallBackHandle[0], this);
         }
@@ -93,7 +93,8 @@ namespace Ella
         [Associate]
         public void Associate(SubscriptionHandle first, SubscriptionHandle second)
         {
-            Interlocked.Increment(ref NumAssociationsReceived);
+            if (SubscriptionCallBackHandle.Contains(first) && SubscriptionCallBackHandle.Contains(second))
+                Interlocked.Increment(ref NumAssociationsReceived);
         }
     }
 

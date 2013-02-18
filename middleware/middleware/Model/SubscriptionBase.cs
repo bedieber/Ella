@@ -63,7 +63,7 @@ namespace Ella.Model
             set
             {
                 _handle = value;
-                _handle.SubscriberId = SubscriptionID;
+                //_handle.SubscriberId = SubscriptionID;
             }
         }
 

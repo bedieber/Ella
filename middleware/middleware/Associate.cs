@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using Ella.Attributes;
+using Ella.Exceptions;
 using Ella.Internal;
 using Ella.Model;
 
@@ -21,7 +21,7 @@ namespace Ella
         /// <param name="publisher">The publisher.</param>
         public static void Events(SubscriptionHandle incoming, int outgoingEventId, object publisher)
         {
-            
+
         }
 
         /// <summary>
@@ -47,7 +47,21 @@ namespace Ella
                         PublisherId = first.PublisherId,
                         PublisherNodeId = EllaConfiguration.Instance.NodeId
                     };
-                EllaModel.Instance.AddEventCorrelation(first, second);    
+                EllaModel.Instance.AddEventCorrelation(first, second);
+
+                foreach (var result in EllaModel.Instance.Subscriptions.GroupBy(s => s.Subscriber).Where(g => g.Any(g1 => Equals(g1.Handle.EventHandle, first)) && g.Any(g2 => Equals(g2.Handle.EventHandle, second))).Select(g => new { Object = g.Key, Method = ReflectionUtils.GetAttributedMethod(g.Key.GetType(), typeof(AssociateAttribute)) }))
+                {
+                    if (result.Method != null)
+                    {
+                        if (result.Method.GetParameters().Count() != 2 || result.Method.GetParameters().Any(p => p.ParameterType != typeof(SubscriptionHandle)))
+                            throw new IllegalAttributeUsageException(String.Format("Method {0} attributed as Associate has invalid parameters (count or type)", result.Method));
+                        SubscriptionHandle handle1 = new SubscriptionHandle() { EventHandle = first };
+                        SubscriptionHandle handle2 = new SubscriptionHandle() { EventHandle = second };
+
+                        result.Method.Invoke(result.Object, new object[] { handle1, handle2 });
+                        result.Method.Invoke(result.Object, new object[] { handle2, handle1 });
+                    }
+                }
             }
         }
     }

@@ -131,6 +131,7 @@ namespace Ella
         [TestMethod]
         public void EventAssociationsAreDeliveredIndependentOfOrder()
         {
+            //TODO this test will fail until local subscription caching has been implemented
             TestPublisher p = new TestPublisher();
             TestSubscriber s = new TestSubscriber();
             s.Subscribe();

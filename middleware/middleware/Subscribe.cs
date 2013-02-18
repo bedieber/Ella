@@ -122,18 +122,16 @@ namespace Ella
                             }
                             if (associateMethod != null)
                             {
-                                if (associateMethod.GetParameters().Count() != 2 || associateMethod.GetParameters().Any(p => p.ParameterType != typeof(SubscriptionHandle)))
-                                    throw new IllegalAttributeUsageException(String.Format("Method {0} attributed as Associate has invalid parameters (count or type)", associateMethod));
-
                                 var correlations = EllaModel.Instance.GetEventCorrelations(handle.EventHandle);
                                 if (correlations != null)
                                 {
-                                    foreach (RemoteSubscriptionHandle correlationHandle in correlations.Select(correlation => new RemoteSubscriptionHandle()
+                                    foreach (SubscriptionHandle correlationHandle in correlations.Select(correlation => new SubscriptionHandle()
                                         {
                                             EventHandle = correlation,
-                                            SubscriberNodeID = EllaConfiguration.Instance.NodeId
                                         }))
                                     {
+                                        correlationHandle.SubscriberId =
+                                            handle.SubscriberId;
                                         correlatedEvents.Add(handle, correlationHandle);
 
                                     }
@@ -147,6 +145,8 @@ namespace Ella
                 }
                 if (associateMethod != null)
                 {
+                    if (associateMethod.GetParameters().Count() != 2 || associateMethod.GetParameters().Any(p => p.ParameterType != typeof(SubscriptionHandle)))
+                        throw new IllegalAttributeUsageException(String.Format("Method {0} attributed as Associate has invalid parameters (count or type)", associateMethod));
                     foreach (var handlePair in correlatedEvents)
                     {
                         //Only do this if subscriber is subscribed to both events
