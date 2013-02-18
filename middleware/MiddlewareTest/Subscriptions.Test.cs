@@ -117,5 +117,27 @@ namespace Ella
             s.UnsubscribeByHandle();
             Assert.IsTrue(EllaModel.Instance.Subscriptions.Count == count - 1);
         }
+
+        [TestMethod]
+        public void EventAssociationsAreDeliverdOnce()
+        {
+            TestPublisher p = new TestPublisher();
+            Start.Publisher(p);
+            TestSubscriber s = new TestSubscriber();
+            s.Subscribe();
+            Assert.AreEqual(2, s.NumAssociationsReceived);
+        }
+
+        [TestMethod]
+        public void EventAssociationsAreDeliveredIndependentOfOrder()
+        {
+            TestPublisher p = new TestPublisher();
+            TestSubscriber s = new TestSubscriber();
+            s.Subscribe();
+
+            Start.Publisher(p);
+            Thread.Sleep(1000);
+            Assert.AreEqual(2, s.NumAssociationsReceived);
+        }
     }
 }

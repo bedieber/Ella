@@ -56,6 +56,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Associate.cs" />
+    <Compile Include="Attributes\AssociateAttribute.cs" />
     <Compile Include="Attributes\FactoryAttribute.cs" />
     <Compile Include="Attributes\PublishesAttribute.cs" />
     <Compile Include="Attributes\ReceiveMessageAttribute.cs" />
@@ -67,6 +68,7 @@
     <Compile Include="Data\DataCopyPolicy.cs" />
     <Compile Include="Data\DataModifyPolicy.cs" />
     <Compile Include="Discover.cs" />
+    <Compile Include="Exceptions\IllegalAttributeUsageException.cs" />
     <Compile Include="Exceptions\InvalidModuleException.cs" />
     <Compile Include="Internal\EllaConfiguration.cs" />
     <Compile Include="Exceptions\InvalidPublisherException.cs" />

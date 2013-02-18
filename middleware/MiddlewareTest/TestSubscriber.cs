@@ -6,6 +6,7 @@ using Ella.Attributes;
 using Ella;
 using Ella.Control;
 using Ella.Data;
+using System.Threading;
 
 namespace Ella
 {
@@ -16,6 +17,7 @@ namespace Ella
         internal int numEventsReceived = 0;
         internal List<SubscriptionHandle> SubscriptionCallBackHandle = new List<SubscriptionHandle>();
         internal List<SubscriptionHandle> NewDataHandle = new List<SubscriptionHandle>();
+        internal int NumAssociationsReceived = 0;
 
 
         [Factory]
@@ -86,6 +88,12 @@ namespace Ella
         {
             if (message != null)
                 ReplyReceived = true;
+        }
+
+        [Associate]
+        public void Associate(SubscriptionHandle first, SubscriptionHandle second)
+        {
+            Interlocked.Increment(ref NumAssociationsReceived);
         }
     }
 

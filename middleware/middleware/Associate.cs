@@ -25,7 +25,8 @@ namespace Ella
         }
 
         /// <summary>
-        /// This method associates two events published by one publisher to indicate that those events have a semantic connection
+        /// This method associates two events published by one publisher to indicate that those events have a semantic connection.<br />
+        /// This method does not regard the order of the events (i.e. exchanging <paramref name="firstEventId"/> and <paramref name="secondEventId"/> yields no different results
         /// </summary>
         /// <param name="firstEventId">The id of the first event</param>
         /// <param name="secondEventId">The id of the second event</param>

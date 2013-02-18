@@ -18,7 +18,11 @@ namespace Ella
         public TestPublisher() { }
 
         [Start]
-        public void Run() { }
+        public void Run()
+        {
+
+            Associate.Events(1, 2, this);
+        }
 
         [Stop]
         public void Stop() { }

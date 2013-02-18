@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Reflection;
 using Ella.Attributes;
+using Ella.Exceptions;
 using Ella.Internal;
 using Ella.Data;
 using Ella.Model;
@@ -83,6 +84,9 @@ namespace Ella
 
             if (matches != null)
             {
+                Dictionary<SubscriptionHandle, SubscriptionHandle> correlatedEvents = new Dictionary<SubscriptionHandle, SubscriptionHandle>();
+                MethodBase associateMethod = ReflectionUtils.GetAttributedMethod(subscriberInstance.GetType(), typeof(AssociateAttribute));
+
                 _log.DebugFormat("Found {0} matches for subsription to {1}", matches.Count(), typeof(T));
                 foreach (var m in matches)
                 {
@@ -95,7 +99,7 @@ namespace Ella
                         PublisherId = EllaModel.Instance.GetPublisherId(m.Publisher),
                         SubscriberId = EllaModel.Instance.GetSubscriberId(subscriberInstance)
                     };
-                    
+
                     var subscription = new Subscription
                     {
                         Event = m,
@@ -116,10 +120,43 @@ namespace Ella
                             {
                                 subscriptionCallback(typeof(T), subscription.Handle);
                             }
+                            if (associateMethod != null)
+                            {
+                                if (associateMethod.GetParameters().Count() != 2 || associateMethod.GetParameters().Any(p => p.ParameterType != typeof(SubscriptionHandle)))
+                                    throw new IllegalAttributeUsageException(String.Format("Method {0} attributed as Associate has invalid parameters (count or type)", associateMethod));
+
+                                var correlations = EllaModel.Instance.GetEventCorrelations(handle.EventHandle);
+                                if (correlations != null)
+                                {
+                                    foreach (RemoteSubscriptionHandle correlationHandle in correlations.Select(correlation => new RemoteSubscriptionHandle()
+                                        {
+                                            EventHandle = correlation,
+                                            SubscriberNodeID = EllaConfiguration.Instance.NodeId
+                                        }))
+                                    {
+                                        correlatedEvents.Add(handle, correlationHandle);
+
+                                    }
+                                }
+                            }
+
                         }
                     }
                     else
                         _log.DebugFormat("Templateobject from {0} was rejected by {1}", m.Publisher, subscriberInstance);
+                }
+                if (associateMethod != null)
+                {
+                    foreach (var handlePair in correlatedEvents)
+                    {
+                        //Only do this if subscriber is subscribed to both events
+                        if (EllaModel.Instance.Subscriptions.Any(s =>
+                                                                 Equals(s.Handle.EventHandle,
+                                                                        handlePair.Value.EventHandle) &&
+                                                                      s.Subscriber == subscriberInstance))
+                            associateMethod.Invoke(subscriberInstance,
+                                                   new object[] { handlePair.Key, handlePair.Value });
+                    }
                 }
             }
         }
@@ -183,15 +220,15 @@ namespace Ella
             //Create a stub
             Stub<T> s = new Stub<T> { DataType = typeof(T), Handle = handle };
             Start.Publisher(s);
-            var publishesAttribute = (PublishesAttribute) s.GetType().GetCustomAttributes(typeof (PublishesAttribute), false).First();
-            
+            var publishesAttribute = (PublishesAttribute)s.GetType().GetCustomAttributes(typeof(PublishesAttribute), false).First();
+
             Event ev = new Event
                 {
                     Publisher = s,
                     EventDetail = publishesAttribute
                 };
             handle.SubscriberId = EllaModel.Instance.GetSubscriberId(subscriberInstance);
-            Subscription sub = new Subscription(subscriberInstance, ev, newDataCallBack.Method, newDataCallBack.Target) { Handle = handle, DataType = typeof(T)};
+            Subscription sub = new Subscription(subscriberInstance, ev, newDataCallBack.Method, newDataCallBack.Target) { Handle = handle, DataType = typeof(T) };
             EllaModel.Instance.Subscriptions.Add(sub);
             if (subscriptionCallback != null)
             {

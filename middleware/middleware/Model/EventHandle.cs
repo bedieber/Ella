@@ -9,7 +9,7 @@ namespace Ella.Model
     {
         protected bool Equals(EventHandle other)
         {
-            return PublisherNodeId == other.PublisherNodeId && EventID == other.EventID && PublisherId == other.PublisherId;
+            return PublisherNodeId == other.PublisherNodeId && EventId == other.EventId && PublisherId == other.PublisherId;
         }
 
         public override int GetHashCode()
@@ -17,7 +17,7 @@ namespace Ella.Model
             unchecked
             {
                 int hashCode = PublisherNodeId;
-                hashCode = (hashCode*397) ^ EventID;
+                hashCode = (hashCode*397) ^ EventId;
                 hashCode = (hashCode*397) ^ PublisherId;
                 return hashCode;
             }

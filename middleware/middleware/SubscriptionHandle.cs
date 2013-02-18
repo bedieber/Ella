@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Ella.Internal;
 using Ella.Model;
 
 namespace Ella
@@ -15,7 +16,7 @@ namespace Ella
     {
 
         internal int PublisherId { get { return EventHandle.PublisherId; } set { EventHandle.PublisherId = value; } }
-        internal int EventID { get { return EventHandle.EventID; } set { EventHandle.EventID = value; } }
+        internal int EventID { get { return EventHandle.EventId; } set { EventHandle.EventId = value; } }
         internal int SubscriberId { get; set; }
 
         internal EventHandle EventHandle { get; set; }
@@ -89,6 +90,11 @@ namespace Ella
         public override string ToString()
         {
             return string.Format("S{0}/P{1}/E{2}:H{3}", SubscriberId, PublisherId, EventID, GetHashCode());
+        }
+
+        public SubscriptionHandle()
+        {
+            EventHandle = new EventHandle() {PublisherNodeId = EllaConfiguration.Instance.NodeId};
         }
     }
 

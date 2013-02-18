@@ -101,6 +101,12 @@ namespace Ella.Model
         /// <param name="second">The second.</param>
         internal void AddEventCorrelation(EventHandle first, EventHandle second)
         {
+            CorrelateEvents(first,second);
+            CorrelateEvents(second, first);
+        }
+
+        private void CorrelateEvents(EventHandle first, EventHandle second)
+        {
             if (EventCorrelations.ContainsKey(first))
             {
                 if (!EventCorrelations[first].Contains(second))
@@ -111,6 +117,15 @@ namespace Ella.Model
                 EventCorrelations.Add(first, new List<EventHandle>() { second });
             }
         }
+
+        internal IEnumerable<EventHandle> GetEventCorrelations(EventHandle handle)
+        {
+            if (EventCorrelations.ContainsKey(handle))
+                return EventCorrelations[handle];
+            return null;
+        }
+
+        #region Publisher/Subscriber Management
 
         /// <summary>
         /// Adds an active publisher.
@@ -193,5 +208,7 @@ namespace Ella.Model
         {
             return ActiveSubscribers[p];
         }
+
+        #endregion
     }
 }
