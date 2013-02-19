@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading;
+using Ella.Attributes;
 using Ella.Control;
 using Ella.Internal;
 using Ella.Model;
@@ -108,7 +109,10 @@ namespace Ella.Network
                                                                                        _remoteHosts[e.Message.Sender],
                                                                                        e.Message.Id);
 
-
+            /*
+             * Sending reply
+             */
+            IPEndPoint ep = (IPEndPoint)_remoteHosts[e.Message.Sender];
             if (handles != null)
             {
                 //Send reply
@@ -118,12 +122,12 @@ namespace Ella.Network
                 Array.Copy(idbytes, reply, idbytes.Length);
                 Array.Copy(handledata, 0, reply, idbytes.Length, handledata.Length);
                 Message m = new Message { Type = MessageType.SubscribeResponse, Data = reply };
-                IPEndPoint ep = (IPEndPoint)_remoteHosts[e.Message.Sender];
                 _log.DebugFormat("Replying to subscription request at {0}", ep);
                 Client.Send(m, ep.Address.ToString(), ep.Port);
             }
-
-            IPEndPoint ep = (IPEndPoint)_remoteHosts[e.Message.Sender];
+            /* 
+             * Notify about previous subscriptions on the same type by the same node
+             */
             foreach (var currentHandle in currentHandles)
             {
                 //Send reply
@@ -133,8 +137,8 @@ namespace Ella.Network
                 Array.Copy(idbytes, reply, idbytes.Length);
                 Array.Copy(handledata, 0, reply, idbytes.Length, handledata.Length);
                 Message m = new Message { Type = MessageType.SubscribeResponse, Data = reply };
-                
-                _log.DebugFormat("Replying to subscription request at {0}", ep);
+
+                _log.DebugFormat("Sending previous subscription information to {0}", ep);
                 Client.Send(m, ep.Address.ToString(), ep.Port);
             }
 
@@ -150,8 +154,8 @@ namespace Ella.Network
                 var correlations = EllaModel.Instance.GetEventCorrelations(handle.EventHandle);
                 foreach (var correlation in correlations)
                 {
-                    KeyValuePair<EventHandle, EventHandle> pair=new KeyValuePair<EventHandle, EventHandle>(handle.EventHandle, correlation);
-                    Message m = new Message() {Type = MessageType.EventCorrelation, Data = Serializer.Serialize(pair)};
+                    KeyValuePair<EventHandle, EventHandle> pair = new KeyValuePair<EventHandle, EventHandle>(handle.EventHandle, correlation);
+                    Message m = new Message() { Type = MessageType.EventCorrelation, Data = Serializer.Serialize(pair) };
                     Client.SendAsync(m, ep.Address.ToString(), ep.Port);
                 }
             }
@@ -219,6 +223,48 @@ namespace Ella.Network
             else
             {
                 _log.FatalFormat("No suitable subscriber for message reply found", msg);
+            }
+        }
+
+        private static void ProcessEventCorrelation(MessageEventArgs e)
+        {
+            var correlation = Serializer.Deserialize<KeyValuePair<EventHandle, EventHandle>>(e.Message.Data);
+            EventHandle first = correlation.Key;
+            EventHandle second = correlation.Value;
+            /*
+             * Add to list of correlations?
+             * Deliver to subscribers
+             *      The subscriptions point directly to the subscriber instances, the handle is matching already
+             */
+            var results =
+                EllaModel.Instance.Subscriptions.GroupBy(s => s.Subscriber)
+                         .Where(
+                             g =>
+                             g.Any(g1 => Equals(g1.Handle.EventHandle, first)) &&
+                             g.Any(g2 => Equals(g2.Handle.EventHandle, second)))
+                         .Select(
+                             g =>
+                             new
+                                 {
+                                     Object = g.Key,
+                                     Method =
+                                 ReflectionUtils.GetAttributedMethod(g.Key.GetType(), typeof (AssociateAttribute))
+                                 });
+            foreach (var result in results)
+            {
+
+                if (result.Method != null)
+                {
+                    if (result.Method.GetParameters().Count() != 2 || result.Method.GetParameters().Any(p => p.ParameterType != typeof(SubscriptionHandle)))
+                        throw new IllegalAttributeUsageException(String.Format("Method {0} attributed as Associate has invalid parameters (count or type)", result.Method));
+                    SubscriptionHandle handle1 = new SubscriptionHandle() { EventHandle = first };
+                    SubscriptionHandle handle2 = new SubscriptionHandle() { EventHandle = second };
+
+                    result.Method.Invoke(result.Object, new object[] { handle1, handle2 });
+                    result.Method.Invoke(result.Object, new object[] { handle2, handle1 });
+                }
+
+
             }
         }
     }

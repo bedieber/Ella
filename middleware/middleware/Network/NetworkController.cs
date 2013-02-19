@@ -139,6 +139,10 @@ namespace Ella.Network
                         ProcessApplicationMessageResponse(e);
                         break;
                     }
+                case MessageType.EventCorrelation:
+                    ProcessEventCorrelation(e);
+                    break;
+
             }
         }
     }
