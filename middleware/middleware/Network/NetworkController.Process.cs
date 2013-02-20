@@ -274,8 +274,9 @@ namespace Ella.Network
                 {
                     if (result.Method.GetParameters().Count() != 2 || result.Method.GetParameters().Any(p => p.ParameterType != typeof(SubscriptionHandle)))
                         throw new IllegalAttributeUsageException(String.Format("Method {0} attributed as Associate has invalid parameters (count or type)", result.Method));
-                    SubscriptionHandle handle1 = new SubscriptionHandle() { EventHandle = first };
-                    SubscriptionHandle handle2 = new SubscriptionHandle() { EventHandle = second };
+                    int subscriberid=EllaModel.Instance.GetSubscriberId(result.Object);
+                    RemoteSubscriptionHandle handle1 = new RemoteSubscriptionHandle() { EventHandle = first, SubscriberNodeID=EllaConfiguration.Instance.NodeId, SubscriberId=subscriberid  };
+                    RemoteSubscriptionHandle handle2 = new RemoteSubscriptionHandle() { EventHandle = second, SubscriberNodeID = EllaConfiguration.Instance.NodeId, SubscriberId = subscriberid };
 
                     result.Method.Invoke(result.Object, new object[] { handle1, handle2 });
                     result.Method.Invoke(result.Object, new object[] { handle2, handle1 });
