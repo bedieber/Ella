@@ -28,6 +28,7 @@ namespace Ella
         /// <param name="sender">The sender instance.</param>
         public static bool Message(ApplicationMessage message, SubscriptionHandle to, object sender)
         {
+            _log.DebugFormat("New application message from {0} to {1}", sender, to);
             //TODO check if sender is subscriber
             message.Sender = EllaModel.Instance.GetSubscriberId(sender);
             message.Handle = to;
@@ -47,9 +48,10 @@ namespace Ella
 
         internal static bool DeliverApplicationMessage(ApplicationMessage message)
         {
-            object publisher = (from s in EllaModel.Instance.Subscriptions
-                                where s.Handle == message.Handle
-                                select s.Event.Publisher).SingleOrDefault();
+            //object publisher = (from s in EllaModel.Instance.Subscriptions
+            //                    where s.Handle == message.Handle
+            //                    select s.Event.Publisher).SingleOrDefault();
+            object publisher = EllaModel.Instance.GetPublisher(message.Handle.PublisherId);
             if (publisher != null)
             {
                 return DeliverMessage(message, publisher);

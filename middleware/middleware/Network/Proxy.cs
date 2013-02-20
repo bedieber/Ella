@@ -55,7 +55,6 @@ namespace Ella.Network
                 Array.Copy(BitConverter.GetBytes(EventToHandle.EventDetail.ID), 0, payload, 2, 2);
                 Array.Copy(serialize, 0, payload, 4, serialize.Length);
                 m.Data = payload;
-                _log.DebugFormat("Sending event of {0} bytes to {1}", serialize.Length, TargetNode);
                 Client.Send(m, TargetNode.Address.ToString(), TargetNode.Port);
             }
 

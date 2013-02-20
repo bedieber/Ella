@@ -63,7 +63,6 @@ namespace Ella.Network
         /// <param name="data">The data.</param>
         internal override void NewMessage(byte[] data)
         {
-            _log.DebugFormat("Processing event of {0} bytes", data.Length);
             BinaryFormatter bf = new BinaryFormatter();
             var dto = bf.Deserialize(new MemoryStream(data));
             if (dto.GetType() == typeof (T))
