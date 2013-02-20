@@ -19,7 +19,7 @@ namespace Ella.Network
     [Subscriber()]
     internal class Proxy
     {
-        private ILog _log = LogManager.GetLogger(typeof (Proxy));
+        private ILog _log = LogManager.GetLogger(typeof(Proxy));
         internal Event EventToHandle { get; set; }
         internal IPEndPoint TargetNode { get; set; }
 
@@ -36,7 +36,7 @@ namespace Ella.Network
         /// <param name="handle">The handle.</param>
         internal void HandleEvent(object data, SubscriptionHandle handle)
         {
-          
+            _log.DebugFormat("Proxy for event {0} transfers event {1}", EventToHandle.EventDetail.ID, handle.EventID);
             /*
              * check that incoming data object is serializable
              * Serialize it
@@ -57,8 +57,12 @@ namespace Ella.Network
                 m.Data = payload;
                 Client.Send(m, TargetNode.Address.ToString(), TargetNode.Port);
             }
+            else
+            {
+                _log.ErrorFormat("Object {0} of Event {1} is not serializable", data, handle);
+            }
 
         }
 
-       }
+    }
 }
