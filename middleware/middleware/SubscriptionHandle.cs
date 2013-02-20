@@ -114,7 +114,7 @@ namespace Ella
         /// <value>
         /// The remote node ID.
         /// </value>
-        internal int PublisherNodeID { get { return EventHandle.PublisherNodeId; } set { EventHandle.PublisherId = value; } }
+        internal int PublisherNodeID { get { return EventHandle.PublisherNodeId; } set { EventHandle.PublisherNodeId = value; } }
 
         internal int SubscriberNodeID { get; set; }
         /// <summary>

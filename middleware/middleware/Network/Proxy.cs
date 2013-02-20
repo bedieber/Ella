@@ -9,6 +9,7 @@ using Ella.Data;
 using Ella.Internal;
 using Ella.Model;
 using Ella.Network.Communication;
+using log4net;
 
 namespace Ella.Network
 {
@@ -18,6 +19,7 @@ namespace Ella.Network
     [Subscriber()]
     internal class Proxy
     {
+        private ILog _log = LogManager.GetLogger(typeof (Proxy));
         internal Event EventToHandle { get; set; }
         internal IPEndPoint TargetNode { get; set; }
 
@@ -53,6 +55,7 @@ namespace Ella.Network
                 Array.Copy(BitConverter.GetBytes(EventToHandle.EventDetail.ID), 0, payload, 2, 2);
                 Array.Copy(serialize, 0, payload, 4, serialize.Length);
                 m.Data = payload;
+                _log.DebugFormat("Sending event of {0} bytes to {1}", serialize.Length, TargetNode);
                 Client.Send(m, TargetNode.Address.ToString(), TargetNode.Port);
             }
 

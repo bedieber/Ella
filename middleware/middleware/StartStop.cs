@@ -33,7 +33,6 @@ namespace Ella
         /// </remarks>
         public static void Publisher(object instance)
         {
-            _log.InfoFormat("Starting publisher {0}", instance);
             var type = instance.GetType();
             if (Is.ValidPublisher(type))
             {
@@ -46,6 +45,8 @@ namespace Ella
                 if (!method.GetParameters().Any())
                 {
                     EllaModel.Instance.AddActivePublisher(instance);
+                    _log.InfoFormat("Starting publisher {0}", EllaModel.Instance.GetPublisherId(instance));
+
                     Thread t = new Thread(() => method.Invoke(instance, null));
                     t.Start();
                 }

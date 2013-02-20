@@ -5,6 +5,7 @@ using System.Net;
 using System.Threading;
 using Ella.Attributes;
 using Ella.Control;
+using Ella.Exceptions;
 using Ella.Internal;
 using Ella.Model;
 using Ella.Network.Communication;
@@ -113,6 +114,11 @@ namespace Ella.Network
              * Sending reply
              */
             IPEndPoint ep = (IPEndPoint)_remoteHosts[e.Message.Sender];
+            if (ep == null)
+            {
+                _log.ErrorFormat("No suitable endpoint to reply to subscription found");
+                return;
+            }
             if (handles != null)
             {
                 //Send reply
@@ -123,11 +129,12 @@ namespace Ella.Network
                 Array.Copy(handledata, 0, reply, idbytes.Length, handledata.Length);
                 Message m = new Message { Type = MessageType.SubscribeResponse, Data = reply };
                 _log.DebugFormat("Replying to subscription request at {0}", ep);
+                
                 Client.Send(m, ep.Address.ToString(), ep.Port);
             }
             /* 
-             * Notify about previous subscriptions on the same type by the same node
-             */
+                 * Notify about previous subscriptions on the same type by the same node
+                 */
             foreach (var currentHandle in currentHandles)
             {
                 //Send reply
@@ -136,27 +143,36 @@ namespace Ella.Network
                 byte[] idbytes = BitConverter.GetBytes(currentHandle.Key);
                 Array.Copy(idbytes, reply, idbytes.Length);
                 Array.Copy(handledata, 0, reply, idbytes.Length, handledata.Length);
-                Message m = new Message { Type = MessageType.SubscribeResponse, Data = reply };
+                Message m = new Message {Type = MessageType.SubscribeResponse, Data = reply};
 
                 _log.DebugFormat("Sending previous subscription information to {0}", ep);
                 Client.Send(m, ep.Address.ToString(), ep.Port);
             }
+            _log.Debug("Checking for relevant event correlations");
 
-            /*
-             * Process event correlations based on the subscription handles from the subscribe process
-             */
-            foreach (var handle in handles)
+            if (handles != null)
             {
                 /*
-                 * 1. search for correlations of this handle
-                 * 2. send a message for each correlation#
+                 * Process event correlations based on the subscription handles from the subscribe process
                  */
-                var correlations = EllaModel.Instance.GetEventCorrelations(handle.EventHandle);
-                foreach (var correlation in correlations)
+                foreach (var handle in handles)
                 {
-                    KeyValuePair<EventHandle, EventHandle> pair = new KeyValuePair<EventHandle, EventHandle>(handle.EventHandle, correlation);
-                    Message m = new Message() { Type = MessageType.EventCorrelation, Data = Serializer.Serialize(pair) };
-                    Client.SendAsync(m, ep.Address.ToString(), ep.Port);
+                    /*
+                     * 1. search for correlations of this handle
+                     * 2. send a message for each correlation#
+                     */
+                    var correlations = EllaModel.Instance.GetEventCorrelations(handle.EventHandle);
+                    foreach (var correlation in correlations)
+                    {
+                        KeyValuePair<EventHandle, EventHandle> pair =
+                            new KeyValuePair<EventHandle, EventHandle>(handle.EventHandle, correlation);
+                        Message m = new Message()
+                            {
+                                Type = MessageType.EventCorrelation,
+                                Data = Serializer.Serialize(pair)
+                            };
+                        Client.SendAsync(m, ep.Address.ToString(), ep.Port);
+                    }
                 }
             }
         }
@@ -205,8 +221,9 @@ namespace Ella.Network
                                 let h = (s.Handle as RemoteSubscriptionHandle)
                                 where h != null && h == handle
                                 select s;
-
-            foreach (var sub in subscriptions)
+            var subs = subscriptions as SubscriptionBase[] ?? subscriptions.ToArray();
+            _log.DebugFormat("Passing remotely published event to {0} stubs", subs.Count());
+            foreach (var sub in subs)
             {
                 (sub.Event.Publisher as Stub).NewMessage(data);
             }
@@ -248,7 +265,7 @@ namespace Ella.Network
                                  {
                                      Object = g.Key,
                                      Method =
-                                 ReflectionUtils.GetAttributedMethod(g.Key.GetType(), typeof (AssociateAttribute))
+                                 ReflectionUtils.GetAttributedMethod(g.Key.GetType(), typeof(AssociateAttribute))
                                  });
             foreach (var result in results)
             {

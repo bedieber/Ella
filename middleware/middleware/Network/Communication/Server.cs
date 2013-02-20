@@ -205,7 +205,7 @@ namespace Ella.Network.Communication
             }
             catch (Exception ex)
             {
-                _log.ErrorFormat("Exception during processing network message: {0}", ex.Message);
+                _log.ErrorFormat("Exception during processing network message: {0}\n{1}", ex.Message, ex.StackTrace);
                 throw;
             }
             finally

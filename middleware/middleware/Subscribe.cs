@@ -193,6 +193,7 @@ namespace Ella
                             SubscriberId = EllaModel.Instance.GetSubscriberId(proxy),
                             SubscriptionReference = subscriptionReference
                         };
+                    _log.DebugFormat("Constructing remote subscription handle {0}", handle);
                     //SubscriptionBase subscription = ReflectionUtils.CreateGenericSubscription(type, match, proxy);
                     SubscriptionBase subscription = new Subscription(proxy, match, proxy.GetType().GetMethod("HandleEvent", BindingFlags.NonPublic | BindingFlags.Instance), proxy);
                     subscription.Handle = handle;

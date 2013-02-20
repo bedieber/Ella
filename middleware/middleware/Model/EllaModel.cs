@@ -122,7 +122,7 @@ namespace Ella.Model
         {
             if (EventCorrelations.ContainsKey(handle))
                 return EventCorrelations[handle];
-            return null;
+            return new List<EventHandle>();
         }
 
         #region Publisher/Subscriber Management
