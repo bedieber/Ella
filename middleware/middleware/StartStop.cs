@@ -11,6 +11,7 @@ using Ella.Exceptions;
 using Ella.Internal;
 using Ella.Model;
 using Ella.Network;
+using Ella.Network.Communication;
 using log4net;
 using log4net.Config;
 using log4net.Util;
@@ -177,7 +178,7 @@ namespace Ella
              * Notify other nodes of the termination
              */
             //Reaction to this must be the local termination of subscriptions to and from this node
-
+            
         }
     }
 }

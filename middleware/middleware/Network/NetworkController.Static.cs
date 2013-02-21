@@ -43,5 +43,10 @@ namespace Ella.Network
         {
             _instance.UnsubscribeFrom(subscriptionReference, nodeId);
         }
+
+        internal static void BroadcastShutdown()
+        {
+            _instance.SendShutdownMessage();
+        }
     }
 }

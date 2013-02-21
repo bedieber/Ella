@@ -41,7 +41,7 @@ namespace Ella.Network
             }
         }
 
-       
+
 
         private bool SendMessage(ApplicationMessage message, RemoteSubscriptionHandle remoteSubscriptionHandle, bool isReply = false)
         {
@@ -56,13 +56,23 @@ namespace Ella.Network
             return false;
         }
 
-        
+
 
         private void UnsubscribeFrom(int subscriptionReference, int nodeId)
         {
             Message m = new Message(subscriptionReference) { Type = MessageType.Unsubscribe };
             var ipEndPoint = ((IPEndPoint)_remoteHosts[nodeId]);
             Client.SendAsync(m, ipEndPoint.Address.ToString(), ipEndPoint.Port);
+        }
+
+        private void SendShutdownMessage()
+        {
+            Message m = new Message { Type = MessageType.NodeShutdown };
+            foreach (var host in _remoteHosts)
+            {
+                IPEndPoint address = (IPEndPoint)host.Value;
+                Client.SendAsync(m, address.Address.ToString(), address.Port);
+            }
         }
 
 
@@ -123,8 +133,13 @@ namespace Ella.Network
                 case MessageType.EventCorrelation:
                     ProcessEventCorrelation(e);
                     break;
+                case MessageType.NodeShutdown:
+                    ProcessNodeShutdown(e);
+                    break;
 
             }
         }
+
+
     }
 }

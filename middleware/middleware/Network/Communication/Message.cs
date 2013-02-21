@@ -20,7 +20,8 @@ namespace Ella.Network.Communication
         DiscoverResponse,
         ApplicationMessage,
         ApplicationMessageResponse,
-        EventCorrelation
+        EventCorrelation,
+        NodeShutdown
     }
     
     

@@ -77,15 +77,16 @@ namespace Ella
         /// Performs the system-internal unsubscribe consisting of canelling all matching subscription according to <paramref name="selector"/> and also finding and cancelling remote subscriptions
         /// </summary>
         /// <param name="selector">The selector.</param>
-        internal static void PerformUnsubscribe(Func<SubscriptionBase, bool> selector)
+        internal static void PerformUnsubscribe(Func<SubscriptionBase, bool> selector, bool performRemoteUnsubscribe = true)
         {
-            var remoteSubscriptions =EllaModel.Instance.Subscriptions.Where(selector).Where(s => s.Handle is RemoteSubscriptionHandle);
+            var remoteSubscriptions = EllaModel.Instance.Subscriptions.Where(selector).Where(s => s.Handle is RemoteSubscriptionHandle);
 
             foreach (var remoteSubscription in remoteSubscriptions)
             {
                 RemoteSubscriptionHandle handle = remoteSubscription.Handle as RemoteSubscriptionHandle;
-                _log.DebugFormat("Cancelling remote subscription to {1}", handle);
-                NetworkController.Unsubscribe(handle.SubscriptionReference, handle.PublisherNodeID);
+                _log.DebugFormat("Cancelling remote subscription to {0}", handle);
+                if (performRemoteUnsubscribe)
+                    NetworkController.Unsubscribe(handle.SubscriptionReference, handle.PublisherNodeID);
                 Stop.Publisher(remoteSubscription.Event.Publisher);
             }
             int removedSubscriptions = EllaModel.Instance.Subscriptions.RemoveAll(s => selector(s));

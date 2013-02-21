@@ -127,7 +127,7 @@ namespace Ella.Network
                 Array.Copy(handledata, 0, reply, idbytes.Length, handledata.Length);
                 Message m = new Message { Type = MessageType.SubscribeResponse, Data = reply };
                 _log.DebugFormat("Replying to subscription request at {0}", ep);
-                
+
                 Client.Send(m, ep.Address.ToString(), ep.Port);
             }
             /* 
@@ -141,7 +141,7 @@ namespace Ella.Network
                 byte[] idbytes = BitConverter.GetBytes(currentHandle.Key);
                 Array.Copy(idbytes, reply, idbytes.Length);
                 Array.Copy(handledata, 0, reply, idbytes.Length, handledata.Length);
-                Message m = new Message {Type = MessageType.SubscribeResponse, Data = reply};
+                Message m = new Message { Type = MessageType.SubscribeResponse, Data = reply };
 
                 _log.DebugFormat("Sending previous subscription information to {0}", ep);
                 Client.Send(m, ep.Address.ToString(), ep.Port);
@@ -267,13 +267,12 @@ namespace Ella.Network
                                  });
             foreach (var result in results)
             {
-
                 if (result.Method != null)
                 {
                     if (result.Method.GetParameters().Count() != 2 || result.Method.GetParameters().Any(p => p.ParameterType != typeof(SubscriptionHandle)))
                         throw new IllegalAttributeUsageException(String.Format("Method {0} attributed as Associate has invalid parameters (count or type)", result.Method));
-                    int subscriberid=EllaModel.Instance.GetSubscriberId(result.Object);
-                    RemoteSubscriptionHandle handle1 = new RemoteSubscriptionHandle() { EventHandle = first, SubscriberNodeID=EllaConfiguration.Instance.NodeId, SubscriberId=subscriberid  };
+                    int subscriberid = EllaModel.Instance.GetSubscriberId(result.Object);
+                    RemoteSubscriptionHandle handle1 = new RemoteSubscriptionHandle() { EventHandle = first, SubscriberNodeID = EllaConfiguration.Instance.NodeId, SubscriberId = subscriberid };
                     RemoteSubscriptionHandle handle2 = new RemoteSubscriptionHandle() { EventHandle = second, SubscriberNodeID = EllaConfiguration.Instance.NodeId, SubscriberId = subscriberid };
 
                     result.Method.Invoke(result.Object, new object[] { handle1, handle2 });
@@ -282,6 +281,33 @@ namespace Ella.Network
 
 
             }
+        }
+
+        private void ProcessNodeShutdown(MessageEventArgs e)
+        {
+            /*
+             * Delete all subscriptions to this node
+             * Delete all subscriptions from this node
+             * Delete node from node dictionary
+             * 
+             * No communications to the node should be done, since it's shutdown already
+             */
+
+
+            //Subscriptions where local subscribers are subscribed to publishers from the node being shut down
+            //in this case, the local stubs must be stopped and the subscriptions removed from the list
+            Ella.Unsubscribe.PerformUnsubscribe(s => s.Handle.EventHandle.PublisherNodeId == e.Message.Sender, performRemoteUnsubscribe: false);
+            //Subscriptions of modules on the remote node being subscribed to local publishers
+            //Here, the proxy
+            var subscriptionsFromRemoteNode = EllaModel.Instance.Subscriptions.Where(s => s.Handle is RemoteSubscriptionHandle).Where(s => (s.Handle as RemoteSubscriptionHandle).SubscriberNodeID == e.Message.Sender);
+            foreach (var sub in subscriptionsFromRemoteNode)
+            {
+                Ella.Unsubscribe.From(sub.Subscriber as Proxy, sub.Handle);
+            }
+
+            _remoteHosts.Remove(e.Message.Sender);
+
+
         }
     }
 }
