@@ -89,9 +89,7 @@ namespace Ella.Network
                         "Detected invalid subscription reference {0}, may be from previous application run. Unsubscribing...",
                         inResponseTo);
                     //TODO this is not a clean solution, might clash with other msgIDs
-                    Message m = new Message(inResponseTo) { Type = MessageType.Unsubscribe };
-                    var ipEndPoint = ((IPEndPoint)_remoteHosts[e.Message.Sender]);
-                    Client.SendAsync(m, ipEndPoint.Address.ToString(), ipEndPoint.Port);
+                    UnsubscribeFrom(inResponseTo, e.Message.Sender);
                 }
             }
         }
@@ -188,7 +186,7 @@ namespace Ella.Network
 
             foreach (var sub in remoteSubs)
             {
-                Unsubscribe.From(sub.Subscriber as Proxy, sub.Handle);
+                Ella.Unsubscribe.From(sub.Subscriber as Proxy, sub.Handle);
             }
 
         }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Ella.Data;
 using Ella.Model;
+using Ella.Network;
 using log4net;
 
 namespace Ella
@@ -15,7 +16,7 @@ namespace Ella
     {
         private static readonly ILog _log = LogManager.GetLogger(typeof(Subscribe));
 
-       
+
         /// <summary>
         /// Unsubscribes the <paramref name="subscriberInstance" /> from type <typeparamref name="T" />
         /// </summary>
@@ -26,14 +27,13 @@ namespace Ella
             _log.DebugFormat("Unsubscribing {0} from type {1}", EllaModel.Instance.GetSubscriberId(subscriberInstance), typeof(T));
 
 
-            if(!Is.Subscriber(subscriberInstance.GetType()))
+            if (!Is.Subscriber(subscriberInstance.GetType()))
             {
                 _log.ErrorFormat("Cannot unsubscribe. {0} is not a valid subscriber", subscriberInstance.GetType().ToString());
                 throw new ArgumentException("subscriberInstance must be a valid subscriber");
             }
 
-            int removedSubscriptions = EllaModel.Instance.Subscriptions.RemoveAll(s => s.Event.EventDetail.DataType == typeof (T)); 
-            _log.DebugFormat("{0} subscriptions have been removed.");
+            PerformUnsubscribe(s => s.Subscriber == subscriberInstance && s.Event.EventDetail.DataType == typeof(T));
         }
 
         /// <summary>
@@ -53,8 +53,44 @@ namespace Ella
                 throw new ArgumentException("subscriberInstance must be a valid subscriber");
             }
 
-            int removedSubscriptions = EllaModel.Instance.Subscriptions.RemoveAll(s => s.Handle == handle);
-            _log.DebugFormat("{0} subscriptions have been removed.", removedSubscriptions);
+            PerformUnsubscribe(s => s.Handle == handle);
+        }
+
+        /// <summary>
+        /// Unsubscribes the <paramref name="subscriberInstance"/> from all events
+        /// </summary>
+        /// <param name="subscriberInstance">The subscriber instance.</param>
+        public static void From(object subscriberInstance)
+        {
+            _log.DebugFormat("Unsubscribing {0} from all events", EllaModel.Instance.GetSubscriberId(subscriberInstance));
+
+
+            if (!Is.Subscriber(subscriberInstance.GetType()))
+            {
+                _log.ErrorFormat("Cannot unsubscribe. {0} is not a valid subscriber", subscriberInstance.GetType().ToString());
+                throw new ArgumentException("subscriberInstance must be a valid subscriber");
+            }
+            PerformUnsubscribe(s => s.Subscriber == subscriberInstance);
+        }
+
+        /// <summary>
+        /// Performs the system-internal unsubscribe consisting of canelling all matching subscription according to <paramref name="selector"/> and also finding and cancelling remote subscriptions
+        /// </summary>
+        /// <param name="selector">The selector.</param>
+        internal static void PerformUnsubscribe(Func<SubscriptionBase, bool> selector)
+        {
+            var remoteSubscriptions =EllaModel.Instance.Subscriptions.Where(selector).Where(s => s.Handle is RemoteSubscriptionHandle);
+
+            foreach (var remoteSubscription in remoteSubscriptions)
+            {
+                RemoteSubscriptionHandle handle = remoteSubscription.Handle as RemoteSubscriptionHandle;
+                _log.DebugFormat("Cancelling remote subscription to {1}", handle);
+                NetworkController.Unsubscribe(handle.SubscriptionReference, handle.PublisherNodeID);
+                Stop.Publisher(remoteSubscription.Event.Publisher);
+            }
+            int removedSubscriptions = EllaModel.Instance.Subscriptions.RemoveAll(s => selector(s));
+
+            _log.DebugFormat("{0} local subscriptions have been removed.", removedSubscriptions);
         }
     }
 }

@@ -116,7 +116,14 @@ namespace Ella
 
                 if (!method.GetParameters().Any())
                 {
-                    method.Invoke(instance, null);
+                    try
+                    {
+                        method.Invoke(instance, null);
+                    }
+                    catch (Exception ex)
+                    {
+                        _log.ErrorFormat("Stopping publisher {0} threw an exception: {1}", instance, ex.Message);
+                    }
                     EllaModel.Instance.RemoveActivePublisher(instance);
                 }
                 else
@@ -124,6 +131,53 @@ namespace Ella
                     throw new InvalidPublisherException("Stop method requires parameters, this is not supported");
                 }
             }
+        }
+
+        /// <summary>
+        /// Performs a clear termination of the Ella system<br />
+        /// Includes
+        /// <list type="bullet">
+        /// <item>
+        /// <description>Stopping all publishers </description>
+        /// </item>
+        /// <item>
+        /// <description>Cancelling all subscriptions </description>
+        /// </item>
+        /// <item>
+        /// <description>Notifying other nodes of the termination </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        public static void Ella()
+        {
+            /*
+             * Cancel all subscriptions
+             */
+            foreach (var s in EllaModel.Instance.Subscriptions.GroupBy(s=>s.Subscriber))
+            {
+                Unsubscribe.From(s.Key);
+            }
+            /*
+             * Stop all publishers
+             */
+            var activePublishers = EllaModel.Instance.GetActivePublishers();
+            foreach (var activePublisher in activePublishers)
+            {
+                try
+                {
+                    Stop.Publisher(activePublisher);
+                }
+                catch (Exception ex)
+                {
+                    _log.ErrorFormat("Could not stop publisher {0}. {1}", activePublisher, ex.Message);
+                }
+            }
+
+            /*
+             * Notify other nodes of the termination
+             */
+            //Reaction to this must be the local termination of subscriptions to and from this node
+
         }
     }
 }

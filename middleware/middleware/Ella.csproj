@@ -89,6 +89,7 @@
     <Compile Include="Network\Communication\Server.cs" />
     <Compile Include="Network\NetworkController.cs" />
     <Compile Include="Network\NetworkController.Process.cs" />
+    <Compile Include="Network\NetworkController.Static.cs" />
     <Compile Include="Network\Proxy.cs" />
     <Compile Include="Network\Stub.cs" />
     <Compile Include="Network\Unknown.cs" />
