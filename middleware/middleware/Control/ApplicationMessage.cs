@@ -38,7 +38,7 @@ namespace Ella.Control
         /// <value>
         /// The sender.
         /// </value>
-        public int Sender { get; internal set; }
+        internal int Sender { get; set; }
 
         /// <summary>
         /// The subscriptionhandle
