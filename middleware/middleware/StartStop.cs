@@ -177,8 +177,7 @@ namespace Ella
             /*
              * Notify other nodes of the termination
              */
-            //Reaction to this must be the local termination of subscriptions to and from this node
-            
+            NetworkController.BroadcastShutdown();
         }
     }
 }
