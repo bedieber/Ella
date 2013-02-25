@@ -90,6 +90,11 @@ namespace Ella
                 _log.DebugFormat("Found {0} matches for subsription to {1}", matches.Count(), typeof(T));
                 foreach (var m in matches)
                 {
+                    if (m.Publisher == subscriberInstance)
+                    {
+                        _log.DebugFormat("Not subscribing {0} for itself", subscriberInstance);
+                        continue;
+                    }
                     object templateObject = Create.TemplateObject(m.Publisher, m.EventDetail.ID);
                     T template = templateObject != null ? (T)templateObject : default(T);
                     //SubscriptionID in the handle is set automatically when assigning it to a subscription

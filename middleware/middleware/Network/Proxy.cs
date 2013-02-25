@@ -36,7 +36,6 @@ namespace Ella.Network
         /// <param name="handle">The handle.</param>
         internal void HandleEvent(object data, SubscriptionHandle handle)
         {
-            _log.DebugFormat("Proxy for event {0} transfers event {1}", EventToHandle.EventDetail.ID, handle.EventID);
             /*
              * check that incoming data object is serializable
              * Serialize it

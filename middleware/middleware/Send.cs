@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using Ella.Attributes;
 using Ella.Control;
 using Ella.Internal;
@@ -101,7 +102,7 @@ namespace Ella
                 if (parameterInfos.Length == 1 && parameterInfos[0].ParameterType == typeof(ApplicationMessage))
                 {
                     //TODO should this be done in a separate thread?
-                    method.Invoke(instance, new object[] { message });
+                    new Thread((ThreadStart)delegate { method.Invoke(instance, new object[] { message }); }).Start();
                 }
             }
             else

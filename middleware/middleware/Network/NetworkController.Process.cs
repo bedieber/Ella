@@ -98,7 +98,15 @@ namespace Ella.Network
 
         private void ProcessSubscribe(MessageEventArgs e)
         {
-            Type type = Serializer.Deserialize<Type>(e.Message.Data);
+            Type type = null;
+            try
+            {
+                type = Serializer.Deserialize<Type>(e.Message.Data);
+            }
+            catch (Exception)
+            {
+                return;
+            }
             //TODO handle case when remote host is not in remoteHosts dictionary
             //get the subscriptions that this node is already subscribed for, to avoid double subscriptions
             var currentHandles = (from s1 in (EllaModel.Instance.Subscriptions.Where(s => s.Event.EventDetail.DataType == type).Select(s => s.Handle)).OfType<RemoteSubscriptionHandle>()
