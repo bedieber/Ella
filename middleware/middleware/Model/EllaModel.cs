@@ -73,7 +73,7 @@ namespace Ella.Model
         {
             get
             {
-                //from all active publishers, take their subscribes attributes as one flat list
+                //from all active publishers, take their publishes attributes as one flat list
                 IEnumerable<Event> atr = (from p in ActivePublishers.Keys let a = (((IEnumerable<PublishesAttribute>)p.GetType().GetCustomAttributes(typeof(PublishesAttribute), true))).Select(e => new Event { Publisher = p, EventDetail = e }) select a).SelectMany(i => i);
                 //make a dictionary out of that list, where the key is the type of published data
                 return atr.GroupBy(a => a.EventDetail.DataType);
@@ -208,6 +208,11 @@ namespace Ella.Model
         {
             return ActiveSubscribers[p];
         }
+
+        internal IEnumerable<object> GetActivePublishers()
+        {
+            return ActivePublishers.Keys;
+        } 
 
         #endregion
     }

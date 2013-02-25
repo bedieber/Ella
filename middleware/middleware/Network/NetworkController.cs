@@ -15,39 +15,14 @@ namespace Ella.Network
 {
     internal partial class NetworkController
     {
-        private static readonly NetworkController _instance = new NetworkController();
 
         private Server _server;
         private readonly Dictionary<int, EndPoint> _remoteHosts = new Dictionary<int, EndPoint>();
 
-        private static ILog _log = LogManager.GetLogger(typeof(NetworkController));
 
         private Dictionary<int, Action<RemoteSubscriptionHandle>> _pendingSubscriptions =
             new Dictionary<int, Action<RemoteSubscriptionHandle>>();
         private Dictionary<int, Type> _subscriptionCache = new Dictionary<int, Type>();
-
-        /// <summary>
-        /// Starts the network controller.
-        /// </summary>
-        internal static void Start()
-        {
-            _instance._server = new Server(EllaConfiguration.Instance.NetworkPort, IPAddress.Any);
-            _instance._server.NewMessage += _instance.NewMessage;
-            _instance._server.Start();
-            Client.Broadcast();
-        }
-
-
-        /// <summary>
-        /// Subscribes to remote host.
-        /// </summary>
-        /// <typeparam name="T">The type to subscribe to</typeparam>
-        internal static void SubscribeToRemoteHost<T>(Action<RemoteSubscriptionHandle> callback)
-        {
-            _instance.SubscribeTo(typeof(T), callback);
-        }
-
-        internal static bool IsRunning { get { return _instance._server != null; } }
 
         /// <summary>
         /// Subscribes to a remote host.
@@ -66,10 +41,7 @@ namespace Ella.Network
             }
         }
 
-        public static bool SendApplicationMessage(ApplicationMessage message, RemoteSubscriptionHandle remoteSubscriptionHandle, bool isReply = false)
-        {
-            return _instance.SendMessage(message, remoteSubscriptionHandle);
-        }
+
 
         private bool SendMessage(ApplicationMessage message, RemoteSubscriptionHandle remoteSubscriptionHandle, bool isReply = false)
         {
@@ -82,6 +54,25 @@ namespace Ella.Network
                 return true;
             }
             return false;
+        }
+
+
+
+        private void UnsubscribeFrom(int subscriptionReference, int nodeId)
+        {
+            Message m = new Message(subscriptionReference) { Type = MessageType.Unsubscribe };
+            var ipEndPoint = ((IPEndPoint)_remoteHosts[nodeId]);
+            Client.SendAsync(m, ipEndPoint.Address.ToString(), ipEndPoint.Port);
+        }
+
+        private void SendShutdownMessage()
+        {
+            Message m = new Message { Type = MessageType.NodeShutdown };
+            foreach (var host in _remoteHosts)
+            {
+                IPEndPoint address = (IPEndPoint)host.Value;
+                Client.SendAsync(m, address.Address.ToString(), address.Port);
+            }
         }
 
 
@@ -142,8 +133,13 @@ namespace Ella.Network
                 case MessageType.EventCorrelation:
                     ProcessEventCorrelation(e);
                     break;
+                case MessageType.NodeShutdown:
+                    ProcessNodeShutdown(e);
+                    break;
 
             }
         }
+
+
     }
 }
