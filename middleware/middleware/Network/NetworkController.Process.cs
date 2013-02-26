@@ -228,7 +228,6 @@ namespace Ella.Network
                                 where h != null && h == handle
                                 select s;
             var subs = subscriptions as SubscriptionBase[] ?? subscriptions.ToArray();
-            _log.DebugFormat("Passing remotely published event {1} by publisher {2} to {0} stubs", subs.Count(), handle.EventID, handle.PublisherId);
             foreach (var sub in subs)
             {
                 (sub.Event.Publisher as Stub).NewMessage(data);

@@ -151,6 +151,13 @@ namespace Ella
         /// </summary>
         public static void Ella()
         {
+            _log.Debug("Shutting down Ella");
+
+            _log.Debug("Broadcasting shutdown message to all nodes");
+            /*
+             * Notify other nodes of the termination
+             */
+            NetworkController.BroadcastShutdown();
             /*
              * Cancel all subscriptions
              */
@@ -158,10 +165,12 @@ namespace Ella
             {
                 Unsubscribe.From(s.Key);
             }
+            _log.Debug("Unsubscribed all subscribers");
             /*
              * Stop all publishers
              */
             var activePublishers = EllaModel.Instance.GetActivePublishers();
+            _log.Debug("Stopping publishers");
             foreach (var activePublisher in activePublishers)
             {
                 try
@@ -174,10 +183,6 @@ namespace Ella
                 }
             }
 
-            /*
-             * Notify other nodes of the termination
-             */
-            NetworkController.BroadcastShutdown();
         }
     }
 }

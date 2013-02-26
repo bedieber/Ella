@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Ella.Data;
+using Ella.Internal;
 using Ella.Model;
 using Ella.Network;
 using log4net;
@@ -84,6 +85,8 @@ namespace Ella
             foreach (var remoteSubscription in remoteSubscriptions)
             {
                 RemoteSubscriptionHandle handle = remoteSubscription.Handle as RemoteSubscriptionHandle;
+                if (handle.PublisherNodeID == EllaConfiguration.Instance.NodeId)
+                    continue;
                 _log.DebugFormat("Cancelling remote subscription to {0}", handle);
                 if (performRemoteUnsubscribe)
                     NetworkController.Unsubscribe(handle.SubscriptionReference, handle.PublisherNodeID);
