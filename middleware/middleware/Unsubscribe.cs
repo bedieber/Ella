@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Ella.Data;
+using Ella.Internal;
 using Ella.Model;
 using Ella.Network;
 using log4net;
@@ -74,9 +75,10 @@ namespace Ella
         }
 
         /// <summary>
-        /// Performs the system-internal unsubscribe consisting of canelling all matching subscription according to <paramref name="selector"/> and also finding and cancelling remote subscriptions
+        /// Performs the system-internal unsubscribe consisting of canelling all matching subscription according to <paramref name="selector" /> and also finding and cancelling remote subscriptions
         /// </summary>
         /// <param name="selector">The selector.</param>
+        /// <param name="performRemoteUnsubscribe">if set to <c>true</c> [perform remote unsubscribe].</param>
         internal static void PerformUnsubscribe(Func<SubscriptionBase, bool> selector, bool performRemoteUnsubscribe = true)
         {
             var remoteSubscriptions = EllaModel.Instance.Subscriptions.Where(selector).Where(s => s.Handle is RemoteSubscriptionHandle);
@@ -84,7 +86,10 @@ namespace Ella
             foreach (var remoteSubscription in remoteSubscriptions)
             {
                 RemoteSubscriptionHandle handle = remoteSubscription.Handle as RemoteSubscriptionHandle;
+                if (handle.PublisherNodeID == EllaConfiguration.Instance.NodeId)
+                    continue;
                 _log.DebugFormat("Cancelling remote subscription to {0}", handle);
+
                 if (performRemoteUnsubscribe)
                     NetworkController.Unsubscribe(handle.SubscriptionReference, handle.PublisherNodeID);
                 Stop.Publisher(remoteSubscription.Event.Publisher);
