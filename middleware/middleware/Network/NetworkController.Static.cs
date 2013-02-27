@@ -36,7 +36,7 @@ namespace Ella.Network
 
         internal static bool SendApplicationMessage(ApplicationMessage message, RemoteSubscriptionHandle remoteSubscriptionHandle, bool isReply = false)
         {
-            return _instance.SendMessage(message, remoteSubscriptionHandle);
+            return _instance.SendMessage(message, remoteSubscriptionHandle,isReply);
         }
 
         internal static void Unsubscribe(int subscriptionReference, int nodeId)

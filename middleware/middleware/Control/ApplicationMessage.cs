@@ -44,5 +44,10 @@ namespace Ella.Control
         /// The subscriptionhandle
         /// </summary>
         internal SubscriptionHandle Handle { get; set; }
+
+        public override string ToString()
+        {
+            return string.Format("ApplicationMessage {2} type {0} from {1}", MessageType, Sender, MessageId);
+        }
     }
 }

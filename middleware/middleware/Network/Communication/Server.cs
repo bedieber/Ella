@@ -190,6 +190,11 @@ namespace Ella.Network.Communication
                     while (totalbytesRead < length)
                     {
                         int read = stream.Read(buffer, 0, buffer.Length);
+                        if (read == 0)
+                        {
+                            _log.Debug("0 bytes read, cancelling reception operation");
+                            return;
+                        }
                         Array.Copy(buffer, 0, data, totalbytesRead, read);
                         totalbytesRead += read;
                     }

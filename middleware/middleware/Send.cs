@@ -29,9 +29,10 @@ namespace Ella
         /// <param name="sender">The sender instance.</param>
         public static bool Message(ApplicationMessage message, SubscriptionHandle to, object sender)
         {
-            _log.DebugFormat("New application message from {0} to {1}", sender, to);
             //TODO check if sender is subscriber
             message.Sender = EllaModel.Instance.GetSubscriberId(sender);
+            _log.DebugFormat("New application message from {0} to {1}", message.Sender, to);
+
             message.Handle = to;
             /*Check if subscription is remote or local
              * if local: pass it to local module
@@ -39,10 +40,12 @@ namespace Ella
              */
             if (to is RemoteSubscriptionHandle)
             {
+                _log.Debug("Sending message to remote receiver");
                 return NetworkController.SendApplicationMessage(message, to as RemoteSubscriptionHandle);
             }
             else
             {
+                _log.Debug("Delivering message locally");
                 return DeliverApplicationMessage(message);
             }
         }
@@ -127,13 +130,16 @@ namespace Ella
         {
             reply.Sender = EllaModel.Instance.GetPublisherId(sender);
             reply.Handle = inReplyTo.Handle;
+            _log.DebugFormat("Delivering reply message {0} in reply to {1} from {2}", reply, inReplyTo, reply.Sender);
             if (inReplyTo.Handle is RemoteSubscriptionHandle)
             {
+                _log.Debug("Delivering reply to remote receiver");
                 return NetworkController.SendApplicationMessage(reply, inReplyTo.Handle as RemoteSubscriptionHandle,
                                                                 isReply: true);
             }
             else
             {
+                _log.Debug("Delivering reply locally");
                 DeliverMessageReply(reply);
                 return true;
             }

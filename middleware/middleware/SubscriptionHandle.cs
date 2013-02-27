@@ -71,6 +71,10 @@ namespace Ella
         /// <returns></returns>
         public static bool operator ==(SubscriptionHandle one, SubscriptionHandle two)
         {
+            if (ReferenceEquals(one, two))
+                return true;
+            if (ReferenceEquals(one, null) && ReferenceEquals(two, null))
+                return true;
             if (ReferenceEquals(one, null))
                 return false;
             return one.Equals((object)two);
