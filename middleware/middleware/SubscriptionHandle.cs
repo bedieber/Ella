@@ -70,7 +70,7 @@ namespace Ella
         /// <param name="two">The two.</param>
         /// <returns></returns>
         public static bool operator ==(SubscriptionHandle one, SubscriptionHandle two)
-        {
+        {   
             if (ReferenceEquals(one, two))
                 return true;
             if (ReferenceEquals(one, null) && ReferenceEquals(two, null))

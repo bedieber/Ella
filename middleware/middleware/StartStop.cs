@@ -75,11 +75,11 @@ namespace Ella
         /// </summary>
         public static void Ella()
         {
-          //  XmlConfigurator.ConfigureAndWatch(new FileInfo(
-          //Path.GetDirectoryName(
-          //      Assembly.GetAssembly(typeof(Start)).Location)
-          //     + @"\" + "Ella.dll.config"));
-          //  _log.Info("Ella started");
+            //  XmlConfigurator.ConfigureAndWatch(new FileInfo(
+            //Path.GetDirectoryName(
+            //      Assembly.GetAssembly(typeof(Start)).Location)
+            //     + @"\" + "Ella.dll.config"));
+            //  _log.Info("Ella started");
         }
 
 
@@ -161,7 +161,8 @@ namespace Ella
             /*
              * Cancel all subscriptions
              */
-            foreach (var s in EllaModel.Instance.Subscriptions.GroupBy(s=>s.Subscriber))
+            var groupedSubscriptions = EllaModel.Instance.Subscriptions.GroupBy(s => s.Subscriber).ToArray();
+            foreach (var s in groupedSubscriptions)
             {
                 Unsubscribe.From(s.Key);
             }
@@ -169,7 +170,7 @@ namespace Ella
             /*
              * Stop all publishers
              */
-            var activePublishers = EllaModel.Instance.GetActivePublishers();
+            var activePublishers = EllaModel.Instance.GetActivePublishers().ToArray();
             _log.Debug("Stopping publishers");
             foreach (var activePublisher in activePublishers)
             {
