@@ -49,6 +49,7 @@ namespace Ella
                     _log.InfoFormat("Starting publisher {0}", EllaModel.Instance.GetPublisherId(instance));
 
                     Thread t = new Thread(() => method.Invoke(instance, null));
+                    EllaModel.Instance.PublisherThreads.Add(t);
                     t.Start();
                 }
             }
@@ -67,7 +68,6 @@ namespace Ella
         {
             _log.Info("Starting network controller");
             NetworkController.Start();
-
         }
 
         /// <summary>
@@ -181,6 +181,23 @@ namespace Ella
                 catch (Exception ex)
                 {
                     _log.ErrorFormat("Could not stop publisher {0}. {1}", activePublisher, ex.Message);
+                }
+            }
+
+            foreach (Thread t in EllaModel.Instance.PublisherThreads)
+            {
+                if (!t.Join(1000))
+                {
+                    try
+                    {
+                        t.Abort();
+                        if (!t.Join(1000))
+                            _log.DebugFormat("Could not terminate thread {0}. Did all I could.", t);
+                    }
+                    catch (Exception)
+                    {
+                            _log.DebugFormat("Could not terminate thread {0}. Did all I could.", t);
+                    }
                 }
             }
 

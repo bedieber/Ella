@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 using Ella.Attributes;
@@ -32,6 +33,8 @@ namespace Ella.Model
         {
             Reset();
         }
+
+        public ICollection<Thread> PublisherThreads { get; set; }
 
         /// <summary>
         /// List of all known publishers
@@ -92,6 +95,7 @@ namespace Ella.Model
             Subscriptions = new List<SubscriptionBase>();
             ActiveSubscribers = new Dictionary<object, int>();
             EventCorrelations = new Dictionary<EventHandle, List<EventHandle>>();
+            PublisherThreads = new List<Thread>();
         }
 
         /// <summary>
@@ -101,7 +105,7 @@ namespace Ella.Model
         /// <param name="second">The second.</param>
         internal void AddEventCorrelation(EventHandle first, EventHandle second)
         {
-            CorrelateEvents(first,second);
+            CorrelateEvents(first, second);
             CorrelateEvents(second, first);
         }
 
@@ -133,7 +137,7 @@ namespace Ella.Model
         /// <param name="instance">The instance.</param>
         internal void AddActivePublisher(object instance)
         {
-            //TODO check if valid publisher
+
             if (!ActivePublishers.ContainsKey(instance))
             {
                 ActivePublishers.Add(instance, Interlocked.Increment(ref _nextModuleID));
@@ -146,7 +150,6 @@ namespace Ella.Model
         /// <param name="instance">The instance.</param>
         internal void AddActiveSubscriber(object instance)
         {
-            //TODO check if valid subscriber
             if (!ActiveSubscribers.ContainsKey(instance))
             {
                 ActiveSubscribers.Add(instance, Interlocked.Increment(ref _nextModuleID));
@@ -212,7 +215,7 @@ namespace Ella.Model
         internal IEnumerable<object> GetActivePublishers()
         {
             return ActivePublishers.Keys;
-        } 
+        }
 
         #endregion
     }

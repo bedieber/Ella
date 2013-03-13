@@ -78,7 +78,6 @@ namespace Ella.Network
                     Action<RemoteSubscriptionHandle> action = _pendingSubscriptions[inResponseTo];
                     foreach (var handle in handles)
                     {
-                        //TODO for some reason the remote node ID is not serialized, find out why.
                         handle.PublisherNodeID = e.Message.Sender;
                         action(handle);
                     }
@@ -105,8 +104,7 @@ namespace Ella.Network
             {
                 return;
             }
-            //TODO handle case when remote host is not in remoteHosts dictionary
-            //get the subscriptions that this node is already subscribed for, to avoid double subscriptions
+           //get the subscriptions that this node is already subscribed for, to avoid double subscriptions
             var currentHandles = (from s1 in (EllaModel.Instance.Subscriptions.Where(s => s.Event.EventDetail.DataType == type).Select(s => s.Handle)).OfType<RemoteSubscriptionHandle>()
                                   where s1.SubscriberNodeID == e.Message.Sender
                                   select s1).ToList().GroupBy(s => s.SubscriptionReference);

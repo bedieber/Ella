@@ -70,7 +70,6 @@ namespace Ella.Network
                 T d = (T)dto;
                 Publish.Event(d, this, 1);
             }
-            //TODO log any irregularities
         }
     }
 }

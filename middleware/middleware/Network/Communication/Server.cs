@@ -131,8 +131,7 @@ namespace Ella.Network.Communication
 
         private void ProcessUdpMessage(byte[] datagram, IPEndPoint ep)
         {
-            //TODO msg id: necessary? then put it into datagram
-            Message msg = new Message(-1) { Data = datagram, Sender = BitConverter.ToInt32(datagram,0), Type = MessageType.Discover };
+            Message msg = new Message(-1) { Data = datagram, Sender = BitConverter.ToInt32(datagram, 0), Type = MessageType.Discover };
             if (NewMessage != null)
             {
                 NewMessage(this, new MessageEventArgs(msg) { Address = ep });
@@ -151,6 +150,13 @@ namespace Ella.Network.Communication
 
             try
             {
+                if (NewMessage != null)
+                {
+                    _log.DebugFormat("Server: No listeners for new messages attached");
+                    return;
+
+                }
+
                 /*
                     * Message:
                     * type 1 byte
@@ -199,14 +205,10 @@ namespace Ella.Network.Communication
                         totalbytesRead += read;
                     }
                 }
-                //TODO this could be ckecked on top, so that message can be rejected
-                if (NewMessage != null)
-                {
-                    Message m = new Message(id) { Data = data, Type = ((MessageType)messageType), Sender = sender };
-                    NewMessage(this, new MessageEventArgs(m) { Address = client.Client.RemoteEndPoint });
-                }
-                else
-                    _log.DebugFormat("Server: No listeners for new messages attached");
+
+                Message m = new Message(id) { Data = data, Type = ((MessageType)messageType), Sender = sender };
+                NewMessage(this, new MessageEventArgs(m) { Address = client.Client.RemoteEndPoint });
+
             }
             catch (Exception ex)
             {

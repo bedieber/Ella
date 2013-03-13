@@ -42,7 +42,6 @@ namespace Ella
                 }
                 else
                 {
-                    //TODO this is performance critical, make sure below LINQ query is suitable for that
                     /*
                      * Check if event ID matches
                      */

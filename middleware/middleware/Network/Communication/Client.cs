@@ -79,8 +79,7 @@ namespace Ella.Network.Communication
             byte[] bytes = new byte[idBytes.Length + portBytes.Length];
             Array.Copy(idBytes, bytes, idBytes.Length);
             Array.Copy(portBytes, 0, bytes, idBytes.Length, portBytes.Length);
-            //TODO handle invalid port range
-
+           
             for (int i = EllaConfiguration.Instance.DiscoveryPortRangeStart;
                  i <= EllaConfiguration.Instance.DiscoveryPortRangeEnd;
                  i++)

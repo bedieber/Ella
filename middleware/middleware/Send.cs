@@ -104,7 +104,6 @@ namespace Ella
                 ParameterInfo[] parameterInfos = method.GetParameters();
                 if (parameterInfos.Length == 1 && parameterInfos[0].ParameterType == typeof(ApplicationMessage))
                 {
-                    //TODO should this be done in a separate thread?
                     new Thread((ThreadStart)delegate { method.Invoke(instance, new object[] { message }); }).Start();
                 }
             }
