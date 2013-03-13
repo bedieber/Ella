@@ -91,12 +91,21 @@ namespace Ella
             return !(one == two);
         }
 
+        /// <summary>
+        /// Returns a <see cref="System.String" /> that represents this instance.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="System.String" /> that represents this instance.
+        /// </returns>
         public override string ToString()
         {
             return string.Format("S{0}/P{1}/E{2}:H{3}", SubscriberId, PublisherId, EventID, GetHashCode());
         }
 
-        public SubscriptionHandle()
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SubscriptionHandle"/> class.
+        /// </summary>
+        internal SubscriptionHandle()
         {
             EventHandle = new EventHandle() {PublisherNodeId = EllaConfiguration.Instance.NodeId};
         }

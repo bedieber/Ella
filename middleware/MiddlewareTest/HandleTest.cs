@@ -15,7 +15,9 @@ namespace Ella
         {
             SubscriptionHandle h = new SubscriptionHandle { EventID = 1, SubscriberId = 2, PublisherId = 3 };
             Assert.AreEqual(h, h);
+// ReSharper disable EqualExpressionComparison
             Assert.IsTrue(h == h);
+// ReSharper restore EqualExpressionComparison
         }
         [TestMethod]
         public void HandleEqualsNull()

@@ -101,7 +101,7 @@ namespace Ella.Network.Communication
                             UdpClient client = new UdpClient(new IPEndPoint(ua.Address, 0));
                             client.Send(bytes, bytes.Length, ip);
                         }
-                        catch (Exception ex)
+                        catch
                         {
                             //_log.DebugFormat("Could not broadcast on adapter {0} address {1}", nIf.Description, ua.IPv4Mask != null ? ua.IPv4Mask.ToString() : ua.Address.ToString());
                         }

@@ -28,9 +28,9 @@ namespace Ella
         /// Starts the publisher.
         /// </summary>
         /// <param name="instance">The instance of a publisher to be started.</param>
-        /// <exception cref="System.ArgumentException">If No valid starter was method found</exception>
+        /// <exception cref="System.ArgumentException">If no valid starter was method found</exception>
         /// <remarks>
-        /// A publisher must define a parameterless method attributed with <see cref="Ella.Attributes.StartAttribute" />
+        /// A publisher must define a parameterless method attributed with <see cref="Attributes.StartAttribute" />
         /// </remarks>
         public static void Publisher(object instance)
         {
@@ -98,7 +98,7 @@ namespace Ella
         /// <param name="instance">The instance of a publisher to be stopped.</param>
         /// <exception cref="System.ArgumentException">If no valid stop method was found.</exception>
         /// <remarks>
-        /// A publisher has to define a parameterless method attributed with <see cref="Ella.Attributes.StopAttribute" />
+        /// A publisher has to define a parameterless method attributed with <see cref="Attributes.StopAttribute" />
         /// </remarks>
         public static void Publisher(object instance)
         {

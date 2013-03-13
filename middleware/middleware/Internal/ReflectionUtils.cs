@@ -84,49 +84,6 @@ namespace Ella.Internal
             var attributedMembers = from m in memberInfos let atr = m.GetCustomAttributes(attribute, true) where atr.Any() select new KeyValuePair<MemberInfo, IEnumerable<Attribute>>(m, atr.Cast<Attribute>());
             return attributedMembers;
         }
-
-        /// <summary>
-        /// Creates a <see cref="Ella.Model.Subscription{T}" /> instance for a specific type.<br />
-        /// Since the type parameter might not be known at compile time, we need a method using reflection to create this on the fly.
-        /// </summary>
-        /// <param name="type">The type.</param>
-        /// <param name="match">The match.</param>
-        /// <param name="proxy">The proxy.</param>
-        /// <returns></returns>
-        //internal static SubscriptionBase CreateGenericSubscription(Type type, Event match, Proxy proxy)
-        //{
-        //    Type subscriptionType = typeof(Subscription<>).MakeGenericType(new Type[] { type });
-        //    Type actionType;
-        //    Delegate @delegate;
-        //    if (type.IsValueType)
-        //    {
-        //        actionType = typeof(Action<,>).MakeGenericType(new Type[] { type, typeof(SubscriptionHandle) });
-
-        //        /* The next few lines create an expression tree to be able to handle value types
-        //        * If e.g. a struct is passed, we cannot directly bind to the proxy.HandleEvent method because the type system refuses to accept an (object) method for a struct
-        //        * Instead we create a lamda expression which perfoms a cast from the value type to object (this can be safely done but only in an explicit manner) and then calls the proxy method
-        //        * The delegate created from this however, is stronly typed and matches the delegate signature needed by the subscription            * 
-        //        * */
-        //        ParameterExpression parameter = Expression.Parameter(type, "data");
-        //        UnaryExpression convertedData = Expression.TypeAs(parameter, typeof(object));
-        //        ParameterExpression handle = Expression.Parameter(typeof(SubscriptionHandle), "handle");
-        //        MethodInfo methodInfo = proxy.GetType().GetMethod("HandleEvent", BindingFlags.NonPublic | BindingFlags.Instance);
-        //        MethodCallExpression e = Expression.Call(Expression.Constant(proxy),
-        //                                                 methodInfo, convertedData, handle);
-        //        LambdaExpression lambda = Expression.Lambda(e, parameter, handle);
-        //        @delegate = lambda.Compile();
-        //    }
-        //    else
-        //    {
-        //        actionType = typeof(Action<,>).MakeGenericType(new Type[] { typeof(object), typeof(SubscriptionHandle) });
-
-        //        @delegate = Action.CreateDelegate(actionType, proxy, "HandleEvent");
-        //    }
-        //    //Here we call the constructor of our subscription type to generate a new subscription object
-        //    ConstructorInfo constructorInfo = subscriptionType.GetConstructor(new Type[] {typeof (object), typeof (Event), actionType});
-        //    object subscription =constructorInfo.Invoke(new object[] { proxy, match, @delegate });
-        //    return (SubscriptionBase)subscription;
-        //}
         #endregion
 
     }

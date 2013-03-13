@@ -12,7 +12,7 @@ namespace Ella.Attributes
     /// The start method will be called in a dedicated thread in order to start a certain publisher module.
     /// </remarks>
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
-    public class StartAttribute:Attribute
+    public class StartAttribute : Attribute
     {
     }
 }

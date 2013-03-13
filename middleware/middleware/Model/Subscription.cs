@@ -29,7 +29,7 @@ namespace Ella.Model
         /// <summary>
         /// Initializes a new instance of the <see cref="Subscription" /> class.
         /// </summary>
-        public Subscription()
+        internal Subscription()
         {
 
         }
@@ -39,8 +39,9 @@ namespace Ella.Model
         /// </summary>
         /// <param name="subscriber">The subscriber.</param>
         /// <param name="ev">The ev.</param>
-        /// <param name="callback">The callback.</param>
-        public Subscription(object subscriber, Event ev, MethodInfo callbackMethod, object callbackTarget)
+        /// <param name="callbackMethod">The callback method.</param>
+        /// <param name="callbackTarget">The callback target instance.</param>
+        internal Subscription(object subscriber, Event ev, MethodInfo callbackMethod, object callbackTarget)
             : this()
         {
             Subscriber = subscriber;

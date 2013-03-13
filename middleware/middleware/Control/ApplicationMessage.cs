@@ -45,6 +45,12 @@ namespace Ella.Control
         /// </summary>
         internal SubscriptionHandle Handle { get; set; }
 
+        /// <summary>
+        /// Returns a <see cref="System.String" /> that represents this instance.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="System.String" /> that represents this instance.
+        /// </returns>
         public override string ToString()
         {
             return string.Format("ApplicationMessage {2} type {0} from {1}", MessageType, Sender, MessageId);
