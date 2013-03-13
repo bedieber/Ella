@@ -184,6 +184,7 @@ namespace Ella
                 }
             }
 
+            //Join and terminate (if necessary) the publisher threads
             foreach (Thread t in EllaModel.Instance.PublisherThreads)
             {
                 if (!t.Join(1000))

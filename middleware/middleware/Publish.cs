@@ -69,7 +69,6 @@ namespace Ella
                     {
                         Thread t = new Thread(() => sub.CallbackMethod.Invoke(sub.CallbackTarget, new object[] { sub.ModifyPolicy == DataModifyPolicy.Modify ? Serializer.SerializeCopy(data) : data, sub.Handle }));
                         t.Start();
-                        //TODO should be joined somewhere
                     }
                 }
             }
