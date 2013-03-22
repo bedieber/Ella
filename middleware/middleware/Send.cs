@@ -52,13 +52,10 @@ namespace Ella
 
         internal static bool DeliverApplicationMessage(ApplicationMessage message)
         {
-            //object publisher = (from s in EllaModel.Instance.Subscriptions
-            //                    where s.Handle == message.Handle
-            //                    select s.Event.Publisher).SingleOrDefault();
-            object publisher = EllaModel.Instance.GetPublisher(message.Handle.PublisherId);
+            Publisher publisher = EllaModel.Instance.GetPublisher(message.Handle.PublisherId);
             if (publisher != null)
             {
-                return DeliverMessage(message, publisher);
+                return DeliverMessage(message, publisher.Instance);
             }
             else
             {

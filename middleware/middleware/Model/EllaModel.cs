@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
-using Ella.Attributes;
-using log4net.Config;
 
 namespace Ella.Model
 {
@@ -60,7 +57,7 @@ namespace Ella.Model
         /// <summary>
         /// List of all started publishers
         /// </summary>
-        private IDictionary<object, int> ActivePublishers { get; set; }
+        private IDictionary<Publisher, int> ActivePublishers { get; set; }
 
         private IDictionary<object, int> ActiveSubscribers { get; set; }
 
@@ -77,7 +74,7 @@ namespace Ella.Model
             get
             {
                 //from all active publishers, take their publishes attributes as one flat list
-                IEnumerable<Event> atr = (from p in ActivePublishers.Keys let a = (((IEnumerable<PublishesAttribute>)p.GetType().GetCustomAttributes(typeof(PublishesAttribute), true))).Select(e => new Event { Publisher = p, EventDetail = e }) select a).SelectMany(i => i);
+                IEnumerable<Event> atr = (from p in ActivePublishers.Keys select p.Events).SelectMany(i => i);
                 //make a dictionary out of that list, where the key is the type of published data
                 return atr.GroupBy(a => a.EventDetail.DataType);
                 //return atr.ToLookup(a => a.EventDetail.DataType);
@@ -91,7 +88,7 @@ namespace Ella.Model
         {
             Publishers = new List<Type>();
             Subscribers = new List<Type>();
-            ActivePublishers = new Dictionary<object, int>();
+            ActivePublishers = new Dictionary<Publisher, int>();
             Subscriptions = new List<SubscriptionBase>();
             ActiveSubscribers = new Dictionary<object, int>();
             EventCorrelations = new Dictionary<EventHandle, List<EventHandle>>();
@@ -135,7 +132,7 @@ namespace Ella.Model
         /// Adds an active publisher.
         /// </summary>
         /// <param name="instance">The instance.</param>
-        internal void AddActivePublisher(object instance)
+        internal void AddActivePublisher(Publisher instance)
         {
 
             if (!ActivePublishers.ContainsKey(instance))
@@ -160,7 +157,7 @@ namespace Ella.Model
         /// Removes the active publisher.
         /// </summary>
         /// <param name="instance">The instance.</param>
-        internal void RemoveActivePublisher(object instance)
+        internal void RemoveActivePublisher(Publisher instance)
         {
             if (ActivePublishers.ContainsKey(instance))
                 ActivePublishers.Remove(instance);
@@ -175,7 +172,7 @@ namespace Ella.Model
         /// </returns>
         internal bool IsActivePublisher(object publisher)
         {
-            return ActivePublishers.ContainsKey(publisher);
+            return ActivePublishers.Any(k => k.Key.Instance == publisher);
         }
 
         /// <summary>
@@ -185,7 +182,7 @@ namespace Ella.Model
         /// <returns></returns>
         internal int GetPublisherId(object p)
         {
-            return ActivePublishers[p];
+            return ActivePublishers.Where(k => k.Key.Instance == p).Select(k => k.Value).FirstOrDefault();
         }
 
         /// <summary>
@@ -193,12 +190,19 @@ namespace Ella.Model
         /// </summary>
         /// <param name="id">The id.</param>
         /// <returns>The publisher object associated with the specified <paramref name="id"/>, or <c>null</c> if no such id has been issued</returns>
-        internal object GetPublisher(int id)
+        internal Publisher GetPublisher(int id)
         {
             if (ActivePublishers.Values.Contains(id))
             {
                 return ActivePublishers.Where(p => p.Value == id).Select(p => p.Key).FirstOrDefault();
             }
+            return null;
+        }
+
+        internal Publisher GetPublisher(object instance)
+        {
+            if (IsActivePublisher(instance))
+                return ActivePublishers.Where(p => p.Key.Instance == instance).Select(p => p.Key).FirstOrDefault();
             return null;
         }
 
@@ -212,7 +216,7 @@ namespace Ella.Model
             return ActiveSubscribers[p];
         }
 
-        internal IEnumerable<object> GetActivePublishers()
+        internal IEnumerable<Publisher> GetActivePublishers()
         {
             return ActivePublishers.Keys;
         }

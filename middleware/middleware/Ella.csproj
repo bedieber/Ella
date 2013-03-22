@@ -81,6 +81,8 @@
     <Compile Include="Model\EllaModel.cs" />
     <Compile Include="Model\Event.cs" />
     <Compile Include="Model\EventHandle.cs" />
+    <Compile Include="Model\Publisher.cs" />
+    <Compile Include="Model\Subscriber.cs" />
     <Compile Include="Model\Subscription.cs" />
     <Compile Include="Model\SubscriptionBase.cs" />
     <Compile Include="Network\Communication\Client.cs" />

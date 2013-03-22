@@ -19,6 +19,7 @@ namespace Ella
     public static class Subscribe
     {
         private static readonly ILog _log = LogManager.GetLogger(typeof(Subscribe));
+
         /// <summary>
         /// Subscribes the <paramref name="subscriberInstance" /> to any event matching <typeparamref name="T" /> as event data type
         /// </summary>
@@ -41,10 +42,6 @@ namespace Ella
             {
                 if (NetworkController.IsRunning)
                 {
-                    //Stub s = new Stub { DataType = typeof(T) };
-                    //Event e = new Event { Publisher = s, EventDetail = new Attributes.PublishesAttribute(typeof(T), 1) };
-                    //Start.Publisher(s);
-                    //EllaModel.Instance.Subscriptions.Add(new Subscription<T>(subscriberInstance, e, newDataCallback));
                     Func<T, bool> eval = evaluateTemplateObject;
                     Action<RemoteSubscriptionHandle> callback =
                         handle => ToRemotePublisher<T>(handle, subscriberInstance, newDataCallback, policy,
@@ -177,10 +174,8 @@ namespace Ella
         /// <returns>An enumerable of <seealso cref="RemoteSubscriptionHandle"/> containing all new subscriptions for this object</returns>
         internal static IEnumerable<RemoteSubscriptionHandle> RemoteSubscriber(Type type, int nodeId, IPEndPoint subscriberAddress, int subscriptionReference)
         {
-
             _log.DebugFormat("Performing remote subscription for type {0}", type);
             var matches = EllaModel.Instance.ActiveEvents.FirstOrDefault(g => g.Key == type);
-
 
             if (matches != null)
             {

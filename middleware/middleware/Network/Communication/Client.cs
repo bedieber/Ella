@@ -29,7 +29,6 @@ namespace Ella.Network.Communication
             {
                 TcpClient client = new TcpClient();
                 IAsyncResult ar = client.BeginConnect(IPAddress.Parse(address), port, null, null);
-                System.Threading.WaitHandle wh = ar.AsyncWaitHandle;
 
                 if (!ar.AsyncWaitHandle.WaitOne(TimeSpan.FromSeconds(5), false))
                 {
@@ -72,6 +71,9 @@ namespace Ella.Network.Communication
             }).Start();
         }
 
+        /// <summary>
+        /// Broadcasts this instance.
+        /// </summary>
         internal static void Broadcast()
         {
             byte[] idBytes = BitConverter.GetBytes(EllaConfiguration.Instance.NodeId);
@@ -79,22 +81,26 @@ namespace Ella.Network.Communication
             byte[] bytes = new byte[idBytes.Length + portBytes.Length];
             Array.Copy(idBytes, bytes, idBytes.Length);
             Array.Copy(portBytes, 0, bytes, idBytes.Length, portBytes.Length);
-           
+
+            /*
+             * Iterate over all port numbers in the configuration port range
+             */
             for (int i = EllaConfiguration.Instance.DiscoveryPortRangeStart;
                  i <= EllaConfiguration.Instance.DiscoveryPortRangeEnd;
                  i++)
             {
                 IPEndPoint ip = new IPEndPoint(IPAddress.Parse("255.255.255.255"), i);
 
+                /*
+                 * Iterate over all network interfaces to perform discovery on each IF
+                 */
                 NetworkInterface[] allNetworkInterfaces = NetworkInterface.GetAllNetworkInterfaces();
                 foreach (NetworkInterface nIf in allNetworkInterfaces)
                 {
-                    // _log.DebugFormat("Broadcasting on adapter {0}", nIf.Description);
                     foreach (UnicastIPAddressInformation ua in nIf.GetIPProperties().UnicastAddresses)
                     {
                         if (ua.Address.AddressFamily != AddressFamily.InterNetwork || IPAddress.IsLoopback(ua.Address))
                             continue;
-                        // _log.DebugFormat("Broadcasting to {0}", ua.IPv4Mask!=null? ua.IPv4Mask.ToString():ua.Address.ToString());
                         try
                         {
                             UdpClient client = new UdpClient(new IPEndPoint(ua.Address, 0));
@@ -102,11 +108,8 @@ namespace Ella.Network.Communication
                         }
                         catch
                         {
-                            //_log.DebugFormat("Could not broadcast on adapter {0} address {1}", nIf.Description, ua.IPv4Mask != null ? ua.IPv4Mask.ToString() : ua.Address.ToString());
                         }
                     }
-
-
                 }
             }
         }

@@ -1,20 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Text;
 using System.Threading;
 using Ella.Attributes;
 using Ella.Exceptions;
 using Ella.Internal;
 using Ella.Model;
 using Ella.Network;
-using Ella.Network.Communication;
 using log4net;
-using log4net.Config;
-using log4net.Util;
 
 namespace Ella
 {
@@ -34,30 +26,15 @@ namespace Ella
         /// </remarks>
         public static void Publisher(object instance)
         {
-            var type = instance.GetType();
-            if (Is.ValidPublisher(type))
-            {
-                var method = ReflectionUtils.GetAttributedMethod(type, typeof(StartAttribute));
-                if (method == null)
-                {
-                    _log.ErrorFormat("{0} does not define a start method", instance.GetType());
-                    throw new InvalidPublisherException("Publisher does not define a start method");
-                }
-                if (!method.GetParameters().Any())
-                {
-                    EllaModel.Instance.AddActivePublisher(instance);
-                    _log.InfoFormat("Starting publisher {0}", EllaModel.Instance.GetPublisherId(instance));
+            Publisher publisher = ReflectionUtils.CreatePublisher(instance);
+            if (publisher == null)
+                throw new InvalidPublisherException(string.Format("{0} is not a valid publisher", instance));
+            EllaModel.Instance.AddActivePublisher(publisher);
+            _log.InfoFormat("Starting publisher {0}", EllaModel.Instance.GetPublisherId(instance));
+            Thread t = new Thread(() => publisher.StartMethod.Invoke(instance, null));
+            EllaModel.Instance.PublisherThreads.Add(t);
+            t.Start();
 
-                    Thread t = new Thread(() => method.Invoke(instance, null));
-                    EllaModel.Instance.PublisherThreads.Add(t);
-                    t.Start();
-                }
-            }
-            else
-            {
-                _log.ErrorFormat("{0} is not a valid publisher", instance.GetType());
-                throw new InvalidPublisherException(instance.GetType().ToString());
-            }
         }
 
         /// <summary>
@@ -107,31 +84,27 @@ namespace Ella
             var type = instance.GetType();
             if (Is.Publisher(type))
             {
-                var method = ReflectionUtils.GetAttributedMethod(type, typeof(StopAttribute));
-
-                if (method == null)
+                var publisher = EllaModel.Instance.GetPublisher(instance);
+                if (publisher == null)
                 {
-                    _log.ErrorFormat("{0} does not define a stop method", instance.GetType());
-                    throw new InvalidPublisherException("No valid stop method found");
+                    _log.DebugFormat("{0} was not found to be an active publisher", instance);
+                    throw new InvalidPublisherException();
                 }
-
-                if (!method.GetParameters().Any())
+                try
                 {
-                    try
-                    {
-                        method.Invoke(instance, null);
-                    }
-                    catch (Exception ex)
-                    {
-                        _log.ErrorFormat("Stopping publisher {0} threw an exception: {1}", instance, ex.Message);
-                    }
-                    EllaModel.Instance.RemoveActivePublisher(instance);
+                    publisher.StopMethod.Invoke(instance, null);
                 }
-                else
+                catch (Exception ex)
                 {
-                    throw new InvalidPublisherException("Stop method requires parameters, this is not supported");
+                    _log.ErrorFormat("Stopping publisher {0} threw an exception: {1}", instance, ex.Message);
                 }
+                EllaModel.Instance.RemoveActivePublisher(publisher);
             }
+            else
+            {
+                throw new InvalidPublisherException(string.Format("{0} is not a publisher", instance));
+            }
+
         }
 
         /// <summary>
@@ -197,7 +170,7 @@ namespace Ella
                     }
                     catch (Exception)
                     {
-                            _log.DebugFormat("Could not terminate thread {0}. Did all I could.", t);
+                        _log.DebugFormat("Could not terminate thread {0}. Did all I could.", t);
                     }
                 }
             }

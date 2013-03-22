@@ -4,8 +4,11 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
+using Ella.Attributes;
+using Ella.Exceptions;
 using Ella.Model;
 using Ella.Network;
+using log4net;
 
 namespace Ella.Internal
 {
@@ -14,6 +17,7 @@ namespace Ella.Internal
     /// </summary>
     internal static class ReflectionUtils
     {
+        private static ILog _log = LogManager.GetLogger(typeof(ReflectionUtils));
         #region private helpers
 
         /// <summary>
@@ -86,5 +90,54 @@ namespace Ella.Internal
         }
         #endregion
 
+        #region publisher handling
+
+        internal static Publisher CreatePublisher(object instance)
+        {
+            var type = instance.GetType();
+            if (Is.ValidPublisher(type))
+            {
+                var startMethod = ReflectionUtils.GetAttributedMethod(type, typeof (StartAttribute));
+                if (startMethod == null)
+                {
+                    _log.ErrorFormat("{0} does not define a start method", instance.GetType());
+                    throw new InvalidPublisherException("Publisher does not define a start method");
+                }
+                if (!startMethod.GetParameters().Any())
+                {
+                    var stopMethod = ReflectionUtils.GetAttributedMethod(type, typeof (StopAttribute));
+
+                    if (stopMethod == null)
+                    {
+                        _log.ErrorFormat("{0} does not define a stop method", instance.GetType());
+                        throw new InvalidPublisherException("No valid stop method found");
+                    }
+
+                    if (!stopMethod.GetParameters().Any())
+                    {
+                        var events =
+                            instance.GetType()
+                                    .GetCustomAttributes(typeof (PublishesAttribute), false)
+                                    .Select(a => new Event {Publisher = instance, EventDetail = a as PublishesAttribute});
+                        Publisher p = new Publisher
+                            {
+                                Instance = instance,
+                                StartMethod = startMethod,
+                                StopMethod = stopMethod,
+                                Events = events
+                            };
+                        return p;
+                    }
+                }
+            }
+            else
+            {
+                _log.ErrorFormat("{0} is not a valid publisher", instance.GetType());
+                throw new InvalidPublisherException(instance.GetType().ToString());
+            }
+            return null;
+        }
+
+        #endregion
     }
 }

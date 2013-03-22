@@ -117,6 +117,8 @@ namespace Ella
         public void StopAPublisher()
         {
             object instance = Create.ModuleInstance(typeof(TestPublisher));
+            Start.Publisher(instance);
+            Thread.Sleep(100);
             Stop.Publisher(instance);
         }
         [TestMethod]
