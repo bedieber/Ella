@@ -32,7 +32,6 @@ namespace Ella
             Thread t = new Thread(() => publisher.StartMethod.Invoke(instance, null));
             EllaModel.Instance.PublisherThreads.Add(t);
             t.Start();
-
         }
 
         /// <summary>
