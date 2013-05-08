@@ -52,6 +52,18 @@ namespace Ella.Network.Communication
             }
         }
 
+        internal static void SendUdp(Message msg, string address, int port)
+        {
+            UdpClient client = new UdpClient();
+            client.Connect(IPAddress.Parse(address), port);
+
+            byte[] b = msg.Serialize();
+            client.Send(b, b.Length);
+
+            client.Close();
+
+        }
+
         /// <summary>
         /// Sends the specified Message <paramref name="m"/> asynchronously. This call returns immediately.
         /// </summary>
@@ -113,7 +125,5 @@ namespace Ella.Network.Communication
                 }
             }
         }
-
-        //TODO add method SendUDP (find better name)
     }
 }
