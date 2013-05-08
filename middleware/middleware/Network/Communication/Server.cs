@@ -130,6 +130,17 @@ namespace Ella.Network.Communication
         }
 
         //TODO connect to multicast group
+        private void ConnectToMulticastGroup(byte [] datagram, string group)
+        {
+            Socket sock = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+            IPAddress groupIP = IPAddress.Parse(group);
+            IPEndPoint endPoint = new IPEndPoint(IPAddress.Any,0);
+            sock.Bind(endPoint);
+            IPEndPoint groupEndPoint = new IPEndPoint(groupIP,_port);
+            sock.Connect(groupEndPoint);
+
+            ProcessUdpMessage(datagram,groupEndPoint);
+        }
 
         private void ProcessUdpMessage(byte[] datagram, IPEndPoint ep)
         {
@@ -141,6 +152,7 @@ namespace Ella.Network.Communication
             else
                 _log.DebugFormat("Server: No listeners for new messages attached");
         }
+
 
         /// <summary>
         /// Processes the message.
@@ -223,6 +235,7 @@ namespace Ella.Network.Communication
                 client.Close();
             }
         }
+
 
 
         /// <summary>
