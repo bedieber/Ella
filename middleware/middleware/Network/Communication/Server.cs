@@ -130,8 +130,11 @@ namespace Ella.Network.Communication
         }
 
         //TODO connect to multicast group
-        private void ConnectToMulticastGroup(byte [] datagram, string group)
+        private void ConnectToMulticastGroup(string group)
         {
+
+            byte[] datagram = new byte[1024];
+
             Socket sock = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
             IPAddress groupIP = IPAddress.Parse(group);
             IPEndPoint endPoint = new IPEndPoint(IPAddress.Any,0);
@@ -139,7 +142,18 @@ namespace Ella.Network.Communication
             IPEndPoint groupEndPoint = new IPEndPoint(groupIP,_port);
             sock.Connect(groupEndPoint);
 
-            ProcessUdpMessage(datagram,groupEndPoint);
+            while (true)
+            {
+                sock.Receive(datagram);
+
+                ThreadPool.QueueUserWorkItem(delegate
+                {
+                    ProcessUdpMessage
+                        (datagram, groupEndPoint);
+                });
+            }
+
+            
         }
 
         private void ProcessUdpMessage(byte[] datagram, IPEndPoint ep)
