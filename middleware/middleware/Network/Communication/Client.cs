@@ -113,5 +113,7 @@ namespace Ella.Network.Communication
                 }
             }
         }
+
+        //TODO add method SendUDP (find better name)
     }
 }

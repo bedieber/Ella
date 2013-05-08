@@ -44,5 +44,7 @@ namespace Ella.Model
             return Equals((Event) obj);
         }
 
+        //TODO introduce multicast address and multicast port (IPEndPoint)
+
     }
 }

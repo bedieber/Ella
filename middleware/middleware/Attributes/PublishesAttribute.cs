@@ -27,6 +27,12 @@ namespace Ella.Attributes
         public int ID { get { return _id; } }
 
         /// <summary>
+        /// Indicates if the data of the event should be transported to subscribers using a reliable channel or if a certain amount of loss can be tolerated<br />
+        /// <c>True</c> by default
+        /// </summary>
+        public bool NeedsReliableTransport { get; set; }
+
+        /// <summary>
         /// Gets or sets the copy policy, default is <see cref="DataCopyPolicy.None"/>.
         /// </summary>
         /// <value>
@@ -38,12 +44,13 @@ namespace Ella.Attributes
         /// <summary>
         /// Creates a new PublishesAttribute
         /// </summary>
-        /// <param name="dataType">The data type that will be published </param>
+        /// <param name="dataType">The data type that will be published</param>
         /// <param name="id">The internal ID</param>
         public PublishesAttribute(Type dataType, int id)
         {
             _dataType = dataType;
             _id = id;
+            NeedsReliableTransport = true;
             //CopyPolicy = policy;
         }
 
@@ -59,7 +66,7 @@ namespace Ella.Attributes
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
-            return Equals((PublishesAttribute) obj);
+            return Equals((PublishesAttribute)obj);
         }
 
         /// <summary>

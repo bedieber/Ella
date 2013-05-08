@@ -55,6 +55,8 @@ namespace Ella.Network
                 Array.Copy(serialize, 0, payload, 4, serialize.Length);
                 m.Data = payload;
                 Client.Send(m, TargetNode.Address.ToString(), TargetNode.Port);
+
+                //TODO distinguish between reliable and unreliable sending
             }
             else
             {

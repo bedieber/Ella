@@ -7,6 +7,7 @@ namespace Ella.Model
 
     internal class Publisher
     {
+        //TODO maybe add id and remove from EllaModel
         protected bool Equals(Publisher other)
         {
             return Equals(Instance, other.Instance);

@@ -129,6 +129,8 @@ namespace Ella.Network.Communication
 
         }
 
+        //TODO connect to multicast group
+
         private void ProcessUdpMessage(byte[] datagram, IPEndPoint ep)
         {
             Message msg = new Message(-1) { Data = datagram, Sender = BitConverter.ToInt32(datagram, 0), Type = MessageType.Discover };
