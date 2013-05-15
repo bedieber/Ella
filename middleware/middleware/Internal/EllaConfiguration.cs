@@ -117,10 +117,10 @@ namespace Ella.Internal
         /// <value>The multicast address.
         /// </value>
         [ConfigurationProperty("MulticastAddress")]
-        [CallbackValidator(CallbackMethodName = "ValidateMulticastAddress",Type = typeof(IPAddress))]
+        [CallbackValidator(CallbackMethodName = "ValidateMulticastAddress", Type = typeof(IPAddress))]
         public IPAddress MulticastAdress
         {
-            get { return (IPAddress) this["MulticastAddress"]; }
+            get { return (IPAddress)this["MulticastAddress"]; }
             set { this["MulticastAddress"] = value; }
         }
 
@@ -131,30 +131,16 @@ namespace Ella.Internal
         /// <returns>true, if the address is a multicast address, false otherwise</returns>
         internal bool ValidateMulticastAddress(object o)
         {
-            try
+            IPAddress ip = o as IPAddress;
+            if (o == null)
+                return false;
+
+            byte[] addressBytes = ip.GetAddressBytes();
+
+            if (224 <= addressBytes[0] && addressBytes[0] <= 239)
             {
-                IPAddress ip = (IPAddress) o;
-
-                //string s = ip.ToString();
-                //int first = Convert.ToInt32(s.Substring(0, 3));
-
-                //if (224 <= first && first <= 239)
-                //{
-                //    return true;
-                //}
-
-                byte[] addressBytes = ip.GetAddressBytes();
-
-                if (224 <= addressBytes[1] && addressBytes[1] <= 239)
-                {
-                    return true;
-                }
+                return true;
             }
-            catch (InvalidCastException e)
-            {
-                Console.WriteLine(e.StackTrace);
-            }
-
             return false;
         }
     }
