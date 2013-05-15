@@ -127,7 +127,11 @@ namespace Ella
         /// <value>
         /// The remote node ID.
         /// </value>
-        internal int PublisherNodeID { get { return EventHandle.PublisherNodeId; } set { EventHandle.PublisherNodeId = value; } }
+        internal int PublisherNodeID
+        {
+            get { return EventHandle.PublisherNodeId; } 
+            set { EventHandle.PublisherNodeId = value; }
+        }
 
         internal int SubscriberNodeID { get; set; }
         /// <summary>
@@ -171,4 +175,28 @@ namespace Ella
         }
     }
 
+    [Serializable]
+    internal class MulticastRemoteSubscriptionhandle : RemoteSubscriptionHandle
+    {
+        private string _ipAddress;
+        private int _port;
+
+        /// <summary>
+        /// Gets or sets the multicast IP address.
+        /// </summary>
+        internal string IpAddress
+        {
+            get { return _ipAddress; }
+            set { _ipAddress = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the multicast port.
+        /// </summary>
+        internal int Port
+        {
+            get { return _port; }
+            set { _port = value; }
+        }
+    }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading;
 using Ella.Internal;
@@ -22,7 +23,7 @@ namespace Ella.Network
         internal MulticastProxy()
         {
             _multicastPort = Interlocked.Increment(ref MulticastProxy.NextFreeMulticastPort);
-            TargetNode.Address = EllaConfiguration.Instance.MulticastAdress;
+            TargetNode.Address =IPAddress.Parse(EllaConfiguration.Instance.MulticastAdress);
             TargetNode.Port = _multicastPort;
         }
 
