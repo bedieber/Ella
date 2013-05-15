@@ -103,7 +103,7 @@ namespace Ella.Internal
         /// The port range size.
         /// </value>
         [ConfigurationProperty("MulticastPortRangeSize", DefaultValue = (int)100, IsRequired = false)]
-        [IntegerValidator(MinValue = 65536, MaxValue = int.MaxValue, ExcludeRange = false)]
+        [IntegerValidator(MinValue = 1, MaxValue = 65535, ExcludeRange = false)]
         public int MulticastPortRangeSize
         {
             get { return (int)this["MulticastPortRangeSize"]; }
@@ -116,32 +116,34 @@ namespace Ella.Internal
         /// </summary>
         /// <value>The multicast address.
         /// </value>
-        [ConfigurationProperty("MulticastAddress")]
-        [CallbackValidator(CallbackMethodName = "ValidateMulticastAddress", Type = typeof(IPAddress))]
-        public IPAddress MulticastAdress
+        [ConfigurationProperty("MulticastAddress", DefaultValue = "228.4.0.1")]
+        [CallbackValidator(CallbackMethodName = "ValidateMulticastAddress", Type = typeof(EllaConfiguration))]
+        public string MulticastAdress
         {
-            get { return (IPAddress)this["MulticastAddress"]; }
+            get { return (string)this["MulticastAddress"]; }
             set { this["MulticastAddress"] = value; }
         }
 
         /// <summary>
-        /// Validator method to check whether the IPAddress is a multicast address or not.
+        /// Validator method to check whether the string, holding the ip address, is a multicast address or not.
         /// </summary>
         /// <param name="o"></param>
-        /// <returns>true, if the address is a multicast address, false otherwise</returns>
-        internal bool ValidateMulticastAddress(object o)
+        public static void ValidateMulticastAddress(object o)
         {
-            IPAddress ip = o as IPAddress;
-            if (o == null)
-                return false;
+            string ipString = o as string;
 
+            if (ipString == null)
+                throw new ConfigurationErrorsException("MulticastAddress is not an string.");
+
+            IPAddress ip = IPAddress.Parse(ipString);
             byte[] addressBytes = ip.GetAddressBytes();
 
             if (224 <= addressBytes[0] && addressBytes[0] <= 239)
             {
-                return true;
+                return;
             }
-            return false;
+
+            throw new ConfigurationErrorsException("MulticastAddress is not in a valid range.");
         }
     }
 }

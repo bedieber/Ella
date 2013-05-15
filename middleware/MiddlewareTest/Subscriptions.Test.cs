@@ -140,5 +140,6 @@ namespace Ella
             Thread.Sleep(1000);
             Assert.AreEqual(2, s.NumAssociationsReceived);
         }
+
     }
 }

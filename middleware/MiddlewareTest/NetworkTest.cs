@@ -1,4 +1,8 @@
-﻿using Ella.Model;
+﻿using System;
+using System.Configuration;
+using System.Net;
+using Ella.Internal;
+using Ella.Model;
 using Ella.Network;
 using Ella.Network.Communication;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -54,13 +58,16 @@ namespace Ella
         [TestMethod]
         public void MulticastAddressIsInMulticastRange()
         {
-            
+           string ip = "230.255.255.4";
+           EllaConfiguration.ValidateMulticastAddress(ip);
         }
 
         [TestMethod]
+        [ExpectedException(typeof(ConfigurationErrorsException))]
         public void MulticastAddressIsNotInMulticastRange()
         {
-            
+                string ip = "241.255.255.24";
+                EllaConfiguration.ValidateMulticastAddress(ip);
         }
 
     }

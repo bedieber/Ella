@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
+using System.Xml.Serialization;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Ella
@@ -96,6 +98,43 @@ namespace Ella
             RemoteSubscriptionHandle h2 = new RemoteSubscriptionHandle { EventID = 1, SubscriberId = 3, PublisherId = 3, PublisherNodeID = 15, SubscriberNodeID = 1, SubscriptionReference = 34 };
             Assert.AreNotEqual(h, h2);
             Assert.IsFalse(h == h2);
+        }
+
+        
+        [TestMethod]
+        public void MulticastRemoteSubscriptionHandleDeserializedAsRemoteSubscriptionHandle()
+        {
+            RemoteSubscriptionHandle h1 = new RemoteSubscriptionHandle
+                {
+                    EventID = 1,
+                    SubscriberId = 2,
+                    PublisherId = 3,
+                    PublisherNodeID = 15,
+                    SubscriberNodeID = 1,
+                    SubscriptionReference = 35
+                };
+
+            MulticastRemoteSubscriptionhandle h2 = new MulticastRemoteSubscriptionhandle
+                {
+                    EventID = 2,
+                    SubscriberId = 3,
+                    PublisherId = 1,
+                    PublisherNodeID = 13,
+                    SubscriberNodeID = 4,
+                    SubscriptionReference = 30,
+                    IpAddress = "228.4.0.1",
+                    Port = 44550
+                };
+
+            List<RemoteSubscriptionHandle> list = new List<RemoteSubscriptionHandle>();
+            list.Add(h1);
+            list.Add(h2);
+
+            byte [] serialized = Ella.Internal.Serializer.Serialize(list);
+
+            List<RemoteSubscriptionHandle> list2 = Ella.Internal.Serializer.Deserialize<List<RemoteSubscriptionHandle>>(serialized);
+
+            Assert.IsInstanceOfType(list2[1],typeof(MulticastRemoteSubscriptionhandle));
         }
     }
 }
