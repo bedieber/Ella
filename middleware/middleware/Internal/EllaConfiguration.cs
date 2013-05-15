@@ -1,4 +1,6 @@
-﻿using System.Configuration;
+﻿using System;
+using System.Configuration;
+using System.Net;
 
 namespace Ella.Internal
 {
@@ -92,6 +94,54 @@ namespace Ella.Internal
         {
             get { return (int)this["DiscoveryPortRangeEnd"]; }
             set { this["DiscoveryPortRangeEnd"] = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the size of the port range.
+        /// </summary>
+        /// <value>
+        /// The port range size.
+        /// </value>
+        [ConfigurationProperty("MulticastPortRangeSize", DefaultValue = (int)100, IsRequired = false)]
+        [IntegerValidator(MinValue = 65536, MaxValue = int.MaxValue, ExcludeRange = false)]
+        public int MulticastPortRangeSize
+        {
+            get { return (int)this["MulticastPortRangeSize"]; }
+            set { this["MulticastPortRangeSize"] = value; }
+        }
+
+
+        /// <summary>
+        /// Gets or sets the Multicast address.
+        /// </summary>
+        /// <value>The multicast address.
+        /// </value>
+        [ConfigurationProperty("MulticastAddress")]
+        [CallbackValidator(CallbackMethodName = "ValidateMulticastAddress", Type = typeof(IPAddress))]
+        public IPAddress MulticastAdress
+        {
+            get { return (IPAddress)this["MulticastAddress"]; }
+            set { this["MulticastAddress"] = value; }
+        }
+
+        /// <summary>
+        /// Validator method to check whether the IPAddress is a multicast address or not.
+        /// </summary>
+        /// <param name="o"></param>
+        /// <returns>true, if the address is a multicast address, false otherwise</returns>
+        internal bool ValidateMulticastAddress(object o)
+        {
+            IPAddress ip = o as IPAddress;
+            if (o == null)
+                return false;
+
+            byte[] addressBytes = ip.GetAddressBytes();
+
+            if (224 <= addressBytes[0] && addressBytes[0] <= 239)
+            {
+                return true;
+            }
+            return false;
         }
     }
 }

@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Threading;
 using Ella.Attributes;
 using Ella.Data;
 using Ella.Internal;
@@ -23,10 +24,20 @@ namespace Ella.Network
         internal Event EventToHandle { get; set; }
         internal IPEndPoint TargetNode { get; set; }
 
+        private int _multicastPort;
+        internal static int NextFreeMulticastPort;
+
+        static Proxy()
+        {
+            NextFreeMulticastPort = EllaConfiguration.Instance.DiscoveryPortRangeEnd +
+                                    1 + (EllaConfiguration.Instance.NodeId - 1) *
+                                    EllaConfiguration.Instance.MulticastPortRangeSize;
+        }
+
         [Factory]
         internal Proxy()
         {
-
+            _multicastPort = Interlocked.Increment(ref NextFreeMulticastPort);
         }
 
         /// <summary>
@@ -62,7 +73,8 @@ namespace Ella.Network
                 }
                 else
                 {
-                    Client.SendUdp(m,TargetNode.Address.ToString(), TargetNode.Port);
+                    TargetNode.Port = _multicastPort;
+                    Client.SendUdp(m, TargetNode.Address.ToString(), TargetNode.Port);
                 }
 
             }
@@ -72,6 +84,7 @@ namespace Ella.Network
             }
 
         }
+
 
     }
 }
