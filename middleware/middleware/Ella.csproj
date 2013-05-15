@@ -65,6 +65,7 @@
     <Compile Include="Attributes\StopAttribute.cs" />
     <Compile Include="Attributes\SubscriberAttribute.cs" />
     <Compile Include="Attributes\TemplateDataAttribute.cs" />
+    <Compile Include="Controller\SubscriptionController.cs" />
     <Compile Include="Create.cs" />
     <Compile Include="Data\DataCopyPolicy.cs" />
     <Compile Include="Data\DataModifyPolicy.cs" />
@@ -89,6 +90,7 @@
     <Compile Include="Network\Communication\Message.cs" />
     <Compile Include="Network\Communication\MessageEventArgs.cs" />
     <Compile Include="Network\Communication\Server.cs" />
+    <Compile Include="Network\MulticastProxy.cs" />
     <Compile Include="Network\NetworkController.cs" />
     <Compile Include="Network\NetworkController.Process.cs" />
     <Compile Include="Network\NetworkController.Static.cs" />

@@ -5,6 +5,7 @@ using System.Net;
 using System.Threading;
 using Ella.Attributes;
 using Ella.Control;
+using Ella.Controller;
 using Ella.Exceptions;
 using Ella.Internal;
 using Ella.Model;
@@ -109,7 +110,7 @@ namespace Ella.Network
                                   where s1.SubscriberNodeID == e.Message.Sender
                                   select s1).ToList().GroupBy(s => s.SubscriptionReference);
 
-            IEnumerable<RemoteSubscriptionHandle> handles = Subscribe.RemoteSubscriber(type, e.Message.Sender,
+            IEnumerable<RemoteSubscriptionHandle> handles = SubscriptionController.RemoteSubscriber(type, e.Message.Sender,
                                                                                        (IPEndPoint)
                                                                                        _remoteHosts[e.Message.Sender],
                                                                                        e.Message.Id);

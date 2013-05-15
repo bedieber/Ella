@@ -1,4 +1,5 @@
-﻿using Ella.Model;
+﻿using Ella.Controller;
+using Ella.Model;
 using Ella.Network;
 using Ella.Network.Communication;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -44,7 +45,7 @@ namespace Ella
         {
             TestPublisher p = new TestPublisher();
             Start.Publisher(p);
-            Subscribe.RemoteSubscriber(typeof (string), 1, null, 3);
+            SubscriptionController.RemoteSubscriber(typeof (string), 1, null, 3);
             Assert.IsTrue(EllaModel.Instance.Subscriptions.Count == 2);
             Message m = new Message(3);
             NetworkController.ProcessUnsubscribe(new MessageEventArgs(m));
