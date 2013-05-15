@@ -100,12 +100,12 @@ namespace Ella.Internal
         /// <value>
         /// The port range size.
         /// </value>
-        [ConfigurationProperty("DiscoveryPortRangeSize",DefaultValue = (int)100,IsRequired = false)]
-        [IntegerValidator(MinValue = 65536,MaxValue = int.MaxValue,ExcludeRange = false)]
-        public int DiscoveryPortRangeSize
+        [ConfigurationProperty("MulticastPortRangeSize", DefaultValue = (int)100, IsRequired = false)]
+        [IntegerValidator(MinValue = 65536, MaxValue = int.MaxValue, ExcludeRange = false)]
+        public int MulticastPortRangeSize
         {
-            get { return (int) this["DiscoveryPortRangeSize"]; }
-            set { this["DiscoveryPortRangeSize"] = value; }
+            get { return (int)this["MulticastPortRangeSize"]; }
+            set { this["MulticastPortRangeSize"] = value; }
         }
     }
 }
