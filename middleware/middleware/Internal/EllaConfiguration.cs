@@ -1,4 +1,6 @@
-﻿using System.Configuration;
+﻿using System;
+using System.Configuration;
+using System.Net;
 
 namespace Ella.Internal
 {
@@ -108,8 +110,52 @@ namespace Ella.Internal
             set { this["MulticastPortRangeSize"] = value; }
         }
 
-        //TODO: write validation method for IP Address, range 224.0.0.0-239.255.255.255
-        //TODO: use Validatorcallback with methodname 
-        //TODO: implement property for multicast address
+
+        /// <summary>
+        /// Gets or sets the Multicast address.
+        /// </summary>
+        /// <value>The multicast address.
+        /// </value>
+        [ConfigurationProperty("MulticastAddress")]
+        [CallbackValidator(CallbackMethodName = "ValidateMulticastAddress",Type = typeof(IPAddress))]
+        public IPAddress MulticastAdress
+        {
+            get { return (IPAddress) this["MulticastAddress"]; }
+            set { this["MulticastAddress"] = value; }
+        }
+
+        /// <summary>
+        /// Validator method to check whether the IPAddress is a multicast address or not.
+        /// </summary>
+        /// <param name="o"></param>
+        /// <returns>true, if the address is a multicast address, false otherwise</returns>
+        internal bool ValidateMulticastAddress(object o)
+        {
+            try
+            {
+                IPAddress ip = (IPAddress) o;
+
+                //string s = ip.ToString();
+                //int first = Convert.ToInt32(s.Substring(0, 3));
+
+                //if (224 <= first && first <= 239)
+                //{
+                //    return true;
+                //}
+
+                byte[] addressBytes = ip.GetAddressBytes();
+
+                if (224 <= addressBytes[1] && addressBytes[1] <= 239)
+                {
+                    return true;
+                }
+            }
+            catch (InvalidCastException e)
+            {
+                Console.WriteLine(e.StackTrace);
+            }
+
+            return false;
+        }
     }
 }
