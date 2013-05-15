@@ -107,5 +107,9 @@ namespace Ella.Internal
             get { return (int)this["MulticastPortRangeSize"]; }
             set { this["MulticastPortRangeSize"] = value; }
         }
+
+        //TODO: write validation method for IP Address, range 224.0.0.0-239.255.255.255
+        //TODO: use Validatorcallback with methodname 
+        //TODO: implement property for multicast address
     }
 }
