@@ -51,5 +51,17 @@ namespace Ella
             Assert.IsTrue(EllaModel.Instance.Subscriptions.Count == 0);
         }
 
+        [TestMethod]
+        public void MulticastAddressIsInMulticastRange()
+        {
+            
+        }
+
+        [TestMethod]
+        public void MulticastAddressIsNotInMulticastRange()
+        {
+            
+        }
+
     }
 }
