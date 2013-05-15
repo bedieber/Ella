@@ -31,6 +31,7 @@ namespace Ella.Network.Communication
         private IPAddress _address;
         private Thread _tpcListenerThread;
         private Thread _udpListenerThread;
+        //TODO remove NodeDictionary
         public Dictionary<int, string> NodeDictionary { get; set; }
 
         /// <summary>
