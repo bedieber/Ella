@@ -204,6 +204,12 @@ namespace Ella.Controller
             Start.Publisher(s);
             var publishesAttribute = (PublishesAttribute)s.GetType().GetCustomAttributes(typeof(PublishesAttribute), false).First();
 
+            if (handle is MulticastRemoteSubscriptionhandle)
+            {
+                MulticastRemoteSubscriptionhandle mh = handle as MulticastRemoteSubscriptionhandle;
+                NetworkController.ConnectToMulticast(mh.IpAddress, mh.Port);
+            }
+
             Event ev = new Event
                 {
                     Publisher = s,

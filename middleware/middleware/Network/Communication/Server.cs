@@ -34,6 +34,8 @@ namespace Ella.Network.Communication
         //TODO remove NodeDictionary
         public Dictionary<int, string> NodeDictionary { get; set; }
 
+        internal List<IPEndPoint> EndPointsMulticastGroup = new List<IPEndPoint>();
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Server" /> class.
         /// </summary>
@@ -130,14 +132,20 @@ namespace Ella.Network.Communication
 
         }
 
-        private void ConnectToMulticastGroup(string group, int port)
+        internal void ConnectToMulticastGroup(string group, int port)
         {
+            IPEndPoint endPoint = new IPEndPoint(IPAddress.Any, port);
+
+            if(EndPointsMulticastGroup.Contains(endPoint))
+                return;
 
             byte[] datagram = new byte[2048];
 
             Socket sock = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
             IPAddress groupIP = IPAddress.Parse(group);
-            IPEndPoint endPoint = new IPEndPoint(IPAddress.Any, port);
+
+            EndPointsMulticastGroup.Add(endPoint);
+
             sock.Bind(endPoint);
             IPEndPoint groupEndPoint = new IPEndPoint(groupIP, port);
             sock.Connect(groupEndPoint);
