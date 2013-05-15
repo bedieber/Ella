@@ -93,5 +93,19 @@ namespace Ella.Internal
             get { return (int)this["DiscoveryPortRangeEnd"]; }
             set { this["DiscoveryPortRangeEnd"] = value; }
         }
+
+        /// <summary>
+        /// Gets or sets the size of the port range.
+        /// </summary>
+        /// <value>
+        /// The port range size.
+        /// </value>
+        [ConfigurationProperty("DiscoveryPortRangeSize",DefaultValue = (int)100,IsRequired = false)]
+        [IntegerValidator(MinValue = 65536,MaxValue = int.MaxValue,ExcludeRange = false)]
+        public int DiscoveryPortRangeSize
+        {
+            get { return (int) this["DiscoveryPortRangeSize"]; }
+            set { this["DiscoveryPortRangeSize"] = value; }
+        }
     }
 }

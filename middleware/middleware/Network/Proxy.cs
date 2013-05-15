@@ -22,11 +22,15 @@ namespace Ella.Network
         private ILog _log = LogManager.GetLogger(typeof(Proxy));
         internal Event EventToHandle { get; set; }
         internal IPEndPoint TargetNode { get; set; }
+        
+        private int _multicastPort;
+        internal static int NextFreeMulticastPort;
 
         [Factory]
         internal Proxy()
         {
-
+            NextFreeMulticastPort = (EllaConfiguration.Instance.DiscoveryPortRangeEnd +
+                                    1)*EllaConfiguration.Instance.DiscoveryPortRangeSize;
         }
 
         /// <summary>
@@ -54,15 +58,31 @@ namespace Ella.Network
                 Array.Copy(BitConverter.GetBytes(EventToHandle.EventDetail.ID), 0, payload, 2, 2);
                 Array.Copy(serialize, 0, payload, 4, serialize.Length);
                 m.Data = payload;
-                Client.Send(m, TargetNode.Address.ToString(), TargetNode.Port);
 
-                //TODO distinguish between reliable and unreliable sending
+                //determine whether to send over udp or tcp
+                if (EventToHandle.EventDetail.NeedsReliableTransport)
+                {
+                    Client.Send(m, TargetNode.Address.ToString(), TargetNode.Port);
+                }
+                else
+                {
+                    Client.SendUdp(m,TargetNode.Address.ToString(), TargetNode.Port);
+                }
+
             }
             else
             {
                 _log.ErrorFormat("Object {0} of Event {1} is not serializable", data, handle);
             }
 
+        }
+
+        internal void DefineMulticastPort()
+        {
+            _multicastPort = (EllaConfiguration.Instance.DiscoveryPortRangeEnd + 1 +
+            (EventToHandle.EventDetail.ID - 1))*EllaConfiguration.Instance.DiscoveryPortRangeSize;
+
+            NextFreeMulticastPort = _multicastPort + 1;
         }
 
     }
