@@ -22,11 +22,15 @@ namespace Ella.Network
         private ILog _log = LogManager.GetLogger(typeof(Proxy));
         internal Event EventToHandle { get; set; }
         internal IPEndPoint TargetNode { get; set; }
+        
+        private int _multicastPort;
+        internal static int NextFreeMulticastPort;
 
         [Factory]
         internal Proxy()
         {
-
+            NextFreeMulticastPort = (EllaConfiguration.Instance.DiscoveryPortRangeEnd +
+                                    1)*EllaConfiguration.Instance.DiscoveryPortRangeSize;
         }
 
         /// <summary>
@@ -71,6 +75,14 @@ namespace Ella.Network
                 _log.ErrorFormat("Object {0} of Event {1} is not serializable", data, handle);
             }
 
+        }
+
+        internal void DefineMulticastPort()
+        {
+            _multicastPort = (EllaConfiguration.Instance.DiscoveryPortRangeEnd + 1 +
+            (EventToHandle.EventDetail.ID - 1))*EllaConfiguration.Instance.DiscoveryPortRangeSize;
+
+            NextFreeMulticastPort = _multicastPort + 1;
         }
 
     }

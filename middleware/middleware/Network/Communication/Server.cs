@@ -135,8 +135,6 @@ namespace Ella.Network.Communication
             byte[] datagram = new byte[2048];
 
             Socket sock = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-
-            //sock.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.MulticastTimeToLive, 2);
             IPAddress groupIP = IPAddress.Parse(group);
             IPEndPoint endPoint = new IPEndPoint(IPAddress.Any, port);
             sock.Bind(endPoint);
