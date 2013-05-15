@@ -129,7 +129,6 @@ namespace Ella.Network.Communication
 
         }
 
-        //TODO connect to multicast group
         private void ConnectToMulticastGroup(string group, int port)
         {
 
