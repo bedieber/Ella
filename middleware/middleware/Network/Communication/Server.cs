@@ -52,7 +52,7 @@ namespace Ella.Network.Communication
         /// </summary>
         public void Start()
         {
-            _log.InfoFormat("Starting TCP Server on Port {0}", _port);
+            _log.InfoFormat("Starting TCP Server on Port {0}, with listener attached: {1}", _port, NewMessage!=null);
             _tpcListenerThread = new Thread((ThreadStart)delegate
                                                           {
                                                               TcpListener listener = new TcpListener(_address, _port);
@@ -172,7 +172,7 @@ namespace Ella.Network.Communication
                 NewMessage(this, new MessageEventArgs(msg) { Address = ep });
             }
             else
-                _log.DebugFormat("Server: No listeners for new messages attached");
+                _log.DebugFormat("Server: No listeners for new messages found when processing UDP message");
         }
 
 
@@ -186,11 +186,10 @@ namespace Ella.Network.Communication
 
             try
             {
-                if (NewMessage != null)
+                if (NewMessage == null)
                 {
-                    _log.DebugFormat("Server: No listeners for new messages attached");
+                    _log.DebugFormat("Server: No listeners for new messages found when processing TCP message");
                     return;
-
                 }
 
                 /*

@@ -99,7 +99,7 @@ namespace Ella
             Assert.AreNotEqual(h, h2);
             Assert.IsFalse(h == h2);
         }
-
+        
         
         [TestMethod]
         public void MulticastRemoteSubscriptionHandleDeserializedAsRemoteSubscriptionHandle()

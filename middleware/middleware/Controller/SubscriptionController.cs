@@ -156,17 +156,23 @@ namespace Ella.Controller
                 foreach (var match in matches)
                 {
                     var proxy = match.EventDetail.NeedsReliableTransport ? new Proxy() { EventToHandle = match, TargetNode = subscriberAddress } : GetMulticastProxy(match);
-                    
+
                     EllaModel.Instance.AddActiveSubscriber(proxy);
-                    RemoteSubscriptionHandle handle = new RemoteSubscriptionHandle
-                        {
-                            EventID = match.EventDetail.ID,
-                            PublisherId = EllaModel.Instance.GetPublisherId(match.Publisher),
-                            SubscriberNodeID = nodeId,
-                            PublisherNodeID = EllaConfiguration.Instance.NodeId,
-                            SubscriberId = EllaModel.Instance.GetSubscriberId(proxy),
-                            SubscriptionReference = subscriptionReference
-                        };
+
+                    RemoteSubscriptionHandle handle = match.EventDetail.NeedsReliableTransport
+                                                          ? new RemoteSubscriptionHandle()
+                                                          : new MulticastRemoteSubscriptionhandle
+                                                          {
+                                                              IpAddress = (proxy as MulticastProxy).TargetNode.Address.ToString(),
+                                                              Port = (proxy as MulticastProxy).TargetNode.Port
+                                                          };
+                    handle.EventID = match.EventDetail.ID;
+                    handle.PublisherId = EllaModel.Instance.GetPublisherId(match.Publisher);
+                    handle.SubscriberNodeID = nodeId;
+                    handle.PublisherNodeID = EllaConfiguration.Instance.NodeId;
+                    handle.SubscriberId = EllaModel.Instance.GetSubscriberId(proxy);
+                    handle.SubscriptionReference = subscriptionReference;
+
                     _log.DebugFormat("Constructing remote subscription handle {0}", handle);
                     SubscriptionBase subscription = new Subscription(proxy, match, proxy.GetType().GetMethod("HandleEvent", BindingFlags.NonPublic | BindingFlags.Instance), proxy);
                     subscription.Handle = handle;
