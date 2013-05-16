@@ -110,7 +110,7 @@ namespace Ella.Network
                                   where s1.SubscriberNodeID == e.Message.Sender
                                   select s1).ToList().GroupBy(s => s.SubscriptionReference);
 
-            IEnumerable<RemoteSubscriptionHandle> handles = SubscriptionController.RemoteSubscriber(type, e.Message.Sender,
+            IEnumerable<RemoteSubscriptionHandle> handles = SubscriptionController.SubscribeRemoteSubscriber(type, e.Message.Sender,
                                                                                        (IPEndPoint)
                                                                                        _remoteHosts[e.Message.Sender],
                                                                                        e.Message.Id);
@@ -302,7 +302,7 @@ namespace Ella.Network
 
             //Subscriptions where local subscribers are subscribed to publishers from the node being shut down
             //in this case, the local stubs must be stopped and the subscriptions removed from the list
-            Ella.Unsubscribe.PerformUnsubscribe(s => s.Handle.EventHandle.PublisherNodeId == e.Message.Sender, performRemoteUnsubscribe: false);
+            SubscriptionController.PerformUnsubscribe(s => s.Handle.EventHandle.PublisherNodeId == e.Message.Sender, performRemoteUnsubscribe: false);
             //Subscriptions of modules on the remote node being subscribed to local publishers
             //Here, the proxy
             var subscriptionsFromRemoteNode = EllaModel.Instance.Subscriptions.Where(s => s.Handle is RemoteSubscriptionHandle).Where(s => (s.Handle as RemoteSubscriptionHandle).SubscriberNodeID == e.Message.Sender);

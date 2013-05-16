@@ -145,7 +145,7 @@ namespace Ella.Controller
         /// <param name="subscriberAddress">The subscriber address.</param>
         /// <param name="subscriptionReference">The subscription reference.</param>
         /// <returns>An enumerable of <seealso cref="RemoteSubscriptionHandle"/> containing all new subscriptions for this object</returns>
-        internal static IEnumerable<RemoteSubscriptionHandle> RemoteSubscriber(Type type, int nodeId, IPEndPoint subscriberAddress, int subscriptionReference)
+        internal static IEnumerable<RemoteSubscriptionHandle> SubscribeRemoteSubscriber(Type type, int nodeId, IPEndPoint subscriberAddress, int subscriptionReference)
         {
             _log.DebugFormat("Performing remote subscription for type {0}", type);
             var matches = EllaModel.Instance.ActiveEvents.FirstOrDefault(g => g.Key == type);
@@ -183,7 +183,6 @@ namespace Ella.Controller
 
         private static Proxy GetMulticastProxy(Event match)
         {
-
             MulticastProxy proxy = ActiveProxies.OfType<MulticastProxy>().FirstOrDefault(p => p.EventToHandle == match) ??
                           new MulticastProxy() { EventToHandle = match };
             return proxy;
@@ -193,7 +192,7 @@ namespace Ella.Controller
         /// Performs a subscription to a remote publisher for a local subscriber<br />#
         /// In this method, the remote subscription is completed
         /// </summary>
-        internal static void ToRemotePublisher<T>(RemoteSubscriptionHandle handle, object subscriberInstance, Action<T, SubscriptionHandle> newDataCallBack, DataModifyPolicy policy, Func<T, bool> evaluateTemplateObject, Action<Type, SubscriptionHandle> subscriptionCallback)
+        internal static void SubscribeToRemotePublisher<T>(RemoteSubscriptionHandle handle, object subscriberInstance, Action<T, SubscriptionHandle> newDataCallBack, DataModifyPolicy policy, Func<T, bool> evaluateTemplateObject, Action<Type, SubscriptionHandle> subscriptionCallback)
         {
             _log.DebugFormat("Completing subscription to remote publisher {0} on node {1},handle: {2}",
                              handle.PublisherId, handle.PublisherNodeID, handle);
@@ -219,5 +218,29 @@ namespace Ella.Controller
         }
 
 
+        /// <summary>
+        /// Performs the system-internal unsubscribe consisting of canelling all matching subscription according to <paramref name="selector" /> and also finding and cancelling remote subscriptions
+        /// </summary>
+        /// <param name="selector">The selector.</param>
+        /// <param name="performRemoteUnsubscribe">if set to <c>true</c> [perform remote unsubscribe].</param>
+        internal static void PerformUnsubscribe(Func<SubscriptionBase, bool> selector, bool performRemoteUnsubscribe = true)
+        {
+            var remoteSubscriptions = EllaModel.Instance.Subscriptions.Where(selector).Where(s => s.Handle is RemoteSubscriptionHandle);
+
+            foreach (var remoteSubscription in remoteSubscriptions)
+            {
+                RemoteSubscriptionHandle handle = remoteSubscription.Handle as RemoteSubscriptionHandle;
+                if (handle.PublisherNodeID == EllaConfiguration.Instance.NodeId)
+                    continue;
+                _log.DebugFormat("Cancelling remote subscription to {0}", handle);
+
+                if (performRemoteUnsubscribe)
+                    NetworkController.Unsubscribe(handle.SubscriptionReference, handle.PublisherNodeID);
+                Stop.Publisher(remoteSubscription.Event.Publisher);
+            }
+            int removedSubscriptions = EllaModel.Instance.Subscriptions.RemoveAll(s => selector(s));
+
+            _log.DebugFormat("{0} local subscriptions have been removed.", removedSubscriptions);
+        }
     }
 }

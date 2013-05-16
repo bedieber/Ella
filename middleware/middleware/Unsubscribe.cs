@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Ella.Controller;
 using Ella.Data;
 using Ella.Internal;
 using Ella.Model;
@@ -34,7 +35,7 @@ namespace Ella
                 throw new ArgumentException("subscriberInstance must be a valid subscriber");
             }
 
-            PerformUnsubscribe(s => s.Subscriber == subscriberInstance && s.Event.EventDetail.DataType == typeof(T));
+            SubscriptionController.PerformUnsubscribe(s => s.Subscriber == subscriberInstance && s.Event.EventDetail.DataType == typeof(T));
         }
 
         /// <summary>
@@ -54,7 +55,7 @@ namespace Ella
                 throw new ArgumentException("subscriberInstance must be a valid subscriber");
             }
 
-            PerformUnsubscribe(s => s.Handle == handle);
+            SubscriptionController.PerformUnsubscribe(s => s.Handle == handle);
         }
 
         /// <summary>
@@ -71,32 +72,7 @@ namespace Ella
                 _log.ErrorFormat("Cannot unsubscribe. {0} is not a valid subscriber", subscriberInstance.GetType().ToString());
                 throw new ArgumentException("subscriberInstance must be a valid subscriber");
             }
-            PerformUnsubscribe(s => s.Subscriber == subscriberInstance);
-        }
-
-        /// <summary>
-        /// Performs the system-internal unsubscribe consisting of canelling all matching subscription according to <paramref name="selector" /> and also finding and cancelling remote subscriptions
-        /// </summary>
-        /// <param name="selector">The selector.</param>
-        /// <param name="performRemoteUnsubscribe">if set to <c>true</c> [perform remote unsubscribe].</param>
-        internal static void PerformUnsubscribe(Func<SubscriptionBase, bool> selector, bool performRemoteUnsubscribe = true)
-        {
-            var remoteSubscriptions = EllaModel.Instance.Subscriptions.Where(selector).Where(s => s.Handle is RemoteSubscriptionHandle);
-
-            foreach (var remoteSubscription in remoteSubscriptions)
-            {
-                RemoteSubscriptionHandle handle = remoteSubscription.Handle as RemoteSubscriptionHandle;
-                if (handle.PublisherNodeID == EllaConfiguration.Instance.NodeId)
-                    continue;
-                _log.DebugFormat("Cancelling remote subscription to {0}", handle);
-
-                if (performRemoteUnsubscribe)
-                    NetworkController.Unsubscribe(handle.SubscriptionReference, handle.PublisherNodeID);
-                Stop.Publisher(remoteSubscription.Event.Publisher);
-            }
-            int removedSubscriptions = EllaModel.Instance.Subscriptions.RemoveAll(s => selector(s));
-
-            _log.DebugFormat("{0} local subscriptions have been removed.", removedSubscriptions);
+            SubscriptionController.PerformUnsubscribe(s => s.Subscriber == subscriberInstance);
         }
     }
 }

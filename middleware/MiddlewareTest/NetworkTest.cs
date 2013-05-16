@@ -49,7 +49,7 @@ namespace Ella
         {
             TestPublisher p = new TestPublisher();
             Start.Publisher(p);
-            SubscriptionController.RemoteSubscriber(typeof (string), 1, null, 3);
+            SubscriptionController.SubscribeRemoteSubscriber(typeof (string), 1, null, 3);
             Assert.IsTrue(EllaModel.Instance.Subscriptions.Count == 2);
             Message m = new Message(3);
             NetworkController.ProcessUnsubscribe(new MessageEventArgs(m));

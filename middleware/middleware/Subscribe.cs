@@ -45,7 +45,7 @@ namespace Ella
                 {
                     Func<T, bool> eval = evaluateTemplateObject;
                     Action<RemoteSubscriptionHandle> callback =
-                        handle => SubscriptionController.ToRemotePublisher(handle, subscriberInstance, newDataCallback, policy,
+                        handle => SubscriptionController.SubscribeToRemotePublisher(handle, subscriberInstance, newDataCallback, policy,
                                                        eval, subscriptionCallback);
                     NetworkController.SubscribeToRemoteHost<T>(callback);
                 }
