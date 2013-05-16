@@ -178,25 +178,19 @@ namespace Ella
     [Serializable]
     internal class MulticastRemoteSubscriptionhandle : RemoteSubscriptionHandle
     {
-        private string _ipAddress;
-        private int _port;
-
         /// <summary>
         /// Gets or sets the multicast IP address.
         /// </summary>
-        internal string IpAddress
-        {
-            get { return _ipAddress; }
-            set { _ipAddress = value; }
-        }
+        internal string IpAddress { get; set; }
 
         /// <summary>
         /// Gets or sets the multicast port.
         /// </summary>
-        internal int Port
+        internal int Port { get; set; }
+
+        public override string ToString()
         {
-            get { return _port; }
-            set { _port = value; }
+            return String.Format("MCA:{1}/MCP{2}/{0}", base.ToString(), IpAddress, Port);
         }
     }
 }
