@@ -49,6 +49,9 @@ namespace Ella.Network
             _instance.SendShutdownMessage();
         }
 
-
+        internal static void ConnectToMulticast(string group, int port)
+        {
+            _instance._server.ConnectToMulticastGroup(group,port);
+    }
     }
 }
