@@ -19,9 +19,8 @@
     <HtmlHelpName>Documentation</HtmlHelpName>
     <Language>en-US</Language>
     <DocumentationSources>
-      <DocumentationSource sourceFile="..\middleware\middleware\bin\Debug\Ella.dll" xmlns="" />
-      <DocumentationSource sourceFile="..\middleware\middleware\bin\Debug\Ella.XML" xmlns="" />
-    </DocumentationSources>
+      <DocumentationSource sourceFile="..\middleware\ella\bin\Debug\Ella.dll" />
+<DocumentationSource sourceFile="..\middleware\Ella\bin\Debug\Ella.XML" /></DocumentationSources>
     <VisibleItems>Attributes, InheritedMembers, InheritedFrameworkMembers</VisibleItems>
     <FrameworkVersion>.NET Framework 3.5</FrameworkVersion>
     <KeepLogFile>False</KeepLogFile>
@@ -52,7 +51,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|Win32' ">
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\middleware\middleware\Ella.csproj">
+    <ProjectReference Include="..\middleware\Ella\Ella.csproj">
       <Name>Ella</Name>
       <Project>{C5D80CFB-3882-4B32-A234-B5561A3C8942}</Project>
     </ProjectReference>

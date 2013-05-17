@@ -63,7 +63,7 @@
     <Compile Include="Subscriptions.Test.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\middleware\Ella.csproj">
+    <ProjectReference Include="..\Ella\Ella.csproj">
       <Project>{C5D80CFB-3882-4B32-A234-B5561A3C8942}</Project>
       <Name>Ella</Name>
     </ProjectReference>
