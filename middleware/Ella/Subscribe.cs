@@ -1,7 +1,7 @@
 ﻿//=============================================================================
 // Project  : Ella Middleware
 // File    : Subscribe.cs
-// Authors contact  : Bernhard Dieber (Bernhard.Dieber@uni-klu.ac.at)
+// Authors contact  : Bernhard Dieber (Bernhard.Dieber@aau.at)
 // Copyright 2012 by Bernhard Dieber, Jennifer Simonjan
 // This code is published under the Microsoft Public License (Ms-PL).  A copy
 // of the license should be distributed with the code.  It can also be found
