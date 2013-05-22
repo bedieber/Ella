@@ -91,6 +91,7 @@
     <Compile Include="Network\Communication\Message.cs" />
     <Compile Include="Network\Communication\MessageEventArgs.cs" />
     <Compile Include="Network\Communication\Server.cs" />
+    <Compile Include="Network\Communication\UdpServer.cs" />
     <Compile Include="Network\MulticastProxy.cs" />
     <Compile Include="Network\NetworkController.cs" />
     <Compile Include="Network\NetworkController.Process.cs" />

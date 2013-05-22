@@ -1,4 +1,16 @@
-﻿using System;
+﻿//=============================================================================
+// Project  : Ella Middleware
+// File    : NetworkController.Static.cs
+// Authors contact  : Bernhard Dieber (Bernhard.Dieber@uni-klu.ac.at)
+// Copyright 2012 by Bernhard Dieber, Jennifer Simonjan
+// This code is published under the Microsoft Public License (Ms-PL).  A copy
+// of the license should be distributed with the code.  It can also be found
+// at the project website: http://ella.CodePlex.com.   This notice, the
+// author's name, and all copyright notices must remain intact in all
+// applications, documentation, and source files.
+//=============================================================================
+
+using System;
 using System.Net;
 using Ella.Control;
 using Ella.Internal;
@@ -20,6 +32,8 @@ namespace Ella.Network
         /// </summary>
         internal static void Start()
         {
+            _instance._udpServer = new UdpServer(EllaConfiguration.Instance.NetworkPort);
+            _instance._udpServer.Start();
             _instance._server = new Server(EllaConfiguration.Instance.NetworkPort, IPAddress.Any);
             _instance._server.NewMessage += _instance.NewMessage;
             _instance._server.Start();
@@ -51,7 +65,7 @@ namespace Ella.Network
 
         internal static void ConnectToMulticast(string group, int port)
         {
-            _instance._server.ConnectToMulticastGroup(group,port);
+            _instance._udpServer.ConnectToMulticastGroup(group,port);
     }
     }
 }

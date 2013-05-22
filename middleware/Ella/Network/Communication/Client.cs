@@ -1,4 +1,17 @@
+//=============================================================================
+// Project  : Ella Middleware
+// File    : Client.cs
+// Authors contact  : Bernhard Dieber (Bernhard.Dieber@uni-klu.ac.at)
+// Copyright 2012 by Bernhard Dieber, Jennifer Simonjan
+// This code is published under the Microsoft Public License (Ms-PL).  A copy
+// of the license should be distributed with the code.  It can also be found
+// at the project website: http://ella.CodePlex.com.   This notice, the
+// author's name, and all copyright notices must remain intact in all
+// applications, documentation, and source files.
+//=============================================================================
+
 using System;
+using System.Collections.Generic;
 using System.IO.Compression;
 using System.Net;
 using System.Net.NetworkInformation;
@@ -16,7 +29,7 @@ namespace Ella.Network.Communication
     internal class Client
     {
         private static ILog _log = LogManager.GetLogger(typeof(Client));
-
+        private static int _maxArraySize = 1440;
         /// <summary>
         /// Sends the specified message.
         /// </summary>
@@ -52,16 +65,31 @@ namespace Ella.Network.Communication
             }
         }
 
+        /// <summary>
+        /// Sends the specified message over UDP.
+        /// </summary>
+        /// <param name="msg">The message to be sent.</param>
+        /// <param name="address">The address.</param>
+        /// <param name="port">The port.</param>
         internal static void SendUdp(Message msg, string address, int port)
         {
-            UdpClient client = new UdpClient();
-            client.Connect(IPAddress.Parse(address), port);
+
+            Socket udps = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+            udps.Connect(new IPEndPoint(IPAddress.Parse(address), port));
+
+            List<ArraySegment<byte>> segs = new List<ArraySegment<byte>>();
 
             byte[] b = msg.Serialize();
-            client.Send(b, b.Length);
 
-            client.Close();
+            for (int i = 0; i < Math.Ceiling((double)(b.Length / _maxArraySize)); i++)
+            {
+                ArraySegment<byte> segm = new ArraySegment<byte>(b, _maxArraySize * i, _maxArraySize);
+                segs.Add(segm);
+            }
 
+
+            udps.Send(segs);
+            udps.Close();
         }
 
         /// <summary>
