@@ -82,7 +82,7 @@ namespace Ella
         /// <param name="two">The two.</param>
         /// <returns></returns>
         public static bool operator ==(SubscriptionHandle one, SubscriptionHandle two)
-        {   
+        {
             if (ReferenceEquals(one, two))
                 return true;
             if (ReferenceEquals(one, null) && ReferenceEquals(two, null))
@@ -119,7 +119,7 @@ namespace Ella
         /// </summary>
         internal SubscriptionHandle()
         {
-            EventHandle = new EventHandle() {PublisherNodeId = EllaConfiguration.Instance.NodeId};
+            EventHandle = new EventHandle() { PublisherNodeId = EllaConfiguration.Instance.NodeId };
         }
     }
 
@@ -141,7 +141,7 @@ namespace Ella
         /// </value>
         internal int PublisherNodeID
         {
-            get { return EventHandle.PublisherNodeId; } 
+            get { return EventHandle.PublisherNodeId; }
             set { EventHandle.PublisherNodeId = value; }
         }
 
@@ -173,6 +173,30 @@ namespace Ella
             hashCode = (hashCode * 397) ^ SubscriptionReference;
             hashCode = (hashCode * 397) ^ SubscriberNodeID;
             return (hashCode * 397) ^ PublisherNodeID;
+        }
+
+        public static bool operator ==(RemoteSubscriptionHandle one, RemoteSubscriptionHandle two)
+        {
+            if (ReferenceEquals(one, two))
+                return true;
+            if (ReferenceEquals(one, null) && ReferenceEquals(two, null))
+                return true;
+            if (ReferenceEquals(one, null))
+                return false;
+            return one.Equals((object)two);
+        }
+
+        public static bool operator !=(RemoteSubscriptionHandle one, RemoteSubscriptionHandle two)
+        {
+            return !(one == two);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return this.GetHashCode() == obj.GetHashCode();
         }
 
         /// <summary>

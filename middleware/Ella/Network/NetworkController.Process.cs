@@ -46,7 +46,7 @@ namespace Ella.Network
             //Array.Copy(idBytes, bytes, idBytes.Length);
             //Array.Copy(portBytes, 0, bytes, idBytes.Length, portBytes.Length);
             Message m = new Message { Type = MessageType.DiscoverResponse, Data = portBytes };
-            Client.Send(m, ep.Address.ToString(), ep.Port);
+            Sender.Send(m, ep.Address.ToString(), ep.Port);
 
             /*
              * Send a message to the new host and inquiry about possible new publishers
@@ -57,7 +57,7 @@ namespace Ella.Network
             foreach (var sub in _subscriptionCache)
             {
                 Message subscription = new Message(sub.Key) { Type = MessageType.Subscribe, Data = Serializer.Serialize(sub.Value) };
-                Client.SendAsync(subscription, ep.Address.ToString(), ep.Port);
+                Sender.SendAsync(subscription, ep.Address.ToString(), ep.Port);
             }
         }
 
@@ -117,7 +117,7 @@ namespace Ella.Network
             {
                 return;
             }
-           //get the subscriptions that this node is already subscribed for, to avoid double subscriptions
+            //get the subscriptions that this node is already subscribed for, to avoid double subscriptions
             var currentHandles = (from s1 in (EllaModel.Instance.Subscriptions.Where(s => s.Event.EventDetail.DataType == type).Select(s => s.Handle)).OfType<RemoteSubscriptionHandle>()
                                   where s1.SubscriberNodeID == e.Message.Sender
                                   select s1).ToList().GroupBy(s => s.SubscriptionReference);
@@ -147,7 +147,7 @@ namespace Ella.Network
                 Message m = new Message { Type = MessageType.SubscribeResponse, Data = reply };
                 _log.DebugFormat("Replying to subscription request at {0}", ep);
 
-                Client.Send(m, ep.Address.ToString(), ep.Port);
+                Sender.Send(m, ep.Address.ToString(), ep.Port);
             }
             /* 
                  * Notify about previous subscriptions on the same type by the same node
@@ -163,7 +163,7 @@ namespace Ella.Network
                 Message m = new Message { Type = MessageType.SubscribeResponse, Data = reply };
 
                 _log.DebugFormat("Sending previous subscription information to {0}", ep);
-                Client.Send(m, ep.Address.ToString(), ep.Port);
+                Sender.Send(m, ep.Address.ToString(), ep.Port);
             }
             _log.Debug("Checking for relevant event correlations");
 
@@ -178,7 +178,7 @@ namespace Ella.Network
                      * 1. search for correlations of this handle
                      * 2. send a message for each correlation#
                      */
-                    var correlations = EllaModel.Instance.GetEventCorrelations(handle.EventHandle);
+                    var correlations = EllaModel.Instance.GetEventCorrelations(handle.EventHandle).ToArray();
                     foreach (var correlation in correlations)
                     {
                         KeyValuePair<EventHandle, EventHandle> pair =
@@ -188,7 +188,7 @@ namespace Ella.Network
                                 Type = MessageType.EventCorrelation,
                                 Data = Serializer.Serialize(pair)
                             };
-                        Client.SendAsync(m, ep.Address.ToString(), ep.Port);
+                        Sender.SendAsync(m, ep.Address.ToString(), ep.Port);
                     }
                 }
             }
@@ -239,6 +239,7 @@ namespace Ella.Network
                                 where h != null && h == handle
                                 select s;
             var subs = subscriptions as SubscriptionBase[] ?? subscriptions.ToArray();
+            _log.DebugFormat("Found {0} subscriptions for handle {1}", subs.Length, handle);
             foreach (var sub in subs)
             {
                 (sub.Event.Publisher as Stub).NewMessage(data);

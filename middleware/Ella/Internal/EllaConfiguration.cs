@@ -52,6 +52,20 @@ namespace Ella.Internal
 
         }
 
+
+        /// <summary>
+        /// Gets or sets the MTU.
+        /// </summary>
+        /// <value>
+        /// The MTU.
+        /// </value>
+        [ConfigurationProperty("MTU",IsRequired = false,IsKey = false,DefaultValue = 1440)]
+        public int MTU
+        {
+            get { return (int)this["MTU"]; }
+            set { this["MTU"] = value; }
+        }
+
         /// <summary>
         /// Gets or sets the node id.
         /// </summary>

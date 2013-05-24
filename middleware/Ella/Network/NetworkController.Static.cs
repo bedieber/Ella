@@ -33,11 +33,13 @@ namespace Ella.Network
         internal static void Start()
         {
             _instance._udpServer = new UdpServer(EllaConfiguration.Instance.NetworkPort);
+            _instance._udpServer.NewMessage += _instance.NewMessage;
+
             _instance._udpServer.Start();
             _instance._server = new Server(EllaConfiguration.Instance.NetworkPort, IPAddress.Any);
             _instance._server.NewMessage += _instance.NewMessage;
             _instance._server.Start();
-            Client.Broadcast();
+            Sender.Broadcast();
         }
         /// <summary>
         /// Subscribes to remote host.

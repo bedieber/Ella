@@ -33,10 +33,9 @@ namespace Ella.Network
     internal class Proxy
     {
         private ILog _log = LogManager.GetLogger(typeof(Proxy));
-        private int _multicastPort;
         internal Event EventToHandle { get; set; }
-        internal IPEndPoint TargetNode { get; set; }
-
+        internal Sender Sender { get; set; }
+        internal MulticastSender MulticastSender { get; set; }
 
 
         [Factory]
@@ -81,9 +80,14 @@ namespace Ella.Network
 
         protected virtual void Send(Message m)
         {
-            Client.Send(m, TargetNode.Address.ToString(), TargetNode.Port);            
+            if (!EventToHandle.EventDetail.NeedsReliableTransport && m.Data.Length + 12 <= EllaConfiguration.Instance.MTU)
+            {
+                MulticastSender.Send(m);
+            }
+            else
+            {
+                Sender.Send(m);
+            }
         }
-
-
     }
 }

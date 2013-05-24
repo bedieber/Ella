@@ -42,11 +42,12 @@ namespace Ella.Network.Communication
         private int _port;
         private IPAddress _address;
         private Thread _tpcListenerThread;
-       
+        private bool _stopReading;
+
         //TODO remove NodeDictionary
         public Dictionary<int, string> NodeDictionary { get; set; }
 
-        
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Server" /> class.
         /// </summary>
@@ -63,7 +64,7 @@ namespace Ella.Network.Communication
         /// </summary>
         public void Start()
         {
-            _log.InfoFormat("Starting TCP Server on Port {0}, with listener attached: {1}", _port, NewMessage!=null);
+            _log.InfoFormat("Starting TCP Server on Port {0}, with listener attached: {1}", _port, NewMessage != null);
             _tpcListenerThread = new Thread((ThreadStart)delegate
                                                           {
                                                               TcpListener listener = new TcpListener(_address, _port);
@@ -111,8 +112,9 @@ namespace Ella.Network.Communication
         /// <param name="client">The client.</param>
         private void ProcessMessage(TcpClient client)
         {
+            client.Client.SetSocketOption(SocketOptionLevel.Socket,SocketOptionName.KeepAlive, true);
             GZipStream stream = new GZipStream(client.GetStream(), CompressionMode.Decompress);
-
+            //NetworkStream stream = client.GetStream();
             try
             {
                 if (NewMessage == null)
@@ -121,63 +123,74 @@ namespace Ella.Network.Communication
                     return;
                 }
 
-                /*
-                    * Message:
-                    * type 1 byte
-                    * id 4 bytes
-                    * sender 4 bytes
-                    * length 4 bytes
-                    * data <length> bytes
-                    */
-
-                //Type
-                short messageType = Convert.ToInt16(stream.ReadByte());
-
-                //id
-                byte[] buffer = new byte[4];
-                stream.Read(buffer, 0, buffer.Length);
-                int id = BitConverter.ToInt32(buffer, 0);
-
-                //sender
-                buffer = new byte[4];
-                stream.Read(buffer, 0, buffer.Length);
-                int sender = BitConverter.ToInt32(buffer, 0);
-
-                //length
-                buffer = new byte[4];
-                stream.Read(buffer, 0, buffer.Length);
-                int length = BitConverter.ToInt32(buffer, 0);
-                byte[] data = new byte[0];
-                if (length > 0)
+                while (!_stopReading)
                 {
-                    //data
-                    buffer = new byte[length];
-                    data = new byte[length];
+                    /*
+                        * Message:
+                        * type 1 byte
+                        * id 4 bytes
+                        * sender 4 bytes
+                        * length 4 bytes
+                        * data <length> bytes
+                        */
 
-                    int totalbytesRead = 0;
-                    string addressString = (client.Client.RemoteEndPoint as IPEndPoint).Address.ToString();
+                    //Type
+                    short messageType = Convert.ToInt16(stream.ReadByte());
 
-                    while (totalbytesRead < length)
+                    //id
+                    byte[] buffer = new byte[4];
+                    stream.Read(buffer, 0, buffer.Length);
+                    int id = BitConverter.ToInt32(buffer, 0);
+
+                    //sender
+                    buffer = new byte[4];
+                    stream.Read(buffer, 0, buffer.Length);
+                    int sender = BitConverter.ToInt32(buffer, 0);
+
+                    //length
+                    buffer = new byte[4];
+                    stream.Read(buffer, 0, buffer.Length);
+                    int length = BitConverter.ToInt32(buffer, 0);
+                    byte[] data = new byte[0];
+                    if (length > 0)
                     {
-                        int read = stream.Read(buffer, 0, buffer.Length);
-                        if (read == 0)
+                        //data
+                        buffer = new byte[length];
+                        data = new byte[length];
+
+                        int totalbytesRead = 0;
+                        string addressString = (client.Client.RemoteEndPoint as IPEndPoint).Address.ToString();
+
+                        while (totalbytesRead < length)
                         {
-                            _log.Debug("0 bytes read, cancelling reception operation");
-                            return;
+                            int read = stream.Read(buffer, 0, buffer.Length);
+                            if (read == 0)
+                            {
+                                _log.Debug("0 bytes read, cancelling reception operation");
+                                return;
+                            }
+                            Array.Copy(buffer, 0, data, totalbytesRead, read);
+                            totalbytesRead += read;
                         }
-                        Array.Copy(buffer, 0, data, totalbytesRead, read);
-                        totalbytesRead += read;
                     }
+
+                    Message m = new Message(id) { Data = data, Type = ((MessageType)messageType), Sender = sender };
+                    NewMessage(this, new MessageEventArgs(m) { Address = client.Client.RemoteEndPoint });
+                    if (messageType != (short) MessageType.Publish)
+                    {
+                        _log.Debug("Not continuing to read since message type was not publish");
+                        break;
+                    }
+
                 }
-
-                Message m = new Message(id) { Data = data, Type = ((MessageType)messageType), Sender = sender };
-                NewMessage(this, new MessageEventArgs(m) { Address = client.Client.RemoteEndPoint });
-
+            }
+            catch (SocketException e)
+            {
+                _log.DebugFormat("Caught SocketException, error code {0}", e.ErrorCode);
             }
             catch (Exception ex)
             {
                 _log.ErrorFormat("Exception during processing network message: {0}\n{1}", ex.Message, ex.StackTrace);
-                throw;
             }
             finally
             {
@@ -192,6 +205,7 @@ namespace Ella.Network.Communication
         /// </summary>
         public void Stop()
         {
+            _stopReading = true;
             _log.DebugFormat("Stopping server");
             _tpcListenerThread.Interrupt();
             _tpcListenerThread.Join(1000);
@@ -199,7 +213,7 @@ namespace Ella.Network.Communication
             {
                 _tpcListenerThread.Abort();
             }
-            
+
         }
     }
 }

@@ -34,7 +34,9 @@ namespace Ella.Network.Communication
         public delegate void MessageEventHandler(object sender, MessageEventArgs e);
         public event MessageEventHandler NewMessage;
 
-        internal List<IPEndPoint> EndPointsMulticastGroup = new List<IPEndPoint>();
+        private List<IPEndPoint> EndPointsMulticastGroup = new List<IPEndPoint>();
+
+        private List<Thread> _multicastThreads=new List<Thread>();
 
 
         /// <summary>
@@ -51,6 +53,7 @@ namespace Ella.Network.Communication
         /// </summary>
         public void Start()
         {
+            _log.DebugFormat("Starting UDP server on port {0}", _port);
             _udpListenerThread = new Thread((ThreadStart)delegate
             {
                 UdpClient listener = new UdpClient(_port);
@@ -88,38 +91,42 @@ namespace Ella.Network.Communication
 
         internal void ConnectToMulticastGroup(string group, int port)
         {
-
-            //Socket sock = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-            //IPAddress groupIP = IPAddress.Parse(group);
-
-            //EndPointsMulticastGroup.Add(endPoint);
-
-            //sock.Bind(endPoint);
-            //IPEndPoint groupEndPoint = new IPEndPoint(groupIP, port);
-            //sock.Connect(groupEndPoint);
-
-            IPEndPoint endpoint = new IPEndPoint(IPAddress.Any, port);
-
-            if (EndPointsMulticastGroup.Contains(endpoint))
-                return;
-
-            EndPointsMulticastGroup.Add(endpoint);
-
-            UdpClient client = new UdpClient(endpoint);
-
-            IPEndPoint groupEp = new IPEndPoint(IPAddress.Parse(group), port);
-            client.Connect(groupEp);
-
-            while (true)
-            {
-                byte[] datagram = client.Receive(ref groupEp);
-
-                ThreadPool.QueueUserWorkItem(delegate
+            Thread t = new Thread((ThreadStart) delegate
                 {
-                    ProcessUdpMessage
-                        (datagram, groupEp);
+                    //Socket sock = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+                    //IPAddress groupIP = IPAddress.Parse(group);
+
+                    //EndPointsMulticastGroup.Add(endPoint);
+
+                    //sock.Bind(endPoint);
+                    //IPEndPoint groupEndPoint = new IPEndPoint(groupIP, port);
+                    //sock.Connect(groupEndPoint);
+
+                    IPEndPoint endpoint = new IPEndPoint(IPAddress.Any, port);
+
+                    if (EndPointsMulticastGroup.Contains(endpoint))
+                        return;
+
+                    EndPointsMulticastGroup.Add(endpoint);
+
+                    UdpClient client = new UdpClient(endpoint);
+
+                    IPEndPoint groupEp = new IPEndPoint(IPAddress.Parse(group), port);
+                    client.Connect(groupEp);
+
+                    while (true)
+                    {
+                        byte[] datagram = client.Receive(ref groupEp);
+
+                        ThreadPool.QueueUserWorkItem(delegate
+                            {
+                                ProcessUdpMessage
+                                    (datagram, groupEp);
+                            });
+                    }
                 });
-            }
+            t.Start();
+            _multicastThreads.Add(t);
 
         }
 
@@ -146,14 +153,23 @@ namespace Ella.Network.Communication
         {
             _log.DebugFormat("Stopping udp server");
 
-            _udpListenerThread.Interrupt();
-            _udpListenerThread.Join(1000);
-            if (_udpListenerThread.IsAlive)
+            StopThread(_udpListenerThread);
+            
+            foreach (var multicastThread in _multicastThreads)
             {
-                _udpListenerThread.Abort();
+                StopThread(multicastThread);    
             }
-
             _log.DebugFormat("Server stopped");
+        }
+
+        private void StopThread(Thread t)
+        {
+            t.Interrupt();
+            t.Join(1000);
+            if (t.IsAlive)
+            {
+                t.Abort();
+            }
         }
     }
 }

@@ -44,7 +44,7 @@ namespace Ella.Network
             _subscriptionCache.Add(m.Id, type);
             foreach (IPEndPoint address in _remoteHosts.Values)
             {
-                Client.SendAsync(m, address.Address.ToString(), address.Port);
+                Sender.SendAsync(m, address.Address.ToString(), address.Port);
             }
         }
 
@@ -57,7 +57,7 @@ namespace Ella.Network
             IPEndPoint ep = (IPEndPoint)_remoteHosts[isReply ? remoteSubscriptionHandle.SubscriberNodeID : remoteSubscriptionHandle.PublisherNodeID];
             if (ep != null)
             {
-                Client.SendAsync(m, ep.Address.ToString(), ep.Port);
+                Sender.SendAsync(m, ep.Address.ToString(), ep.Port);
                 return true;
             }
             return false;
@@ -69,7 +69,7 @@ namespace Ella.Network
         {
             Message m = new Message(subscriptionReference) { Type = MessageType.Unsubscribe };
             var ipEndPoint = ((IPEndPoint)_remoteHosts[nodeId]);
-            Client.SendAsync(m, ipEndPoint.Address.ToString(), ipEndPoint.Port);
+            Sender.SendAsync(m, ipEndPoint.Address.ToString(), ipEndPoint.Port);
         }
 
         private void SendShutdownMessage()
@@ -78,7 +78,7 @@ namespace Ella.Network
             foreach (var host in _remoteHosts)
             {
                 IPEndPoint address = (IPEndPoint)host.Value;
-                Client.SendAsync(m, address.Address.ToString(), address.Port);
+                Sender.SendAsync(m, address.Address.ToString(), address.Port);
             }
         }
 

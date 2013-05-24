@@ -22,6 +22,7 @@ using Ella.Exceptions;
 using Ella.Internal;
 using Ella.Model;
 using Ella.Network;
+using Ella.Network.Communication;
 using log4net;
 
 namespace Ella.Controller
@@ -39,7 +40,7 @@ namespace Ella.Controller
             {
                 return
                     EllaModel.Instance.Subscriptions.Where(s => s.Subscriber is Proxy)
-                             .Select(s => s.Subscriber as Proxy);
+                             .Select(s => s.Subscriber as Proxy).ToList();
             }
         }
         /// <summary>
@@ -167,7 +168,16 @@ namespace Ella.Controller
                 List<RemoteSubscriptionHandle> handles = new List<RemoteSubscriptionHandle>();
                 foreach (var match in matches)
                 {
-                    var proxy = match.EventDetail.NeedsReliableTransport ? new Proxy() { EventToHandle = match, TargetNode = subscriberAddress } : GetMulticastProxy(match);
+                    var proxy = match.EventDetail.NeedsReliableTransport ?
+                        new Proxy()
+                        : GetMulticastProxy(match);
+                    proxy.EventToHandle = match;
+                    proxy.Sender = new Sender(subscriberAddress.Address.ToString(), subscriberAddress.Port);
+                    
+                    
+                    //TODO make max queue size changeable
+                    if (!match.EventDetail.NeedsReliableTransport)
+                        proxy.Sender.MaxQueueSize = 50;
 
                     EllaModel.Instance.AddActiveSubscriber(proxy);
 
@@ -175,8 +185,8 @@ namespace Ella.Controller
                                                           ? new RemoteSubscriptionHandle()
                                                           : new MulticastRemoteSubscriptionhandle
                                                           {
-                                                              IpAddress = (proxy as MulticastProxy).TargetNode.Address.ToString(),
-                                                              Port = (proxy as MulticastProxy).TargetNode.Port
+                                                              IpAddress = proxy.MulticastSender.TargetNode.Address.ToString(),
+                                                              Port = proxy.MulticastSender.TargetNode.Port
                                                           };
                     handle.EventID = match.EventDetail.ID;
                     handle.PublisherId = EllaModel.Instance.GetPublisherId(match.Publisher);
@@ -201,9 +211,9 @@ namespace Ella.Controller
 
         private static Proxy GetMulticastProxy(Event match)
         {
-            MulticastProxy proxy = ActiveProxies.OfType<MulticastProxy>().FirstOrDefault(p => p.EventToHandle == match) ??
-                          new MulticastProxy() { EventToHandle = match };
-            return proxy;
+            Proxy sender = ActiveProxies.FirstOrDefault(p => p.EventToHandle == match) ??
+                          new Proxy() { EventToHandle = match, MulticastSender = new MulticastSender() };
+            return sender;
         }
 
         /// <summary>
@@ -218,26 +228,41 @@ namespace Ella.Controller
 
             //Create a stub
             Stub<T> s = new Stub<T> { DataType = typeof(T), Handle = handle };
-            Start.Publisher(s);
+            
             var publishesAttribute = (PublishesAttribute)s.GetType().GetCustomAttributes(typeof(PublishesAttribute), false).First();
 
             if (handle is MulticastRemoteSubscriptionhandle)
             {
+                _log.DebugFormat("{0} is potential multicast subscription, opening multicast port", handle);
                 MulticastRemoteSubscriptionhandle mh = handle as MulticastRemoteSubscriptionhandle;
                 NetworkController.ConnectToMulticast(mh.IpAddress, mh.Port);
+                RemoteSubscriptionHandle h = new RemoteSubscriptionHandle()
+                    {
+                        PublisherNodeID = handle.PublisherNodeID,
+                        PublisherId = handle.PublisherId,
+                        SubscriptionReference = handle.SubscriptionReference,
+                        EventID = handle.EventID,
+                        SubscriberNodeID = handle.SubscriberNodeID
+                    };
+                s.Handle = h;
             }
-
+            Start.Publisher(s);
             Event ev = new Event
                 {
                     Publisher = s,
                     EventDetail = publishesAttribute
                 };
             handle.SubscriberId = EllaModel.Instance.GetSubscriberId(subscriberInstance);
-            Subscription sub = new Subscription(subscriberInstance, ev, newDataCallBack.Method, newDataCallBack.Target) { Handle = handle, DataType = typeof(T) };
+            Subscription sub = new Subscription(subscriberInstance, ev, newDataCallBack.Method, newDataCallBack.Target) { Handle = s.Handle, DataType = typeof(T) };
             EllaModel.Instance.Subscriptions.Add(sub);
             if (subscriptionCallback != null)
             {
+                _log.DebugFormat("Found subscription callback for {0}, notifying subscriber", handle);
                 subscriptionCallback(typeof(T), sub.Handle);
+            }
+            else
+            {
+                _log.DebugFormat("Subscription callback for {0} was null, not notifying subscriber", handle);
             }
         }
 
