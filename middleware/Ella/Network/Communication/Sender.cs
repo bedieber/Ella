@@ -12,6 +12,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.IO.Compression;
 using System.Net;
 using System.Net.NetworkInformation;
@@ -22,7 +23,6 @@ using log4net;
 
 namespace Ella.Network.Communication
 {
-
     /// <summary>
     /// The networking client used to contact a remote endpoint
     /// </summary>
@@ -84,11 +84,11 @@ namespace Ella.Network.Communication
             }
 
             client.EndConnect(ar);
-            GZipStream stream = new GZipStream(client.GetStream(), CompressionMode.Compress);
+            //GZipStream stream = new GZipStream(client.GetStream(), CompressionMode.Compress);
+            NetworkStream stream = client.GetStream();
             _log.DebugFormat("Sender connected to {0}:{1}", _address, _port);
             try
             {
-
                 while (_run)
                 {
                     if (_pendingMessages.Count == 0)
@@ -99,12 +99,13 @@ namespace Ella.Network.Communication
                     }
                     Message m = _pendingMessages.Dequeue();
                     byte[] serialize = m.Serialize();
+                   
                     _log.DebugFormat("Transferring {0} bytes of data", serialize.Length);
+
                     //_client.GetStream().Write(serialize, 0, serialize.Length);
                     stream.Write(serialize, 0, serialize.Length);
                     stream.Flush();
                 }
-
             }
             catch (SocketException sex)
             {

@@ -112,9 +112,9 @@ namespace Ella.Network.Communication
         /// <param name="client">The client.</param>
         private void ProcessMessage(TcpClient client)
         {
-            client.Client.SetSocketOption(SocketOptionLevel.Socket,SocketOptionName.KeepAlive, true);
-            GZipStream stream = new GZipStream(client.GetStream(), CompressionMode.Decompress);
-            //NetworkStream stream = client.GetStream();
+            client.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
+            //GZipStream stream = new GZipStream(client.GetStream(), CompressionMode.Decompress);
+            NetworkStream stream = client.GetStream();
             try
             {
                 if (NewMessage == null)
@@ -163,7 +163,7 @@ namespace Ella.Network.Communication
 
                         while (totalbytesRead < length)
                         {
-                            int read = stream.Read(buffer, 0, buffer.Length);
+                            int read = stream.Read(buffer, 0, Math.Min(buffer.Length, length - totalbytesRead));
                             if (read == 0)
                             {
                                 _log.Debug("0 bytes read, cancelling reception operation");
@@ -176,7 +176,7 @@ namespace Ella.Network.Communication
 
                     Message m = new Message(id) { Data = data, Type = ((MessageType)messageType), Sender = sender };
                     NewMessage(this, new MessageEventArgs(m) { Address = client.Client.RemoteEndPoint });
-                    if (messageType != (short) MessageType.Publish)
+                    if (messageType != (short)MessageType.Publish)
                     {
                         _log.Debug("Not continuing to read since message type was not publish");
                         break;

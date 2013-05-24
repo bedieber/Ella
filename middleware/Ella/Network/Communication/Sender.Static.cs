@@ -49,8 +49,8 @@ namespace Ella.Network.Communication
                 }
 
                 client.EndConnect(ar);
-                GZipStream stream = new GZipStream(client.GetStream(), CompressionMode.Compress);
-                //NetworkStream stream = client.GetStream();
+                //GZipStream stream = new GZipStream(client.GetStream(), CompressionMode.Compress);
+                NetworkStream stream = client.GetStream();
                 byte[] serialize = m.Serialize();
                 stream.Write(serialize, 0, serialize.Length);
                 stream.Flush();

@@ -67,6 +67,7 @@ namespace Ella.Network.Communication
                         IPEndPoint sender = ep;
                         ThreadPool.QueueUserWorkItem(delegate
                         {
+                            _log.Debug("Processing UDP Message");
                             ProcessUdpMessage
                                 (datagram, sender);
                         });
