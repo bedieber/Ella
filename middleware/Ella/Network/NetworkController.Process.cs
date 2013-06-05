@@ -28,8 +28,12 @@ namespace Ella.Network
     internal partial class NetworkController
     {
         #region Discovery
-        
-      
+
+
+        /// <summary>
+        /// Processes the discovery.
+        /// </summary>
+        /// <param name="e">The <see cref="MessageEventArgs"/> instance containing the event data.</param>
         private void ProcessDiscover(MessageEventArgs e)
         {
             /*
@@ -63,6 +67,10 @@ namespace Ella.Network
             }
         }
 
+        /// <summary>
+        /// Processes the discovery response.
+        /// </summary>
+        /// <param name="e">The <see cref="MessageEventArgs"/> instance containing the event data.</param>
         private void ProcessDiscoverResponse(MessageEventArgs e)
         {
             if (!_remoteHosts.ContainsKey(e.Message.Sender))
@@ -77,6 +85,10 @@ namespace Ella.Network
         #endregion
         #region Subscribe
 
+        /// <summary>
+        /// Processes the subscribe response.
+        /// </summary>
+        /// <param name="e">The <see cref="MessageEventArgs"/> instance containing the event data.</param>
         private void ProcessSubscribeResponse(MessageEventArgs e)
         {
             if (e.Message.Data.Length > 0)
@@ -108,6 +120,10 @@ namespace Ella.Network
             }
         }
 
+        /// <summary>
+        /// Processes the subscription.
+        /// </summary>
+        /// <param name="e">The <see cref="MessageEventArgs"/> instance containing the event data.</param>
         private void ProcessSubscribe(MessageEventArgs e)
         {
             Type type = null;
@@ -196,6 +212,10 @@ namespace Ella.Network
             }
         }
 
+        /// <summary>
+        /// Processes the unsubscribe.
+        /// </summary>
+        /// <param name="e">The <see cref="MessageEventArgs"/> instance containing the event data.</param>
         internal static void ProcessUnsubscribe(MessageEventArgs e)
         {
             int ID = e.Message.Id;
@@ -213,6 +233,10 @@ namespace Ella.Network
         }
         #endregion
         #region Publish
+        /// <summary>
+        /// Processes the publish.
+        /// </summary>
+        /// <param name="e">The <see cref="MessageEventArgs"/> instance containing the event data.</param>
         private static void ProcessPublish(MessageEventArgs e)
         {
             /*
@@ -248,6 +272,10 @@ namespace Ella.Network
             }
         }
         #endregion
+        /// <summary>
+        /// Processes the application message response.
+        /// </summary>
+        /// <param name="e">The <see cref="MessageEventArgs"/> instance containing the event data.</param>
         private static void ProcessApplicationMessageResponse(MessageEventArgs e)
         {
             ApplicationMessage msg = Serializer.Deserialize<ApplicationMessage>(e.Message.Data);
@@ -262,6 +290,11 @@ namespace Ella.Network
             }
         }
 
+        /// <summary>
+        /// Processes the event correlation.
+        /// </summary>
+        /// <param name="e">The <see cref="MessageEventArgs"/> instance containing the event data.</param>
+        /// <exception cref="IllegalAttributeUsageException"></exception>
         private static void ProcessEventCorrelation(MessageEventArgs e)
         {
             var correlation = Serializer.Deserialize<KeyValuePair<EventHandle, EventHandle>>(e.Message.Data);
@@ -304,6 +337,10 @@ namespace Ella.Network
             }
         }
 
+        /// <summary>
+        /// Processes the node shutdown.
+        /// </summary>
+        /// <param name="e">The <see cref="MessageEventArgs"/> instance containing the event data.</param>
         private void ProcessNodeShutdown(MessageEventArgs e)
         {
             /*
