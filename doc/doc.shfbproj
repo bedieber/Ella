@@ -20,8 +20,9 @@
     <Language>en-US</Language>
     <DocumentationSources>
       <DocumentationSource sourceFile="..\middleware\ella\bin\Debug\Ella.dll" />
-<DocumentationSource sourceFile="..\middleware\Ella\bin\Debug\Ella.XML" /></DocumentationSources>
-    <VisibleItems>Attributes, InheritedMembers, InheritedFrameworkMembers</VisibleItems>
+      <DocumentationSource sourceFile="..\middleware\Ella\bin\Debug\Ella.XML" />
+    </DocumentationSources>
+    <VisibleItems>Attributes, InheritedMembers, InheritedFrameworkMembers, Internals, Privates, Protected, PrivateFields, InheritedFrameworkPrivateMembers, InheritedFrameworkInternalMembers</VisibleItems>
     <FrameworkVersion>.NET Framework 3.5</FrameworkVersion>
     <KeepLogFile>False</KeepLogFile>
     <FeedbackEMailAddress>bernhard.dieber%40aau.at</FeedbackEMailAddress>
