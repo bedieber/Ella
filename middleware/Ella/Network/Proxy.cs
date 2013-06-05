@@ -37,7 +37,9 @@ namespace Ella.Network
         internal Sender Sender { get; set; }
         internal MulticastSender MulticastSender { get; set; }
 
-
+        /// <summary>
+        /// Creates the instance.
+        /// </summary>
         [Factory]
         internal Proxy()
         {
@@ -78,6 +80,10 @@ namespace Ella.Network
 
         }
 
+        /// <summary>
+        /// Sends the specified message
+        /// </summary>
+        /// <param name="m">The méssage</param>
         protected virtual void Send(Message m)
         {
             if (!EventToHandle.EventDetail.NeedsReliableTransport && m.Data.Length + 12 <= EllaConfiguration.Instance.MTU)

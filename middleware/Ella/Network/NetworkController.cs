@@ -65,6 +65,11 @@ namespace Ella.Network
 
 
 
+        /// <summary>
+        /// Unsubscribes a node from the subscription defined by the subscription reference.
+        /// </summary>
+        /// <param name="subscriptionReference">The subscription reference.</param>
+        /// <param name="nodeId">The node id.</param>
         private void UnsubscribeFrom(int subscriptionReference, int nodeId)
         {
             Message m = new Message(subscriptionReference) { Type = MessageType.Unsubscribe };
@@ -72,6 +77,9 @@ namespace Ella.Network
             Sender.SendAsync(m, ipEndPoint.Address.ToString(), ipEndPoint.Port);
         }
 
+        /// <summary>
+        /// Sends a shutdown message.
+        /// </summary>
         private void SendShutdownMessage()
         {
             Message m = new Message { Type = MessageType.NodeShutdown };

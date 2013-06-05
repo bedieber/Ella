@@ -145,7 +145,12 @@ namespace Ella
             set { EventHandle.PublisherNodeId = value; }
         }
 
+        /// <summary>
+        /// Gets or sets the subscriber node ID.
+        /// </summary>
+        /// <value>The subscriber node ID.</value>
         internal int SubscriberNodeID { get; set; }
+        
         /// <summary>
         /// Gets or sets the subscription reference.<br />
         /// This is the message ID with which the subscription was made
@@ -175,6 +180,13 @@ namespace Ella
             return (hashCode * 397) ^ PublisherNodeID;
         }
 
+
+        /// <summary>
+        /// Compares two remote subscription handels of type <see cref="Ella.RemoteSubscriptionHandle"/>.
+        /// </summary>
+        /// <param name="one">The first remote subscription handle.</param>
+        /// <param name="two">The second remote subscription handle.</param>
+        /// <returns>True, if both remote subscription handles are the same. False otherwise.</returns>
         public static bool operator ==(RemoteSubscriptionHandle one, RemoteSubscriptionHandle two)
         {
             if (ReferenceEquals(one, two))
@@ -186,6 +198,12 @@ namespace Ella
             return one.Equals((object)two);
         }
 
+        /// <summary>
+        /// Compares two remote subscription handels of type <see cref="Ella.RemoteSubscriptionHandle"/>.
+        /// </summary>
+        /// <param name="one">The first remote subscription handle.</param>
+        /// <param name="two">The second remote subscription handle.</param>
+        /// <returns>True, if the remote subscription handles are not the same. False otherwise.</returns>
         public static bool operator !=(RemoteSubscriptionHandle one, RemoteSubscriptionHandle two)
         {
             return !(one == two);

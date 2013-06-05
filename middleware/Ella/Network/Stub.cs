@@ -21,6 +21,9 @@ using log4net;
 
 namespace Ella.Network
 {
+    /// <summary>
+    ///  A stub is used to receive events from a remote publisher.
+    /// </summary>
     internal abstract class Stub
     {
         internal Type DataType { get; set; }

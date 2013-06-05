@@ -209,6 +209,11 @@ namespace Ella.Controller
             return null;
         }
 
+        /// <summary>
+        /// Gets the multicast proxy.
+        /// </summary>
+        /// <param name="match">The match of type <see cref="Ella.Model.Event"/>.</param>
+        /// <returns></returns>
         private static Proxy GetMulticastProxy(Event match)
         {
             Proxy sender = ActiveProxies.FirstOrDefault(p => p.EventToHandle == match) ??

@@ -23,6 +23,9 @@ using log4net.Repository.Hierarchy;
 
 namespace Ella.Network.Communication
 {
+    /// <summary>
+    /// An udp server class used to listen on a port and receive messages sent over udp.
+    /// </summary>
     class UdpServer
     {
         private int _port;
@@ -90,6 +93,12 @@ namespace Ella.Network.Communication
             _udpListenerThread.Start();
         }
 
+
+        /// <summary>
+        /// Connects to a multicast group.
+        /// </summary>
+        /// <param name="group">The group.</param>
+        /// <param name="port">The port.</param>
         internal void ConnectToMulticastGroup(string group, int port)
         {
             Thread t = new Thread((ThreadStart) delegate
@@ -163,6 +172,10 @@ namespace Ella.Network.Communication
             _log.DebugFormat("Server stopped");
         }
 
+        /// <summary>
+        /// Stops the thread.
+        /// </summary>
+        /// <param name="t">The thread</param>
         private void StopThread(Thread t)
         {
             t.Interrupt();

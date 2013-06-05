@@ -27,6 +27,9 @@ namespace Ella.Model
         private int _nextSubscriptionId = 0;
         private SubscriptionHandle _handle;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SubscriptionBase"/> class.
+        /// </summary>
         protected SubscriptionBase()
         {
             SubscriptionID = Interlocked.Increment(ref _nextSubscriptionId);

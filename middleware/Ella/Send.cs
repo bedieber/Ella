@@ -31,6 +31,7 @@ namespace Ella
     public static class Send
     {
         private static ILog _log = LogManager.GetLogger(typeof(Send));
+        
         /// <summary>
         /// Sends the specified <paramref name="message" /> to the publisher identified by handle <paramref name="to" />.<br />
         /// This is used by subscribers to send messages directly to a certain publisher of an event.<br />
@@ -62,6 +63,12 @@ namespace Ella
             }
         }
 
+
+        /// <summary>
+        /// Delivers an application message.
+        /// </summary>
+        /// <param name="message">The message.</param>
+        /// <returns></returns>
         internal static bool DeliverApplicationMessage(ApplicationMessage message)
         {
             Publisher publisher = EllaModel.Instance.GetPublisher(message.Handle.PublisherId);

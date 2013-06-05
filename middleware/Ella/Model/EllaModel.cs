@@ -71,6 +71,9 @@ namespace Ella.Model
         /// </summary>
         private IDictionary<Publisher, int> ActivePublishers { get; set; }
 
+        /// <summary>
+        /// List of all started subscribers
+        /// </summary>
         private IDictionary<object, int> ActiveSubscribers { get; set; }
 
         /// <summary>

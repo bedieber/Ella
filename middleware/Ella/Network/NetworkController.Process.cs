@@ -28,6 +28,8 @@ namespace Ella.Network
     internal partial class NetworkController
     {
         #region Discovery
+        
+      
         private void ProcessDiscover(MessageEventArgs e)
         {
             /*

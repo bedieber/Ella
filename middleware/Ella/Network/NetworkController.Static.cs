@@ -50,21 +50,41 @@ namespace Ella.Network
             _instance.SubscribeTo(typeof(T), callback);
         }
 
+        /// <summary>
+        /// Sends the application message.
+        /// </summary>
+        /// <param name="message">The message.</param>
+        /// <param name="remoteSubscriptionHandle">The remote subscription handle.</param>
+        /// <param name="isReply">if set to <c>true</c>, this is a reply to another message.</param>
+        /// <returns></returns>
         internal static bool SendApplicationMessage(ApplicationMessage message, RemoteSubscriptionHandle remoteSubscriptionHandle, bool isReply = false)
         {
             return _instance.SendMessage(message, remoteSubscriptionHandle,isReply);
         }
 
+        /// <summary>
+        /// Unsubscribes the specified node from the subscription defined by the subscription reference.
+        /// </summary>
+        /// <param name="subscriptionReference">The subscription reference.</param>
+        /// <param name="nodeId">The node id.</param>
         internal static void Unsubscribe(int subscriptionReference, int nodeId)
         {
             _instance.UnsubscribeFrom(subscriptionReference, nodeId);
         }
 
+        /// <summary>
+        /// Broadcasts the shutdown.
+        /// </summary>
         internal static void BroadcastShutdown()
         {
             _instance.SendShutdownMessage();
         }
 
+        /// <summary>
+        /// Connects to multicast group.
+        /// </summary>
+        /// <param name="group">The group.</param>
+        /// <param name="port">The port.</param>
         internal static void ConnectToMulticast(string group, int port)
         {
             _instance._udpServer.ConnectToMulticastGroup(group,port);

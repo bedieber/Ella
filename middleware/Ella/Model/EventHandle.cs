@@ -36,10 +36,28 @@ namespace Ella.Model
             }
         }
 
+        /// <summary>
+        /// Gets or sets the publisher node id.
+        /// </summary>
+        /// <value>
+        /// The publisher node id.
+        /// </value>
         internal int PublisherNodeId { get; set; }
 
+        /// <summary>
+        /// Gets or sets the event id.
+        /// </summary>
+        /// <value>
+        /// The event id.
+        /// </value>
         internal int EventId { get; set; }
 
+        /// <summary>
+        /// Gets or sets the publisher id.
+        /// </summary>
+        /// <value>
+        /// The publisher id.
+        /// </value>
         internal int PublisherId { get; set; }
 
         public override bool Equals(object obj)

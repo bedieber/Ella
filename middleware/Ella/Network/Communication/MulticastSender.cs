@@ -17,6 +17,9 @@ using log4net;
 
 namespace Ella.Network.Communication
 {
+    /// <summary>
+    /// The networking client used to contact a remote endpoint using UDP
+    /// </summary>
     internal class MulticastSender
     {
         private static ILog _log = LogManager.GetLogger(typeof (MulticastSender));
@@ -24,6 +27,9 @@ namespace Ella.Network.Communication
         internal static int NextFreeMulticastPort;
         internal IPEndPoint TargetNode;
 
+        /// <summary>
+        /// Initializes the <see cref="MulticastSender"/> class.
+        /// </summary>
         static MulticastSender()
         {
             NextFreeMulticastPort = EllaConfiguration.Instance.DiscoveryPortRangeEnd + (EllaConfiguration.Instance.NodeId - 1) *
@@ -31,6 +37,9 @@ namespace Ella.Network.Communication
             _log.DebugFormat("Next free multicast port is {0}.",NextFreeMulticastPort);
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MulticastSender"/> class.
+        /// </summary>
         internal MulticastSender()
         {
             _multicastPort = Interlocked.Increment(ref MulticastSender.NextFreeMulticastPort);
@@ -39,6 +48,10 @@ namespace Ella.Network.Communication
             _log.DebugFormat("Target node with IPAddress {0} and port {1}",TargetNode.Address,TargetNode.Port);
         }
 
+        /// <summary>
+        /// Sends the specified message over udp.
+        /// </summary>
+        /// <param name="m">The message.</param>
         internal void Send(Message m)
         {
             _log.DebugFormat("Try to send over UDP, Message length is {0}",m.Data.Length);

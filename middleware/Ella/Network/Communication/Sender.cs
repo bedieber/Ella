@@ -38,18 +38,33 @@ namespace Ella.Network.Communication
         private readonly AutoResetEvent _are = new AutoResetEvent(false);
         private Thread _senderThread;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Sender"/> class.
+        /// </summary>
+        /// <param name="address">The address.</param>
+        /// <param name="port">The port.</param>
         public Sender(string address, int port)
         {
             this._address = address;
             this._port = port;
         }
 
+        /// <summary>
+        /// Gets or sets the maximal size of the queue.
+        /// </summary>
+        /// <value>
+        /// The maximal size of the queue.
+        /// </value>
         public int MaxQueueSize
         {
             get { return _maxQueueSize; }
             set { _maxQueueSize = value; }
         }
 
+        /// <summary>
+        /// Sends the specified message.
+        /// </summary>
+        /// <param name="m">The message</param>
         internal void Send(Message m)
         {
             if (_senderThread == null)
@@ -69,6 +84,9 @@ namespace Ella.Network.Communication
             _are.Set();
         }
 
+        /// <summary>
+        /// Runs this instance.
+        /// </summary>
         private void Run()
         {
             _log.Debug("Sender running, connecting to remote host");
@@ -124,6 +142,9 @@ namespace Ella.Network.Communication
             }
         }
 
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
         public void Dispose()
         {
             _log.Debug("Disposing Sender");

@@ -104,6 +104,17 @@ namespace Ella.Internal
 
         #region publisher handling
 
+        /// <summary>
+        /// Creates the publisher.
+        /// </summary>
+        /// <param name="instance">The instance.</param>
+        /// <returns></returns>
+        /// <exception cref="InvalidPublisherException">
+        /// Publisher does not define a start method
+        /// or
+        /// No valid stop method found
+        /// or
+        /// </exception>
         internal static Publisher CreatePublisher(object instance)
         {
             var type = instance.GetType();

@@ -21,11 +21,18 @@ namespace Ella.Model
     /// </summary>
     internal class Subscription : SubscriptionBase
     {
+
         protected bool Equals(Subscription other)
         {
             return Equals(CallbackMethod, other.CallbackMethod) && Equals(CallbackTarget, other.CallbackTarget)&&Equals(Event, other.Event);
         }
 
+        /// <summary>
+        /// Returns a hash code for this instance.
+        /// </summary>
+        /// <returns>
+        /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table. 
+        /// </returns>
         public override int GetHashCode()
         {
             unchecked

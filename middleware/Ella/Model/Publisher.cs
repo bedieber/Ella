@@ -30,8 +30,17 @@ namespace Ella.Model
             return (Instance != null ? Instance.GetHashCode() : 0);
         }
 
+        /// <summary>
+        /// Gets or sets the instance.
+        /// </summary>
+        /// <value>
+        /// The instance.
+        /// </value>
         internal object Instance { get; set; }
 
+        /// <summary>
+        /// List of all events
+        /// </summary>
         internal IEnumerable<Event> Events { get; set; }
 
         //TODO validate methodinfos on set
