@@ -57,7 +57,7 @@ namespace Ella
                 return Networking.SendApplicationMessage(message, to as RemoteSubscriptionHandle);
             }
             else
-            {
+                {
                 _log.Debug("Delivering message locally");
                 return DeliverApplicationMessage(message);
             }

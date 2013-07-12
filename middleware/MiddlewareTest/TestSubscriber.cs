@@ -14,6 +14,7 @@ namespace Ella
     public class TestSubscriber
     {
         internal String rec = "";
+        internal SubscriptionHandle h = new SubscriptionHandle();
         internal int numEventsReceived = 0;
         internal List<SubscriptionHandle> SubscriptionCallBackHandle = new List<SubscriptionHandle>();
         internal List<SubscriptionHandle> NewDataHandle = new List<SubscriptionHandle>();
@@ -34,11 +35,13 @@ namespace Ella
 
         private void SubscriptionCallback(Type arg1, SubscriptionHandle arg2)
         {
+            h = arg2;
             SubscriptionCallBackHandle.Add(arg2);
         }
 
         private void Callback(string s, SubscriptionHandle handle)
         {
+            
             NewDataHandle.Add(handle);
             rec = (string)s;
             if (rec == "hello")
@@ -73,6 +76,11 @@ namespace Ella
         internal void UnsubscribeByHandle()
         {
             Ella.Unsubscribe.From(this, SubscriptionCallBackHandle[0]);
+        }
+
+        internal void UnsubscribeFromRemote()
+        {
+            Ella.Unsubscribe.From(this,new RemoteSubscriptionHandle());
         }
 
         #endregion

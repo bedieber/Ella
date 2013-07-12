@@ -10,20 +10,39 @@ namespace Ella.Fakes
     internal class FakeNetworkController : INetworkController
     {
         public static Dictionary<Type, int> Subscriptions { get; set; }
+        public static int countMsg ;
+        public static bool unsubscribed = false;
+        public static bool started = false;
+        public static bool connectedToMulticastgroup=false;
 
+        public FakeNetworkController()
+        {
+            Subscriptions = new Dictionary<Type, int>();
+            countMsg = 0;
+        }
         public void SubscribeTo(Type type, Action<RemoteSubscriptionHandle> callback)
         {
-            throw new NotImplementedException();
+
+            if (Subscriptions.ContainsKey(type))
+            {
+                Subscriptions[type]++;
+            }
+            else
+            {
+                Subscriptions.Add(type, 1);
+            }
         }
 
         public bool SendMessage(ApplicationMessage message, RemoteSubscriptionHandle remoteSubscriptionHandle, bool isReply = false)
         {
-            throw new NotImplementedException();
+            countMsg++;
+
+            return true;
         }
 
         public void UnsubscribeFrom(int subscriptionReference, int nodeId)
         {
-            throw new NotImplementedException();
+            unsubscribed = true;
         }
 
         public void SendShutdownMessage()
@@ -33,14 +52,14 @@ namespace Ella.Fakes
 
         public void Start()
         {
-            throw new NotImplementedException();
+            started = true;
         }
 
         public bool IsRunning { get { return true; } }
 
         public void ConnectToMulticastGroup(string @group, int port)
         {
-            throw new NotImplementedException();
+            connectedToMulticastgroup = true;
         }
     }
 }

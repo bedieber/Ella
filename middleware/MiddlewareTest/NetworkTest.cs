@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Configuration;
 using System.Net;
+using System.Threading;
+using Ella.Control;
 using Ella.Controller;
 using Ella.Fakes;
 using Ella.Internal;
@@ -83,8 +85,85 @@ namespace Ella
             TestSubscriber ts=new TestSubscriber();
             ts.Subscribe();
 
-            Assert.AreEqual(1,FakeNetworkController.Subscriptions[typeof (string)]);
+            TestSubscriber s = new TestSubscriber();
+            s.Subscribe();
 
+            Assert.AreEqual(2,FakeNetworkController.Subscriptions[typeof(string)]);
+
+        }
+
+        [TestMethod]
+        public void ApplicationMessageIsSentOverNetwork()
+        {
+            FakeNetworkController nc = new FakeNetworkController();
+            Networking.NetworkController = nc;
+            Networking.Start();
+
+            TestPublisher p = new TestPublisher();
+            Start.Publisher(p);
+
+            TestSubscriber s = new TestSubscriber();
+            s.Subscribe();
+
+            Thread.Sleep(1000);
+
+            p.PublishEvent();
+
+            byte[] b={1,2};
+
+            ApplicationMessage msg = new ApplicationMessage();
+            msg.Data = b;
+
+            Send.Message(msg, new RemoteSubscriptionHandle(), s);
+
+            Assert.AreEqual(1,FakeNetworkController.countMsg);
+        }
+
+        [TestMethod]
+        public void UnsubscribeOverNetwork()
+        {
+            FakeNetworkController nc = new FakeNetworkController();
+            Networking.NetworkController = nc;
+            Networking.Start();
+
+            TestPublisher p = new TestPublisher();
+            Start.Publisher(p);
+
+            TestSubscriber s = new TestSubscriber();
+            s.Subscribe();
+
+            Thread.Sleep(1000);
+
+            //ruft die lokale unsubscribe statt die remote auf
+            s.UnsubscribeFromRemote();
+
+            Assert.IsTrue(FakeNetworkController.unsubscribed);
+        }
+
+        [TestMethod]
+        public void ConnectToMulticastGroupOverNetwork()
+        {
+            FakeNetworkController nc = new FakeNetworkController();
+            Networking.NetworkController = nc;
+            Networking.Start();
+
+            MulticastRemoteSubscriptionhandle h = new MulticastRemoteSubscriptionhandle();
+
+            Networking.ConnectToMulticast(h.IpAddress,h.Port);
+
+            TestSubscriber s = new TestSubscriber();
+            s.Subscribe();
+
+            Assert.IsTrue(FakeNetworkController.connectedToMulticastgroup);
+        }
+
+        [TestMethod]
+        public void StartNetworking()
+        {
+            FakeNetworkController nc = new FakeNetworkController();
+            nc.Start();
+
+            Assert.IsTrue(FakeNetworkController.started);
         }
     }
 }
