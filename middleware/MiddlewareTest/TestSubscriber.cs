@@ -84,6 +84,11 @@ namespace Ella
             Ella.Subscribe.To<bool>(this,BoolCallback);
         }
 
+        internal void SubscribeForPublisherWithSpecificSubscribers()
+        {
+            Ella.Subscribe.To<bool>(this,BoolCallback);
+        }
+
         #endregion
         
         internal void SendMessage()

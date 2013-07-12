@@ -99,7 +99,7 @@ namespace Ella.Controller
                             DataType = typeof(T)
                         };
 
-                    
+
 
                     if (templateObject == null || evaluateTemplateObject(template))
                     {
@@ -110,7 +110,7 @@ namespace Ella.Controller
                             EllaModel.Instance.Subscriptions.Add(subscription);
                             if (subscriptionCallback != null)
                             {
-                                subscriptionCallback(typeof (T), subscription.Handle);
+                                subscriptionCallback(typeof(T), subscription.Handle);
                             }
                             NotifyPublisher(subscription.Event, subscription.Handle);
                             if (associateMethod != null)
@@ -156,7 +156,7 @@ namespace Ella.Controller
                     }
                 }
 
-                
+
             }
         }
 
@@ -183,8 +183,8 @@ namespace Ella.Controller
                         : GetMulticastProxy(match);
                     proxy.EventToHandle = match;
                     proxy.Sender = new Sender(subscriberAddress.Address.ToString(), subscriberAddress.Port);
-                    
-                    
+
+
                     //TODO make max queue size changeable
                     if (!match.EventDetail.NeedsReliableTransport)
                         proxy.Sender.MaxQueueSize = 50;
@@ -214,7 +214,7 @@ namespace Ella.Controller
                     EllaModel.Instance.Subscriptions.Add(subscription);
                     handles.Add(handle);
 
-                    NotifyPublisher(match,handle);
+                    NotifyPublisher(match, handle);
                 }
                 return handles;
             }
@@ -230,11 +230,11 @@ namespace Ella.Controller
                 return;
 
             MethodInfo info = ev.Publisher.GetType().GetMethod(callback);
-            
-            object[] parameters = { ev.EventDetail.ID, handle };
+
 
             if (info != null)
             {
+                object[] parameters = { ev.EventDetail.ID, handle };
                 info.Invoke(ev.Publisher, parameters);
             }
 
@@ -264,7 +264,7 @@ namespace Ella.Controller
 
             //Create a stub
             Stub<T> s = new Stub<T> { DataType = typeof(T), Handle = handle };
-            
+
             var publishesAttribute = (PublishesAttribute)s.GetType().GetCustomAttributes(typeof(PublishesAttribute), false).First();
 
             if (handle is MulticastRemoteSubscriptionhandle)

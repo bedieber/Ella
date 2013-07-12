@@ -167,4 +167,35 @@ namespace Ella
 
     }
 
+    [Publishes(typeof(bool), 1, SubscriptionCallback = "Callback")]
+    public class PublishesEventsToSpecificSubscribers
+    {
+        private bool b = true;
+        private int i = 0;
+        private List<SubscriptionHandle> list = new List<SubscriptionHandle>();
+
+        [Factory]
+        public PublishesEventsToSpecificSubscribers() {}
+
+         [Start]
+        public void Run() { }
+
+        [Stop]
+        public void Stop() { }
+
+        internal void PublishEvent()
+        {
+            Publish.Event(b,this,1,list);
+        }
+
+        public void Callback(int id, SubscriptionHandle handle)
+        {
+            if (i%2 == 0)
+            {
+                list.Add(handle);
+            }
+            i++;
+        }
+    }
+
 }
