@@ -25,8 +25,6 @@ namespace Ella
 
         internal bool ReplyReceived { get; set; }
 
-
-
         internal void Subscribe()
         {
             Ella.Subscribe.To<string>(this, Callback, forbidRemote: true, subscriptionCallback: SubscriptionCallback);
@@ -44,6 +42,12 @@ namespace Ella
             if (rec == "hello")
                 numEventsReceived++;
         }
+        private void BoolCallback(bool b, SubscriptionHandle h)
+        {
+            if (b == true)
+                numEventsReceived++;
+        }
+
         #region Subscriptions
         internal void SubscribeWithObject()
         {
@@ -75,7 +79,13 @@ namespace Ella
             Ella.Unsubscribe.From(this, SubscriptionCallBackHandle[0]);
         }
 
+        internal void SubscribeForPublisherWithCallbackMethod()
+        {
+            Ella.Subscribe.To<bool>(this,BoolCallback);
+        }
+
         #endregion
+        
         internal void SendMessage()
         {
             ApplicationMessage msg = new ApplicationMessage { Data = new byte[1], MessageId = 0, MessageType = 1 };

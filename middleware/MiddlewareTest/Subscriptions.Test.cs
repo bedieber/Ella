@@ -141,5 +141,21 @@ namespace Ella
             Assert.AreEqual(2, s.NumAssociationsReceived);
         }
 
+        [TestMethod]
+        public void PublisherWithCallbackMethod()
+        {
+            PublisherWithCallbackMethod p = new PublisherWithCallbackMethod();
+            Start.Publisher(p);
+
+            TestSubscriber s = new TestSubscriber();
+            s.SubscribeForPublisherWithCallbackMethod();
+
+            TestSubscriber x = new TestSubscriber();
+            x.SubscribeForPublisherWithCallbackMethod();
+
+            Thread.Sleep(1000);
+
+            Assert.IsTrue(p.callback.Equals(2));
+        }
     }
 }

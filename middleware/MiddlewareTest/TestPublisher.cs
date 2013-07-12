@@ -139,4 +139,32 @@ namespace Ella
             Publish.Event(data, this, 1);
         }
     }
+
+    [Publishes(typeof(bool),1,CopyPolicy = DataCopyPolicy.None,NeedsReliableTransport = false,SubscriptionCallback = "Callback")]
+    public class PublisherWithCallbackMethod
+    {
+        internal bool b = true;
+        internal int callback = 0;
+
+        [Factory]
+        public PublisherWithCallbackMethod() { }
+
+        [Start]
+        public void Run() { }
+
+        [Stop]
+        public void Stop() { }
+
+        internal void PublishEvent()
+        {
+            Publish.Event(b, this, 1);
+        }
+
+        public void Callback(int id, SubscriptionHandle h)
+        {
+            callback++;
+        }
+
+    }
+
 }

@@ -51,6 +51,11 @@ namespace Ella.Attributes
         /// The copy policy to be used when processing the published data.
         /// </value>
         public DataCopyPolicy CopyPolicy { get; set; }
+
+        /// <summary>
+        /// Gets or sets the SubscriptionCallback, signature has to be (int,SubscriptionHandle)
+        /// </summary>
+        public string SubscriptionCallback { get; set; }
         #endregion
 
         /// <summary>
@@ -109,5 +114,6 @@ namespace Ella.Attributes
             }
         }
 
+   
     }
 }
