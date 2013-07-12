@@ -45,13 +45,13 @@ namespace Ella
             EllaModel.Instance.AddActiveSubscriber(subscriberInstance);
             if (!forbidRemote)
             {
-                if (NetworkController.IsRunning)
+                if (Networking.IsRunning)
                 {
                     Func<T, bool> eval = evaluateTemplateObject;
                     Action<RemoteSubscriptionHandle> callback =
                         handle => SubscriptionController.SubscribeToRemotePublisher(handle, subscriberInstance, newDataCallback, policy,
                                                        eval, subscriptionCallback);
-                    NetworkController.SubscribeToRemoteHost<T>(callback);
+                    Networking.SubscribeToRemoteHost<T>(callback);
                 }
             }
             if (evaluateTemplateObject == null)

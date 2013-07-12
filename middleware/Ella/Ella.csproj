@@ -87,6 +87,7 @@
     <Compile Include="Model\Publisher.cs" />
     <Compile Include="Model\Subscription.cs" />
     <Compile Include="Model\SubscriptionBase.cs" />
+    <Compile Include="Networking.cs" />
     <Compile Include="Network\Communication\MulticastSender.cs" />
     <Compile Include="Network\Communication\Sender.cs" />
     <Compile Include="Network\Communication\Message.cs" />
@@ -94,12 +95,11 @@
     <Compile Include="Network\Communication\Sender.Static.cs" />
     <Compile Include="Network\Communication\Server.cs" />
     <Compile Include="Network\Communication\UdpServer.cs" />
-    <Compile Include="Network\NetworkController.cs" />
-    <Compile Include="Network\NetworkController.Process.cs" />
-    <Compile Include="Network\NetworkController.Static.cs" />
+    <Compile Include="Network\INetworkController.cs" />
+    <Compile Include="Network\IpNetworkController.cs" />
+    <Compile Include="Network\IpNetworkController.Process.cs" />
     <Compile Include="Network\Proxy.cs" />
     <Compile Include="Network\Stub.cs" />
-    <Compile Include="Network\Unknown.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Publish.cs" />
     <Compile Include="Send.cs" />

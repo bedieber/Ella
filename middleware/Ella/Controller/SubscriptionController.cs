@@ -240,7 +240,7 @@ namespace Ella.Controller
             {
                 _log.DebugFormat("{0} is potential multicast subscription, opening multicast port", handle);
                 MulticastRemoteSubscriptionhandle mh = handle as MulticastRemoteSubscriptionhandle;
-                NetworkController.ConnectToMulticast(mh.IpAddress, mh.Port);
+                Networking.ConnectToMulticast(mh.IpAddress, mh.Port);
                 RemoteSubscriptionHandle h = new RemoteSubscriptionHandle()
                     {
                         PublisherNodeID = handle.PublisherNodeID,
@@ -289,7 +289,7 @@ namespace Ella.Controller
                 _log.DebugFormat("Cancelling remote subscription to {0}", handle);
 
                 if (performRemoteUnsubscribe)
-                    NetworkController.Unsubscribe(handle.SubscriptionReference, handle.PublisherNodeID);
+                    Networking.Unsubscribe(handle.SubscriptionReference, handle.PublisherNodeID);
                 Stop.Publisher(remoteSubscription.Event.Publisher);
             }
             int removedSubscriptions = EllaModel.Instance.Subscriptions.RemoveAll(s => selector(s));

@@ -47,12 +47,13 @@ namespace Ella
         [TestMethod]
         public void UnsubscribeFromNetwork()
         {
+            throw new NotImplementedException();
             TestPublisher p = new TestPublisher();
             Start.Publisher(p);
             SubscriptionController.SubscribeRemoteSubscriber(typeof (string), 1, null, 3);
             Assert.IsTrue(EllaModel.Instance.Subscriptions.Count == 2);
             Message m = new Message(3);
-            NetworkController.ProcessUnsubscribe(new MessageEventArgs(m));
+            //ProcessUnsubscribe(new MessageEventArgs(m));
             Assert.IsTrue(EllaModel.Instance.Subscriptions.Count == 0);
         }
 

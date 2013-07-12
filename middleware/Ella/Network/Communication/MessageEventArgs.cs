@@ -16,7 +16,7 @@ using System.Net;
 namespace Ella.Network.Communication
 {
     /// <summary>
-    /// A class used as an eventArgs for a new Network message
+    /// A class used as an eventArgs for a new Networking message
     /// </summary>
     internal class MessageEventArgs : EventArgs
     {

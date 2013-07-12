@@ -11,11 +11,9 @@
 //=============================================================================
 
 using System.Threading;
-using Ella.Attributes;
 using Ella.Exceptions;
 using Ella.Internal;
 using Ella.Model;
-using Ella.Network;
 using log4net;
 
 namespace Ella
@@ -53,7 +51,7 @@ namespace Ella
         public static void Network()
         {
             _log.Info("Starting network controller");
-            NetworkController.Start();
+            global::Ella.Networking.Start();
         }
 
         /// <summary>

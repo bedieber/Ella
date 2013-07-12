@@ -54,7 +54,7 @@ namespace Ella
             if (to is RemoteSubscriptionHandle)
             {
                 _log.Debug("Sending message to remote receiver");
-                return NetworkController.SendApplicationMessage(message, to as RemoteSubscriptionHandle);
+                return Networking.SendApplicationMessage(message, to as RemoteSubscriptionHandle);
             }
             else
             {
@@ -149,7 +149,7 @@ namespace Ella
             if (inReplyTo.Handle is RemoteSubscriptionHandle)
             {
                 _log.Debug("Delivering reply to remote receiver");
-                return NetworkController.SendApplicationMessage(reply, inReplyTo.Handle as RemoteSubscriptionHandle,
+                return Networking.SendApplicationMessage(reply, inReplyTo.Handle as RemoteSubscriptionHandle,
                                                                 isReply: true);
             }
             else

@@ -88,7 +88,7 @@ namespace Ella
             /*
              * Notify other nodes of the termination
              */
-            NetworkController.BroadcastShutdown();
+            Networking.BroadcastShutdown();
             /*
              * Cancel all subscriptions
              */
