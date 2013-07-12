@@ -6,7 +6,7 @@ using log4net;
 
 namespace Ella
 {
-    internal class Networking
+    internal static class Networking
     {
         private static ILog _log = LogManager.GetLogger(typeof(IpNetworkController));
         internal static bool IsRunning { get { return NetworkController.IsRunning; } }

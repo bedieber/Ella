@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Ella.Network;
 
-namespace Ella
+namespace Ella.Fakes
 {
     internal class FakeProxy : Proxy
     {

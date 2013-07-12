@@ -14,6 +14,7 @@ using System.Threading;
 using Ella.Exceptions;
 using Ella.Internal;
 using Ella.Model;
+using Ella.Network;
 using log4net;
 
 namespace Ella
@@ -64,6 +65,7 @@ namespace Ella
             //      Assembly.GetAssembly(typeof(Start)).Location)
             //     + @"\" + "Ella.dll.config"));
             //  _log.Info("Ella started");
+            Networking.NetworkController=new IpNetworkController();
         }
 
 

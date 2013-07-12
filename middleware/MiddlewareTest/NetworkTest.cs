@@ -2,6 +2,7 @@
 using System.Configuration;
 using System.Net;
 using Ella.Controller;
+using Ella.Fakes;
 using Ella.Internal;
 using Ella.Model;
 using Ella.Network;
@@ -72,5 +73,18 @@ namespace Ella
                 EllaConfiguration.ValidateMulticastAddress(ip);
         }
 
+        [TestMethod]
+        public void SubscriptionOverNetworkIsPerfomedOnClient()
+        {
+            FakeNetworkController nc=new FakeNetworkController();
+            Networking.NetworkController = nc;
+            Networking.Start();
+
+            TestSubscriber ts=new TestSubscriber();
+            ts.Subscribe();
+
+            Assert.AreEqual(1,FakeNetworkController.Subscriptions[typeof (string)]);
+
+        }
     }
 }

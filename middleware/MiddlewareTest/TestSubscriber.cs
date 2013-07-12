@@ -29,7 +29,7 @@ namespace Ella
 
         internal void Subscribe()
         {
-            Ella.Subscribe.To<string>(this, Callback, forbidRemote: true, subscriptionCallback: SubscriptionCallback);
+            Ella.Subscribe.To<string>(this, Callback, subscriptionCallback: SubscriptionCallback);
         }
 
         private void SubscriptionCallback(Type arg1, SubscriptionHandle arg2)
