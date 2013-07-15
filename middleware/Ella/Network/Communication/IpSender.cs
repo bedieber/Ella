@@ -12,13 +12,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.IO.Compression;
 using System.Net;
-using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Threading;
-using Ella.Internal;
 using log4net;
 
 namespace Ella.Network.Communication
@@ -26,10 +22,13 @@ namespace Ella.Network.Communication
     /// <summary>
     /// The networking client used to contact a remote endpoint
     /// </summary>
-    internal partial class Sender : IDisposable
+    internal partial class IpSender : SenderBase, IDisposable
     {
         private string _address;
         private int _port;
+
+
+        private static readonly ILog _log = LogManager.GetLogger(typeof(IpSender));
 
         private bool _run;
         private int _maxQueueSize = int.MaxValue;
@@ -39,11 +38,11 @@ namespace Ella.Network.Communication
         private Thread _senderThread;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Sender"/> class.
+        /// Initializes a new instance of the <see cref="IpSender"/> class.
         /// </summary>
         /// <param name="address">The address.</param>
         /// <param name="port">The port.</param>
-        public Sender(string address, int port)
+        public IpSender(string address, int port)
         {
             this._address = address;
             this._port = port;
@@ -65,7 +64,7 @@ namespace Ella.Network.Communication
         /// Sends the specified message.
         /// </summary>
         /// <param name="m">The message</param>
-        internal void Send(Message m)
+        internal void EnqueueMessage(Message m)
         {
             if (_senderThread == null)
             {
@@ -85,11 +84,45 @@ namespace Ella.Network.Communication
         }
 
         /// <summary>
+        /// Sends the specified message.
+        /// </summary>
+        /// <param name="m">The message to send</param>
+        internal override void Send(Message m)
+        {
+            try
+            {
+                TcpClient client = new TcpClient();
+                IAsyncResult ar = client.BeginConnect(IPAddress.Parse(_address), _port, null, null);
+
+                if (!ar.AsyncWaitHandle.WaitOne(TimeSpan.FromSeconds(5), false))
+                {
+                    client.Close();
+                    _log.WarnFormat("Could not connect to {0} in time, aborting send operation", _address);
+                    return;
+                }
+
+                client.EndConnect(ar);
+                //GZipStream stream = new GZipStream(client.GetStream(), CompressionMode.Compress);
+                NetworkStream stream = client.GetStream();
+                byte[] serialize = m.Serialize();
+                stream.Write(serialize, 0, serialize.Length);
+                stream.Flush();
+                stream.Close();
+                client.Close();
+            }
+            catch (Exception e)
+            {
+                _log.WarnFormat("NetworkClient: failed to send message {0} to {1}", m.Id,
+                                  _address, e.Message);
+            }
+        }
+
+        /// <summary>
         /// Runs this instance.
         /// </summary>
         private void Run()
         {
-            _log.Debug("Sender running, connecting to remote host");
+            _log.Debug("IpSender running, connecting to remote host");
             TcpClient client = new TcpClient();
             client.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
             IAsyncResult ar = client.BeginConnect(IPAddress.Parse(_address), _port, null, null);
@@ -104,7 +137,7 @@ namespace Ella.Network.Communication
             client.EndConnect(ar);
             //GZipStream stream = new GZipStream(client.GetStream(), CompressionMode.Compress);
             NetworkStream stream = client.GetStream();
-            _log.DebugFormat("Sender connected to {0}:{1}", _address, _port);
+            _log.DebugFormat("IpSender connected to {0}:{1}", _address, _port);
             try
             {
                 while (_run)
@@ -147,7 +180,7 @@ namespace Ella.Network.Communication
         /// </summary>
         public void Dispose()
         {
-            _log.Debug("Disposing Sender");
+            _log.Debug("Disposing IpSender");
             _run = false;
             _senderThread.Interrupt();
         }

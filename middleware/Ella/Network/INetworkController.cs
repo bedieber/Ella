@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Ella.Control;
 
 namespace Ella.Network
@@ -32,7 +33,7 @@ namespace Ella.Network
         void SendShutdownMessage();
         
         /// <summary>
-        /// Initializes and starts the IpNetworkController
+        /// Initializes and starts the NetworkController
         /// </summary>
         void Start();
         
@@ -40,6 +41,8 @@ namespace Ella.Network
         /// Indicates if the network controller instance has been started
         /// </summary>
         bool IsRunning { get; }
+
+        List<INetworkServer> Servers { get; }
 
         //TODO this method should be refactored when new networks are added. signature might not be appropriate for all types of multicast
         /// <summary>

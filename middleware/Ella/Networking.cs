@@ -1,5 +1,6 @@
 ﻿using System;
 using Ella.Control;
+using Ella.Controller;
 using Ella.Network;
 using Ella.Network.Communication;
 using log4net;
@@ -8,8 +9,8 @@ namespace Ella
 {
     internal static class Networking
     {
-        private static ILog _log = LogManager.GetLogger(typeof(IpNetworkController));
-        internal static bool IsRunning { get { return NetworkController.IsRunning; } }
+        private static ILog _log = LogManager.GetLogger(typeof(NetworkController));
+        internal static bool IsRunning { get { return NetworkController != null && NetworkController.IsRunning; } }
 
         internal static INetworkController NetworkController { get; set; }
 
@@ -18,7 +19,7 @@ namespace Ella
         /// </summary>
         internal static void Start()
         {
-            Sender.Broadcast();
+            UdpSender.Broadcast();
         }
 
         /// <summary>
@@ -39,7 +40,7 @@ namespace Ella
         /// <returns></returns>
         internal static bool SendApplicationMessage(ApplicationMessage message, RemoteSubscriptionHandle remoteSubscriptionHandle, bool isReply = false)
         {
-            return NetworkController.SendMessage(message, remoteSubscriptionHandle,isReply);
+            return NetworkController.SendMessage(message, remoteSubscriptionHandle, isReply);
         }
 
         /// <summary>
@@ -67,7 +68,7 @@ namespace Ella
         /// <param name="port">The port.</param>
         internal static void ConnectToMulticast(string group, int port)
         {
-            NetworkController.ConnectToMulticastGroup(@group,port);
+            NetworkController.ConnectToMulticastGroup(@group, port);
         }
     }
 }

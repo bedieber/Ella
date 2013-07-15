@@ -26,7 +26,7 @@ namespace Ella.Network.Communication
     /// <summary>
     /// An udp server class used to listen on a port and receive messages sent over udp.
     /// </summary>
-    class UdpServer
+    internal class UdpServer : INetworkServer, IMulticastListener
     {
         private int _port;
 
@@ -34,12 +34,11 @@ namespace Ella.Network.Communication
 
         private ILog _log = LogManager.GetLogger(typeof(UdpServer));
 
-        public delegate void MessageEventHandler(object sender, MessageEventArgs e);
         public event MessageEventHandler NewMessage;
 
         private List<IPEndPoint> EndPointsMulticastGroup = new List<IPEndPoint>();
 
-        private List<Thread> _multicastThreads=new List<Thread>();
+        private List<Thread> _multicastThreads = new List<Thread>();
 
 
         /// <summary>
@@ -78,15 +77,15 @@ namespace Ella.Network.Communication
                 }
                 catch (ThreadInterruptedException)
                 {
-                    _log.DebugFormat("UDP Server Listener thread interrupted");
+                    _log.DebugFormat("UDP TcpServer Listener thread interrupted");
                 }
                 catch (ThreadAbortException)
                 {
-                    _log.DebugFormat("UDP Server Listener Thread aborted. Exiting");
+                    _log.DebugFormat("UDP TcpServer Listener Thread aborted. Exiting");
                 }
                 catch (Exception e)
                 {
-                    _log.ErrorFormat("Exception in Server: {0}",
+                    _log.ErrorFormat("Exception in TcpServer: {0}",
                                       e.Message);
                 }
             });
@@ -99,9 +98,9 @@ namespace Ella.Network.Communication
         /// </summary>
         /// <param name="group">The group.</param>
         /// <param name="port">The port.</param>
-        internal void ConnectToMulticastGroup(string group, int port)
+        public void ConnectToMulticastGroup(string group, int port)
         {
-            Thread t = new Thread((ThreadStart) delegate
+            Thread t = new Thread((ThreadStart)delegate
                 {
                     //Socket sock = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
                     //IPAddress groupIP = IPAddress.Parse(group);
@@ -120,7 +119,7 @@ namespace Ella.Network.Communication
                     EndPointsMulticastGroup.Add(endpoint);
 
                     UdpClient client = new UdpClient(endpoint);
-
+                    
                     IPEndPoint groupEp = new IPEndPoint(IPAddress.Parse(group), port);
                     client.Connect(groupEp);
 
@@ -153,7 +152,7 @@ namespace Ella.Network.Communication
                 NewMessage(this, new MessageEventArgs(msg) { Address = ep });
             }
             else
-                _log.DebugFormat("Server: No listeners for new messages found when processing UDP message");
+                _log.DebugFormat("TcpServer: No listeners for new messages found when processing UDP message");
         }
 
         /// <summary>
@@ -164,12 +163,12 @@ namespace Ella.Network.Communication
             _log.DebugFormat("Stopping udp server");
 
             StopThread(_udpListenerThread);
-            
+
             foreach (var multicastThread in _multicastThreads)
             {
-                StopThread(multicastThread);    
+                StopThread(multicastThread);
             }
-            _log.DebugFormat("Server stopped");
+            _log.DebugFormat("TcpServer stopped");
         }
 
         /// <summary>

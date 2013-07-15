@@ -34,8 +34,8 @@ namespace Ella.Network
     {
         private ILog _log = LogManager.GetLogger(typeof(Proxy));
         internal Event EventToHandle { get; set; }
-        internal Sender Sender { get; set; }
-        internal MulticastSender MulticastSender { get; set; }
+        internal IpSender IpSender { get; set; }
+        internal UdpSender UdpSender { get; set; }
 
         /// <summary>
         /// Creates the instance.
@@ -88,11 +88,11 @@ namespace Ella.Network
         {
             if (!EventToHandle.EventDetail.NeedsReliableTransport && m.Data.Length + 12 <= EllaConfiguration.Instance.MTU)
             {
-                MulticastSender.Send(m);
+                UdpSender.Send(m);
             }
             else
             {
-                Sender.Send(m);
+                IpSender.EnqueueMessage(m);
             }
         }
     }
