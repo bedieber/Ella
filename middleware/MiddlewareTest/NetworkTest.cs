@@ -50,7 +50,8 @@ namespace Ella
         [TestMethod]
         public void UnsubscribeFromNetwork()
         {
-            
+            throw new NotImplementedException();
+
             TestPublisher p = new TestPublisher();
             Start.Publisher(p);
             SubscriptionController.SubscribeRemoteSubscriber(typeof (string), 1, null, 3);
@@ -125,9 +126,6 @@ namespace Ella
             FakeNetworkController nc = new FakeNetworkController();
             Networking.NetworkController = nc;
             Networking.Start();
-
-            //TestPublisher p = new TestPublisher();
-            //Start.Publisher(p);
 
             TestSubscriber s = new TestSubscriber();
             s.Subscribe();
