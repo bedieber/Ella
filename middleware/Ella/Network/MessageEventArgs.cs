@@ -12,8 +12,9 @@
 
 using System;
 using System.Net;
+using Ella.Network.Communication;
 
-namespace Ella.Network.Communication
+namespace Ella.Network
 {
     /// <summary>
     /// A class used as an eventArgs for a new Networking message

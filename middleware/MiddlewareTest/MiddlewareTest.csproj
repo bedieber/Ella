@@ -51,6 +51,8 @@
   <ItemGroup>
     <Compile Include="Fakes\FakeNetworkController.cs" />
     <Compile Include="Fakes\FakeProxy.cs" />
+    <Compile Include="Fakes\FakeSender.cs" />
+    <Compile Include="Fakes\FakeServer.cs" />
     <Compile Include="HandleTest.cs" />
     <Compile Include="Management.Test.cs" />
     <Compile Include="Messaging.Test.cs" />

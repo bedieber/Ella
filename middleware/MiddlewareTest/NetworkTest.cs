@@ -52,44 +52,46 @@ namespace Ella
         {
             throw new NotImplementedException();
 
+            FakeNetworkController nc = new FakeNetworkController();
+            Networking.NetworkController = nc;
             TestPublisher p = new TestPublisher();
             Start.Publisher(p);
-            SubscriptionController.SubscribeRemoteSubscriber(typeof (string), 1, null, 3);
-            Assert.IsTrue(EllaModel.Instance.Subscriptions.Count == 2);
+            SubscriptionController.SubscribeRemoteSubscriber(typeof(string), 1, new IPEndPoint(IPAddress.Any, 3332), 3);
+            Assert.AreEqual(2,EllaModel.Instance.Subscriptions.Count);
             Message m = new Message(3);
             //ProcessUnsubscribe(new MessageEventArgs(m));
-            Assert.IsTrue(EllaModel.Instance.Subscriptions.Count == 0);
+            Assert.AreEqual(0,EllaModel.Instance.Subscriptions.Count);
         }
 
         [TestMethod]
         public void MulticastAddressIsInMulticastRange()
         {
-           string ip = "230.255.255.4";
-           EllaConfiguration.ValidateMulticastAddress(ip);
+            string ip = "230.255.255.4";
+            EllaConfiguration.ValidateMulticastAddress(ip);
         }
 
         [TestMethod]
         [ExpectedException(typeof(ConfigurationErrorsException))]
         public void MulticastAddressIsNotInMulticastRange()
         {
-                string ip = "241.255.255.24";
-                EllaConfiguration.ValidateMulticastAddress(ip);
+            string ip = "241.255.255.24";
+            EllaConfiguration.ValidateMulticastAddress(ip);
         }
 
         [TestMethod]
         public void SubscriptionOverNetworkIsPerfomedOnClient()
         {
-            FakeNetworkController nc=new FakeNetworkController();
+            FakeNetworkController nc = new FakeNetworkController();
             Networking.NetworkController = nc;
             Networking.Start();
 
-            TestSubscriber ts=new TestSubscriber();
+            TestSubscriber ts = new TestSubscriber();
             ts.Subscribe();
 
             TestSubscriber s = new TestSubscriber();
             s.Subscribe();
 
-            Assert.AreEqual(2,FakeNetworkController.Subscriptions[typeof(string)]);
+            Assert.AreEqual(2, FakeNetworkController.Subscriptions[typeof(string)]);
 
         }
 
@@ -110,14 +112,14 @@ namespace Ella
 
             p.PublishEvent();
 
-            byte[] b={1,2};
+            byte[] b = { 1, 2 };
 
             ApplicationMessage msg = new ApplicationMessage();
             msg.Data = b;
 
             Send.Message(msg, new RemoteSubscriptionHandle(), s);
 
-            Assert.AreEqual(1,FakeNetworkController.countMsg);
+            Assert.AreEqual(1, FakeNetworkController.countMsg);
         }
 
         [TestMethod]
@@ -146,7 +148,7 @@ namespace Ella
 
             MulticastRemoteSubscriptionhandle h = new MulticastRemoteSubscriptionhandle();
 
-            Networking.ConnectToMulticast(h.IpAddress,h.Port);
+            Networking.ConnectToMulticast(h.IpAddress, h.Port);
 
             TestSubscriber s = new TestSubscriber();
             s.Subscribe();
@@ -173,6 +175,39 @@ namespace Ella
             Stop.Ella();
 
             Assert.IsTrue(FakeNetworkController.shutDownMsgSent);
+        }
+
+        [TestMethod]
+        public void NetworkControllerSubscribeTo()
+        {
+            byte[] b = new byte[1024];
+
+            NetworkController nc = new NetworkController();
+            FakeServer server = new FakeServer();
+
+            nc.Servers.Add(server);
+            Networking.NetworkController = nc;
+            Networking.Start();
+
+            FakeSender sender = new FakeSender();
+            SenderBase.FactoryMethod = e => sender;
+
+            Message msg = new Message();
+            msg.Data = b;
+            msg.Sender = EllaConfiguration.Instance.NodeId + 1;
+            msg.Type = MessageType.Discover;
+
+            IPEndPoint ep = new IPEndPoint(IPAddress.Parse("234.234.234.4"), 3456);
+
+            server.DiscoveryMessageEvent(msg, ep);
+
+            TestPublisher p = new TestPublisher();
+            Start.Publisher(p);
+
+            TestSubscriber s = new TestSubscriber();
+            s.Subscribe();
+
+            Assert.AreEqual(1, sender._messages[MessageType.Subscribe]);
         }
     }
 }

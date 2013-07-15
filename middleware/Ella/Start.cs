@@ -10,11 +10,14 @@
 // applications, documentation, and source files.
 //=============================================================================
 
+using System.Net;
 using System.Threading;
+using Ella.Controller;
 using Ella.Exceptions;
 using Ella.Internal;
 using Ella.Model;
 using Ella.Network;
+using Ella.Network.Communication;
 using log4net;
 
 namespace Ella
@@ -52,6 +55,9 @@ namespace Ella
         public static void Network()
         {
             _log.Info("Starting network controller");
+            Networking.NetworkController = new NetworkController();
+            Networking.NetworkController.Servers.Add(new UdpServer(EllaConfiguration.Instance.NetworkPort));
+            Networking.NetworkController.Servers.Add(new TcpServer(EllaConfiguration.Instance.NetworkPort, IPAddress.Any));
             global::Ella.Networking.Start();
         }
 
@@ -65,7 +71,6 @@ namespace Ella
             //      Assembly.GetAssembly(typeof(Start)).Location)
             //     + @"\" + "Ella.dll.config"));
             //  _log.Info("Ella started");
-            Networking.NetworkController=new IpNetworkController();
         }
 
 

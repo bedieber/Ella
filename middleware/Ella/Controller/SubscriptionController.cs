@@ -172,12 +172,12 @@ namespace Ella.Controller
                         new Proxy()
                         : GetMulticastProxy(match);
                     proxy.EventToHandle = match;
-                    proxy.Sender = new Sender(subscriberAddress.Address.ToString(), subscriberAddress.Port);
+                    proxy.IpSender = new IpSender(subscriberAddress.Address.ToString(), subscriberAddress.Port);
                     
                     
                     //TODO make max queue size changeable
                     if (!match.EventDetail.NeedsReliableTransport)
-                        proxy.Sender.MaxQueueSize = 50;
+                        proxy.IpSender.MaxQueueSize = 50;
 
                     EllaModel.Instance.AddActiveSubscriber(proxy);
 
@@ -185,8 +185,8 @@ namespace Ella.Controller
                                                           ? new RemoteSubscriptionHandle()
                                                           : new MulticastRemoteSubscriptionhandle
                                                           {
-                                                              IpAddress = proxy.MulticastSender.TargetNode.Address.ToString(),
-                                                              Port = proxy.MulticastSender.TargetNode.Port
+                                                              IpAddress = proxy.UdpSender.TargetNode.Address.ToString(),
+                                                              Port = proxy.UdpSender.TargetNode.Port
                                                           };
                     handle.EventID = match.EventDetail.ID;
                     handle.PublisherId = EllaModel.Instance.GetPublisherId(match.Publisher);
@@ -217,7 +217,7 @@ namespace Ella.Controller
         private static Proxy GetMulticastProxy(Event match)
         {
             Proxy sender = ActiveProxies.FirstOrDefault(p => p.EventToHandle == match) ??
-                          new Proxy() { EventToHandle = match, MulticastSender = new MulticastSender() };
+                          new Proxy() { EventToHandle = match, UdpSender = new UdpSender() };
             return sender;
         }
 

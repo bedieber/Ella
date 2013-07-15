@@ -120,10 +120,12 @@ namespace Ella
         }
     }
 
+    [Publishes(typeof(bool),2,CopyPolicy = DataCopyPolicy.None)]
     [Publishes(typeof(string), 1, CopyPolicy = DataCopyPolicy.None)]
     public class CopyPolicyFalse
     {
         internal String data = "hello";
+        internal bool pub = true;
 
         [Factory]
         public CopyPolicyFalse() { }
@@ -138,5 +140,27 @@ namespace Ella
         {
             Publish.Event(data, this, 1);
         }
+
+        internal void PublishBool()
+        {
+            Publish.Event(pub,this,2);
+        }
+    }
+
+    [Publishes(typeof(string),1)]
+    [Publishes(typeof(int),2)]
+    public class EventAssociationPublisher
+    {
+         [Factory]
+        public EventAssociationPublisher() { }
+
+        [Start]
+        public void Run()
+        {
+            Associate.Events(1,2,this);
+        }
+
+        [Stop]
+        public void Stop() { }
     }
 }

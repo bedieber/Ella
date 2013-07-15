@@ -60,6 +60,7 @@ namespace Ella.Fakes
         }
 
         public bool IsRunning { get { return true; } }
+        public List<INetworkServer> Servers { get; private set; }
 
         public void ConnectToMulticastGroup(string @group, int port)
         {

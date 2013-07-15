@@ -1,6 +1,6 @@
 ﻿//=============================================================================
 // Project  : Ella Middleware
-// File    : Server.cs
+// File    : TcpServer.cs
 // Authors contact  : Bernhard Dieber (Bernhard.Dieber@aau.at)
 // Copyright 2013 by Bernhard Dieber, Jennifer Simonjan
 // This code is published under the Microsoft Public License (Ms-PL).  A copy
@@ -24,16 +24,11 @@ namespace Ella.Network.Communication
     /// <summary>
     /// A network server class used to listen on a port and reconstruct incoming messages
     /// </summary>
-    internal class Server
+    internal class TcpServer : INetworkServer
     {
 
-        private ILog _log = LogManager.GetLogger(typeof(Server));
-        /// <summary>
-        /// Definition for the eventhandler which will be notified of new messages
-        /// </summary>
-        /// <param name="sender">The sender.</param>
-        /// <param name="e">The <see cref="MessageEventArgs" /> instance containing the event data.</param>
-        public delegate void MessageEventHandler(object sender, MessageEventArgs e);
+        private ILog _log = LogManager.GetLogger(typeof(TcpServer));
+      
         /// <summary>
         /// Occurs when a new message arrives.
         /// </summary>
@@ -49,11 +44,11 @@ namespace Ella.Network.Communication
 
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Server" /> class.
+        /// Initializes a new instance of the <see cref="TcpServer" /> class.
         /// </summary>
         /// <param name="port">The port.</param>
         /// <param name="address">The address.</param>
-        public Server(int port, IPAddress address)
+        public TcpServer(int port, IPAddress address)
         {
             _port = port;
             _address = address;
@@ -64,13 +59,13 @@ namespace Ella.Network.Communication
         /// </summary>
         public void Start()
         {
-            _log.InfoFormat("Starting TCP Server on Port {0}, with listener attached: {1}", _port, NewMessage != null);
+            _log.InfoFormat("Starting TCP TcpServer on Port {0}, with listener attached: {1}", _port, NewMessage != null);
             _tpcListenerThread = new Thread((ThreadStart)delegate
                                                           {
                                                               TcpListener listener = new TcpListener(_address, _port);
                                                               listener.Start();
 
-                                                              _log.DebugFormat("Server: Started");
+                                                              _log.DebugFormat("TcpServer: Started");
                                                               try
                                                               {
                                                                   while (true)
@@ -86,15 +81,15 @@ namespace Ella.Network.Communication
                                                               }
                                                               catch (ThreadInterruptedException)
                                                               {
-                                                                  _log.DebugFormat("TCP Server Listener thread interrupted");
+                                                                  _log.DebugFormat("TCP TcpServer Listener thread interrupted");
                                                               }
                                                               catch (ThreadAbortException)
                                                               {
-                                                                  _log.DebugFormat("TCP Server Listener Thread aborted. Exiting");
+                                                                  _log.DebugFormat("TCP TcpServer Listener Thread aborted. Exiting");
                                                               }
                                                               catch (Exception e)
                                                               {
-                                                                  _log.ErrorFormat("Exception in Server: {0}",
+                                                                  _log.ErrorFormat("Exception in TcpServer: {0}",
                                                                                     e.Message);
                                                               }
                                                               finally
@@ -119,7 +114,7 @@ namespace Ella.Network.Communication
             {
                 if (NewMessage == null)
                 {
-                    _log.DebugFormat("Server: No listeners for new messages found when processing TCP message");
+                    _log.DebugFormat("TcpServer: No listeners for new messages found when processing TCP message");
                     return;
                 }
 

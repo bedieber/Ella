@@ -27,30 +27,21 @@ namespace Ella
         internal bool ReplyReceived { get; set; }
 
 
+        #region Subscribe
 
         internal void Subscribe()
         {
             Ella.Subscribe.To<string>(this, Callback, subscriptionCallback: SubscriptionCallback);
         }
 
-        private void SubscriptionCallback(Type arg1, SubscriptionHandle arg2)
-        {
-            h = arg2;
-            SubscriptionCallBackHandle.Add(arg2);
-        }
-
-        private void Callback(string s, SubscriptionHandle handle)
-        {
-            
-            NewDataHandle.Add(handle);
-            rec = (string)s;
-            if (rec == "hello")
-                numEventsReceived++;
-        }
-        #region Subscriptions
         internal void SubscribeWithObject()
         {
             Ella.Subscribe.To<String>(this, Callback, evaluateTemplateObject: EvaluateTemplateObject);
+        }
+
+        internal void SubscribeToBool()
+        {
+            Ella.Subscribe.To<bool>(this,BoolCallback);
         }
 
         private bool EvaluateTemplateObject(string s)
@@ -68,6 +59,10 @@ namespace Ella
             Ella.Subscribe.To<String>(this, Callback, DataModifyPolicy.NoModify);
         }
 
+#endregion 
+
+        #region Unsubscribe
+
         internal void UnsubscribeFromString()
         {
             Ella.Unsubscribe.From<String>(this);
@@ -83,7 +78,40 @@ namespace Ella
             Ella.Unsubscribe.From(this,h);
         }
 
+        internal void UnsubscribeFromObject()
+        {
+            Ella.Unsubscribe.From(this);
+        }
+
         #endregion
+
+        #region Callbacks
+
+
+        private void SubscriptionCallback(Type arg1, SubscriptionHandle arg2)
+        {
+            h = arg2;
+            SubscriptionCallBackHandle.Add(arg2);
+        }
+
+        private void Callback(string s, SubscriptionHandle handle)
+        {
+
+            NewDataHandle.Add(handle);
+            rec = (string)s;
+            if (rec == "hello")
+                numEventsReceived++;
+        }
+
+        private void BoolCallback(bool t, SubscriptionHandle h)
+        {
+            NewDataHandle.Add(h);
+        }
+
+        #endregion
+
+        #region Messages
+        
         internal void SendMessage()
         {
             ApplicationMessage msg = new ApplicationMessage { Data = new byte[1], MessageId = 0, MessageType = 1 };
@@ -98,6 +126,8 @@ namespace Ella
                 ReplyReceived = true;
         }
 
+        #endregion
+
         [Associate]
         public void Associate(SubscriptionHandle first, SubscriptionHandle second)
         {
@@ -106,6 +136,9 @@ namespace Ella
         }
     }
 
+
+    #region Subscribers
+    
     [Subscriber]
     public class TestSubscriberMethodFactory
     {
@@ -133,5 +166,5 @@ namespace Ella
         static TestSubscriberStaticConstructerFactory() { }
     }
 
-
+    #endregion
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.IO;
 using System.Reflection;
 using System.Text;
@@ -6,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Ella;
+using Ella.Internal;
 using Ella.Model;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -119,6 +121,23 @@ namespace Ella
         }
 
         [TestMethod]
+        public void UnsubscribeFromObject()
+        {
+            CopyPolicyFalse p = new CopyPolicyFalse();
+            Start.Publisher(p);
+
+            TestSubscriber s = new TestSubscriber();
+            s.Subscribe();
+            s.SubscribeToBool();
+
+            Thread.Sleep(1000);
+
+            s.UnsubscribeFromObject();
+
+            Assert.AreEqual(0,EllaModel.Instance.Subscriptions.Count);
+        }
+
+        [TestMethod]
         public void EventAssociationsAreDeliverdOnce()
         {
             TestPublisher p = new TestPublisher();
@@ -139,6 +158,27 @@ namespace Ella
             Start.Publisher(p);
             Thread.Sleep(1000);
             Assert.AreEqual(2, s.NumAssociationsReceived);
+        }
+
+        [TestMethod]
+        public void AssociateEvents()
+        {
+            EventAssociationPublisher p = new EventAssociationPublisher();
+            Start.Publisher(p);
+
+            EventHandle handle = new EventHandle()
+            {
+                EventId = 1,
+                PublisherId = EllaModel.Instance.GetPublisherId(p),
+                PublisherNodeId = EllaConfiguration.Instance.NodeId,
+            };
+
+            Thread.Sleep(1000);
+
+            IEnumerable<EventHandle> ev= EllaModel.Instance.GetEventCorrelations(handle);
+
+            Assert.AreEqual(1, ev.Count());
+            Assert.AreEqual(2,ev.ElementAt(0).EventId);
         }
 
     }
