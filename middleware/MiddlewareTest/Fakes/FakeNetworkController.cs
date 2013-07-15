@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Ella.Control;
+using Ella.Internal;
 using Ella.Network;
 
 namespace Ella.Fakes
@@ -10,10 +11,11 @@ namespace Ella.Fakes
     internal class FakeNetworkController : INetworkController
     {
         public static Dictionary<Type, int> Subscriptions { get; set; }
-        public static int countMsg ;
+        public static int countMsg;
         public static bool unsubscribed = false;
         public static bool started = false;
-        public static bool connectedToMulticastgroup=false;
+        public static bool connectedToMulticastgroup = false;
+        public static bool shutDownMsgSent = false;
 
         public FakeNetworkController()
         {
@@ -31,6 +33,8 @@ namespace Ella.Fakes
             {
                 Subscriptions.Add(type, 1);
             }
+
+            callback(new RemoteSubscriptionHandle { PublisherNodeID = EllaConfiguration.Instance.NodeId + 1 });
         }
 
         public bool SendMessage(ApplicationMessage message, RemoteSubscriptionHandle remoteSubscriptionHandle, bool isReply = false)
@@ -47,7 +51,7 @@ namespace Ella.Fakes
 
         public void SendShutdownMessage()
         {
-            throw new NotImplementedException();
+            shutDownMsgSent = true;
         }
 
         public void Start()

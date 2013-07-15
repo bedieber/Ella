@@ -80,7 +80,7 @@ namespace Ella
 
         internal void UnsubscribeFromRemote()
         {
-            Ella.Unsubscribe.From(this,new RemoteSubscriptionHandle());
+            Ella.Unsubscribe.From(this,h);
         }
 
         #endregion

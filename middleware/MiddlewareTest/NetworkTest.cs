@@ -50,7 +50,7 @@ namespace Ella
         [TestMethod]
         public void UnsubscribeFromNetwork()
         {
-            throw new NotImplementedException();
+            
             TestPublisher p = new TestPublisher();
             Start.Publisher(p);
             SubscriptionController.SubscribeRemoteSubscriber(typeof (string), 1, null, 3);
@@ -126,15 +126,14 @@ namespace Ella
             Networking.NetworkController = nc;
             Networking.Start();
 
-            TestPublisher p = new TestPublisher();
-            Start.Publisher(p);
+            //TestPublisher p = new TestPublisher();
+            //Start.Publisher(p);
 
             TestSubscriber s = new TestSubscriber();
             s.Subscribe();
 
             Thread.Sleep(1000);
 
-            //ruft die lokale unsubscribe statt die remote auf
             s.UnsubscribeFromRemote();
 
             Assert.IsTrue(FakeNetworkController.unsubscribed);
@@ -164,6 +163,18 @@ namespace Ella
             nc.Start();
 
             Assert.IsTrue(FakeNetworkController.started);
+        }
+
+        [TestMethod]
+        public void SendShutDownMessageOverNetwork()
+        {
+            FakeNetworkController nc = new FakeNetworkController();
+            Networking.NetworkController = nc;
+            Networking.Start();
+
+            Stop.Ella();
+
+            Assert.IsTrue(FakeNetworkController.shutDownMsgSent);
         }
     }
 }
