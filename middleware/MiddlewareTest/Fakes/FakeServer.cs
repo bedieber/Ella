@@ -10,13 +10,14 @@ using Ella.Network.Communication;
 
 namespace Ella.Fakes
 {
-    class FakeServer : INetworkServer 
+    class FakeServer : INetworkServer , IMulticastListener
     {
         public event MessageEventHandler NewMessage;
+        public bool _startedNetwork = false, _connectedToMulticastGroup=false;
         
         public void Start()
         {
-            
+            _startedNetwork = true;
         }
 
         public void Stop()
@@ -49,6 +50,11 @@ namespace Ella.Fakes
             Message m = new Message { Type = MessageType.SubscribeResponse, Data = reply, Sender = h.PublisherNodeID};
 
             NewMessage(this, new MessageEventArgs(m));
+        }
+
+        public void ConnectToMulticastGroup(string group, int port)
+        {
+            _connectedToMulticastGroup = true;
         }
     }
 }

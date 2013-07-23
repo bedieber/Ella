@@ -79,7 +79,7 @@ namespace Ella
         }
 
         [TestMethod]
-        public void SubscriptionOverNetworkIsPerfomedOnClient()
+        public void FakeNetworkControllerSubscription()
         {
             FakeNetworkController nc = new FakeNetworkController();
             Networking.NetworkController = nc;
@@ -96,21 +96,21 @@ namespace Ella
         }
 
         [TestMethod]
-        public void ApplicationMessageIsSentOverNetwork()
+        public void FakeNetworkControllerApplicationMessageIsSent()
         {
             FakeNetworkController nc = new FakeNetworkController();
             Networking.NetworkController = nc;
             Networking.Start();
 
-            TestPublisher p = new TestPublisher();
-            Start.Publisher(p);
+            //TestPublisher p = new TestPublisher();
+            //Start.Publisher(p);
 
             TestSubscriber s = new TestSubscriber();
             s.Subscribe();
 
-            Thread.Sleep(1000);
+            //Thread.Sleep(1000);
 
-            p.PublishEvent();
+            //p.PublishEvent();
 
             byte[] b = { 1, 2 };
 
@@ -123,7 +123,7 @@ namespace Ella
         }
 
         [TestMethod]
-        public void UnsubscribeOverNetwork()
+        public void FakeNetworkControllerUnsubscribe()
         {
             FakeNetworkController nc = new FakeNetworkController();
             Networking.NetworkController = nc;
@@ -140,7 +140,7 @@ namespace Ella
         }
 
         [TestMethod]
-        public void ConnectToMulticastGroupOverNetwork()
+        public void FakeNetworkControllerConnectToMulticastGroup()
         {
             FakeNetworkController nc = new FakeNetworkController();
             Networking.NetworkController = nc;
@@ -157,7 +157,7 @@ namespace Ella
         }
 
         [TestMethod]
-        public void StartNetworking()
+        public void FakeNetworkControllerStartNetworking()
         {
             FakeNetworkController nc = new FakeNetworkController();
             nc.Start();
@@ -166,7 +166,7 @@ namespace Ella
         }
 
         [TestMethod]
-        public void SendShutDownMessageOverNetwork()
+        public void FakeNetworkControllerSendShutDownMessage()
         {
             FakeNetworkController nc = new FakeNetworkController();
             Networking.NetworkController = nc;
@@ -255,6 +255,116 @@ namespace Ella
             Thread.Sleep(1000);
 
             Assert.AreEqual(1,sender._messages[MessageType.Unsubscribe]);
+        }
+
+        [TestMethod]
+        public void NetworkControllerSendShutDownMessage()
+        {
+            byte[] b = new byte[1024];
+
+            NetworkController nc = new NetworkController();
+            FakeServer server = new FakeServer();
+            FakeSender sender = new FakeSender();
+
+            nc.Servers.Add(server);
+            Networking.NetworkController = nc;
+            Networking.Start();
+
+            SenderBase.FactoryMethod = e => sender;
+
+            Message msg = new Message();
+            msg.Data = b;
+            msg.Sender = EllaConfiguration.Instance.NodeId + 1;
+            msg.Type = MessageType.Discover;
+
+            IPEndPoint ep = new IPEndPoint(IPAddress.Parse("234.234.234.4"), 3456);
+
+            server.DiscoveryMessageEvent(msg, ep);
+
+            Stop.Ella();
+
+            Assert.AreEqual(1,sender._messages[MessageType.NodeShutdown]);
+        }
+
+        [TestMethod]
+        public void NetworkControllerStart()
+        {
+            NetworkController nc = new NetworkController();
+            FakeServer server = new FakeServer();
+            FakeSender sender = new FakeSender();
+
+            nc.Servers.Add(server);
+            Networking.NetworkController = nc;
+            Networking.Start();
+
+            Assert.IsTrue(server._startedNetwork);
+        }
+
+        [TestMethod]
+        public void NetworkControllerConnectToMulticastGroup()
+        {
+          
+            NetworkController nc = new NetworkController();
+            FakeServer server = new FakeServer();
+            FakeSender sender = new FakeSender();
+
+            nc.Servers.Add(server);
+            Networking.NetworkController = nc;
+            Networking.Start();
+
+            SenderBase.FactoryMethod = e => sender;
+
+            MulticastRemoteSubscriptionhandle h = new MulticastRemoteSubscriptionhandle();
+        
+            Networking.ConnectToMulticast(h.IpAddress,h.Port);
+
+            TestSubscriber s = new TestSubscriber();
+            s.Subscribe();
+
+            Assert.IsTrue(server._connectedToMulticastGroup);
+        }
+
+        [TestMethod]
+        public void NetworkControllerSendMessage()
+        {
+            byte[] data = new byte[1024];
+
+            NetworkController nc = new NetworkController();
+            FakeServer server = new FakeServer();
+            FakeSender sender = new FakeSender();
+
+            nc.Servers.Add(server);
+            Networking.NetworkController = nc;
+            Networking.Start();
+
+            SenderBase.FactoryMethod = e => sender;
+
+            Message msg = new Message();
+            msg.Data = data;
+            msg.Sender = EllaConfiguration.Instance.NodeId +1;
+            msg.Type = MessageType.Discover;
+
+            IPEndPoint ep = new IPEndPoint(IPAddress.Parse("234.234.234.4"), 3456);
+
+            server.DiscoveryMessageEvent(msg, ep);
+
+            TestSubscriber s = new TestSubscriber();
+            s.Subscribe();
+
+            byte[] b = { 1, 2 };
+
+            ApplicationMessage app = new ApplicationMessage();
+            app.Data = b;
+
+            RemoteSubscriptionHandle rh = new RemoteSubscriptionHandle();
+            rh.PublisherNodeID = EllaConfiguration.Instance.NodeId + 1;
+
+            Send.Message(app, rh, s);
+
+            Thread.Sleep(1000);
+
+            Assert.AreEqual(1,sender._messages[MessageType.ApplicationMessage]);
+            
         }
     }
 }
