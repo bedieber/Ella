@@ -207,7 +207,54 @@ namespace Ella
             TestSubscriber s = new TestSubscriber();
             s.Subscribe();
 
-            Assert.AreEqual(1, sender._messages[MessageType.Subscribe]);
+            TestSubscriber s2 = new TestSubscriber();
+            s2.Subscribe();
+
+            Thread.Sleep(1000);
+
+            Assert.AreEqual(2, sender._messages[MessageType.Subscribe]);
+        }
+
+        [TestMethod]
+        public void NetworkControllerUnsubscribeFrom()
+        {
+            byte[] b = new byte[1024];
+
+            NetworkController nc = new NetworkController();
+            FakeServer fs = new FakeServer();
+            FakeSender sender = new FakeSender();
+
+            nc.Servers.Add(fs);
+            Networking.NetworkController = nc;
+            Networking.Start();
+
+            SenderBase.FactoryMethod = e => sender;
+
+            //this discoveryMessage is required to add the Instance to the RemoteHosts,
+            //which is used in the NetworkController to send messages, subscribe, unsubscribe.. 
+            //must call these MessageProcessor methods by hand, because the FakeSender just fakes the Send() implementation
+            Message msg = new Message();
+            msg.Data = b;
+            msg.Sender = EllaConfiguration.Instance.NodeId + 1;
+            msg.Type = MessageType.Discover;
+
+            IPEndPoint ep = new IPEndPoint(IPAddress.Parse("234.234.234.4"), 3456);
+
+            fs.DiscoveryMessageEvent(msg, ep);
+
+            TestSubscriber s = new TestSubscriber();
+            s.Subscribe();
+
+            Thread.Sleep(1000);
+
+            //after subscription is done: new MessageEvent of Type SubscribeResponse is faked in FakeServer
+            fs.SubscribeResponseMessageEvent(sender._id);
+
+            s.UnsubscribeFromRemote();
+
+            Thread.Sleep(1000);
+
+            Assert.AreEqual(1,sender._messages[MessageType.Unsubscribe]);
         }
     }
 }

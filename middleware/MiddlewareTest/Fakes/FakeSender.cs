@@ -12,9 +12,12 @@ namespace Ella.Fakes
     class FakeSender : SenderBase
     {
         internal readonly Dictionary<MessageType, int> _messages = new Dictionary<MessageType, int>();
+        public int _id = 0;
 
         internal override void Send(Message m)
         {
+            _id = m.Id;
+
             if (!_messages.ContainsKey(m.Type))
             {
                 _messages.Add(m.Type, 1);

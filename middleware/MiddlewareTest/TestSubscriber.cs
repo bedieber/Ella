@@ -96,7 +96,7 @@ namespace Ella
 
         private void Callback(string s, SubscriptionHandle handle)
         {
-
+            h = handle;
             NewDataHandle.Add(handle);
             rec = (string)s;
             if (rec == "hello")
