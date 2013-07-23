@@ -180,6 +180,45 @@ namespace Ella
             Assert.AreEqual(1, ev.Count());
             Assert.AreEqual(2,ev.ElementAt(0).EventId);
         }
+        [TestMethod]
+        public void PublisherWithCallbackMethod()
+        {
+            PublisherWithCallbackMethod p = new PublisherWithCallbackMethod();
+            Start.Publisher(p);
+
+            TestSubscriber s = new TestSubscriber();
+            s.SubscribeForPublisherWithCallbackMethod();
+
+            TestSubscriber x = new TestSubscriber();
+            x.SubscribeForPublisherWithCallbackMethod();
+
+            Thread.Sleep(1000);
+
+            Assert.IsTrue(p.callback.Equals(2));
+        }
+
+        [TestMethod]
+        public void PublishesEventsToSpecificSubscribers()
+        {
+            PublishesEventsToSpecificSubscribers p = new PublishesEventsToSpecificSubscribers();
+            Start.Publisher(p);
+
+            TestSubscriber s = new TestSubscriber();
+            s.SubscribeForPublisherWithSpecificSubscribers();
+
+            TestSubscriber x = new TestSubscriber();
+            x.SubscribeForPublisherWithSpecificSubscribers();
+
+            TestSubscriber y = new TestSubscriber();
+            y.SubscribeForPublisherWithSpecificSubscribers();
+
+            Thread.Sleep(1000);
+
+            p.PublishEvent();
+
+            Assert.IsTrue(s.numEventsReceived.Equals(1));
+            Assert.IsTrue(y.numEventsReceived.Equals(1));
+        }
 
     }
 }

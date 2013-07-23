@@ -40,8 +40,9 @@ namespace Ella
         /// <param name="eventData">The event data to be delivered to subscribers.</param>
         /// <param name="publisher">The publisher publishing the event.</param>
         /// <param name="eventId">The publisher-internal event ID associated with this event </param>
+        /// <param name="subscribers">A list of subscribers, to which the events should be published. If it is null, all subscribers get the event.</param>
         /// <exception cref="InvalidPublisherException"></exception>
-        public static void Event<T>(T eventData, object publisher, int eventId)
+        public static void Event<T>(T eventData, object publisher, int eventId,List<SubscriptionHandle> subscribers =null )
         {
             _log.DebugFormat("{0} publishes {1} for event {2}", publisher, eventData, eventId);
             if (Is.Publisher(publisher.GetType()))
@@ -77,10 +78,45 @@ namespace Ella
                     {
                         data = Serializer.SerializeCopy(eventData);
                     }
-                    foreach (var sub in subscriptionsArray)
+
+                    if (subscribers == null)
                     {
-                        Thread t = new Thread(() => sub.CallbackMethod.Invoke(sub.CallbackTarget, new object[] { sub.ModifyPolicy == DataModifyPolicy.Modify ? Serializer.SerializeCopy(data) : data, sub.Handle }));
-                        t.Start();
+                        foreach (var sub in subscriptionsArray)
+                        {
+                            Thread t =
+                                new Thread(
+                                    () =>
+                                    sub.CallbackMethod.Invoke(sub.CallbackTarget,
+                                                              new object[]
+                                                                  {
+                                                                      sub.ModifyPolicy == DataModifyPolicy.Modify
+                                                                          ? Serializer.SerializeCopy(data)
+                                                                          : data,
+                                                                      sub.Handle
+                                                                  }));
+                            t.Start();
+                        }
+                    }
+                    else
+                    {
+                        foreach (var sub in subscriptionsArray)
+                        {
+                            if (subscribers.Contains(sub.Handle))
+                            {
+                                Thread t =
+                                new Thread(
+                                    () =>
+                                    sub.CallbackMethod.Invoke(sub.CallbackTarget,
+                                                              new object[]
+                                                                  {
+                                                                      sub.ModifyPolicy == DataModifyPolicy.Modify
+                                                                          ? Serializer.SerializeCopy(data)
+                                                                          : data,
+                                                                      sub.Handle
+                                                                  }));
+                                t.Start();
+                            }
+                        }
                     }
                 }
             }

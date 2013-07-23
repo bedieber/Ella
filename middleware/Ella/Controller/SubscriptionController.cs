@@ -98,6 +98,9 @@ namespace Ella.Controller
                             Handle = handle,
                             DataType = typeof(T)
                         };
+
+
+
                     if (templateObject == null || evaluateTemplateObject(template))
                     {
                         if (!EllaModel.Instance.Subscriptions.Contains(subscription))
@@ -109,15 +112,18 @@ namespace Ella.Controller
                             {
                                 subscriptionCallback(typeof(T), subscription.Handle);
                             }
+                            NotifyPublisher(subscription.Event, subscription.Handle);
                             if (associateMethod != null)
                             {
                                 var correlations = EllaModel.Instance.GetEventCorrelations(handle.EventHandle);
                                 if (correlations != null)
                                 {
-                                    foreach (SubscriptionHandle correlationHandle in correlations.Select(correlation => new SubscriptionHandle()
-                                        {
-                                            EventHandle = correlation,
-                                        }))
+                                    foreach (
+                                        SubscriptionHandle correlationHandle in
+                                            correlations.Select(correlation => new SubscriptionHandle()
+                                                {
+                                                    EventHandle = correlation,
+                                                }))
                                     {
                                         correlationHandle.SubscriberId =
                                             handle.SubscriberId;
@@ -130,7 +136,9 @@ namespace Ella.Controller
                         }
                     }
                     else
+                    {
                         _log.DebugFormat("Templateobject from {0} was rejected by {1}", m.Publisher, subscriberInstance);
+                    }
                 }
                 if (associateMethod != null)
                 {
@@ -147,6 +155,8 @@ namespace Ella.Controller
                                                    new object[] { handlePair.Key, handlePair.Value });
                     }
                 }
+
+
             }
         }
 
@@ -173,8 +183,8 @@ namespace Ella.Controller
                         : GetMulticastProxy(match);
                     proxy.EventToHandle = match;
                     proxy.IpSender = new IpSender(subscriberAddress.Address.ToString(), subscriberAddress.Port);
-                    
-                    
+
+
                     //TODO make max queue size changeable
                     if (!match.EventDetail.NeedsReliableTransport)
                         proxy.IpSender.MaxQueueSize = 50;
@@ -203,10 +213,31 @@ namespace Ella.Controller
                                     match.EventDetail.DataType);
                     EllaModel.Instance.Subscriptions.Add(subscription);
                     handles.Add(handle);
+
+                    NotifyPublisher(match, handle);
                 }
                 return handles;
             }
             return null;
+        }
+
+
+        internal static void NotifyPublisher(Event ev, SubscriptionHandle handle)
+        {
+            string callback = ev.EventDetail.SubscriptionCallback;
+
+            if (callback == null)
+                return;
+
+            MethodInfo info = ev.Publisher.GetType().GetMethod(callback);
+
+
+            if (info != null)
+            {
+                object[] parameters = { ev.EventDetail.ID, handle };
+                info.Invoke(ev.Publisher, parameters);
+            }
+
         }
 
         /// <summary>
@@ -233,7 +264,7 @@ namespace Ella.Controller
 
             //Create a stub
             Stub<T> s = new Stub<T> { DataType = typeof(T), Handle = handle };
-            
+
             var publishesAttribute = (PublishesAttribute)s.GetType().GetCustomAttributes(typeof(PublishesAttribute), false).First();
 
             if (handle is MulticastRemoteSubscriptionhandle)
@@ -296,5 +327,7 @@ namespace Ella.Controller
 
             _log.DebugFormat("{0} local subscriptions have been removed.", removedSubscriptions);
         }
+
+
     }
 }

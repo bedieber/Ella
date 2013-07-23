@@ -11,7 +11,7 @@ namespace Ella
     [TestClass]
     public class Management
     {
-        private const int NumPublishers = 6;
+        private const int NumPublishers = 9;
         private const int NumSubscribers = 5;
 
         [TestInitialize]

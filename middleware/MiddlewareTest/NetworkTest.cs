@@ -23,46 +23,6 @@ namespace Ella
             EllaModel.Instance.Reset();
         }
 
-        //[TestMethod]
-        //public void CreateGenericSubsription()
-        //{
-        //    FakeProxy proxy = new FakeProxy();
-
-        //    SubscriptionBase subscription = ReflectionUtils.CreateGenericSubscription(typeof(Image<Bgr,byte>), new Event(), proxy);
-        //    Assert.IsInstanceOfType(subscription, typeof(Subscription<Image<Bgr, byte>>));
-        //    Subscription<Image<Bgr, byte>> sub = subscription as Subscription<Image<Bgr, byte>>;
-        //    sub.Callback(new Image<Bgr, byte>(320,240), null);
-        //    Assert.IsTrue(proxy.eventReceived);
-        //}
-
-        //[TestMethod]
-        //public void CreateGenericSubsriptionForValueType()
-        //{
-        //    FakeProxy proxy = new FakeProxy();
-
-        //    SubscriptionBase subscription = ReflectionUtils.CreateGenericSubscription(typeof(DateTime), new Event(), proxy);
-        //    Assert.IsInstanceOfType(subscription, typeof(Subscription<DateTime>));
-        //    Subscription<DateTime> sub = subscription as Subscription<DateTime>;
-        //    sub.Callback(DateTime.Now, null);
-        //    Assert.IsTrue(proxy.eventReceived);
-        //}
-
-        [TestMethod]
-        public void UnsubscribeFromNetwork()
-        {
-            throw new NotImplementedException();
-
-            FakeNetworkController nc = new FakeNetworkController();
-            Networking.NetworkController = nc;
-            TestPublisher p = new TestPublisher();
-            Start.Publisher(p);
-            SubscriptionController.SubscribeRemoteSubscriber(typeof(string), 1, new IPEndPoint(IPAddress.Any, 3332), 3);
-            Assert.AreEqual(2,EllaModel.Instance.Subscriptions.Count);
-            Message m = new Message(3);
-            //ProcessUnsubscribe(new MessageEventArgs(m));
-            Assert.AreEqual(0,EllaModel.Instance.Subscriptions.Count);
-        }
-
         [TestMethod]
         public void MulticastAddressIsInMulticastRange()
         {

@@ -163,4 +163,63 @@ namespace Ella
         [Stop]
         public void Stop() { }
     }
+
+    [Publishes(typeof(bool),1,CopyPolicy = DataCopyPolicy.None,NeedsReliableTransport = false,SubscriptionCallback = "Callback")]
+    public class PublisherWithCallbackMethod
+    {
+        internal bool b = true;
+        internal int callback = 0;
+
+        [Factory]
+        public PublisherWithCallbackMethod() { }
+
+        [Start]
+        public void Run() { }
+
+        [Stop]
+        public void Stop() { }
+
+        internal void PublishEvent()
+        {
+            Publish.Event(b, this, 1);
+        }
+
+        public void Callback(int id, SubscriptionHandle h)
+        {
+            callback++;
+        }
+
+    }
+
+    [Publishes(typeof(bool), 1, SubscriptionCallback = "Callback")]
+    public class PublishesEventsToSpecificSubscribers
+    {
+        private bool b = true;
+        private int i = 0;
+        private List<SubscriptionHandle> list = new List<SubscriptionHandle>();
+
+        [Factory]
+        public PublishesEventsToSpecificSubscribers() {}
+
+         [Start]
+        public void Run() { }
+
+        [Stop]
+        public void Stop() { }
+
+        internal void PublishEvent()
+        {
+            Publish.Event(b,this,1,list);
+        }
+
+        public void Callback(int id, SubscriptionHandle handle)
+        {
+            if (i%2 == 0)
+            {
+                list.Add(handle);
+            }
+            i++;
+        }
+    }
+
 }

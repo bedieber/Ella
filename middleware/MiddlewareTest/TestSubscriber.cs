@@ -26,9 +26,7 @@ namespace Ella
 
         internal bool ReplyReceived { get; set; }
 
-
         #region Subscribe
-
         internal void Subscribe()
         {
             Ella.Subscribe.To<string>(this, Callback, subscriptionCallback: SubscriptionCallback);
@@ -81,6 +79,16 @@ namespace Ella
         internal void UnsubscribeFromObject()
         {
             Ella.Unsubscribe.From(this);
+        }
+
+        internal void SubscribeForPublisherWithCallbackMethod()
+        {
+            Ella.Subscribe.To<bool>(this,BoolCallback);
+        }
+
+        internal void SubscribeForPublisherWithSpecificSubscribers()
+        {
+            Ella.Subscribe.To<bool>(this,BoolCallback);
         }
 
         #endregion
