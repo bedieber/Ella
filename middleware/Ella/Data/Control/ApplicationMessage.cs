@@ -55,7 +55,7 @@ namespace Ella.Control
         /// <summary>
         /// The subscriptionhandle
         /// </summary>
-        internal SubscriptionHandle Handle { get; set; }
+        public SubscriptionHandle Handle { get; internal set; }
 
         /// <summary>
         /// Returns a <see cref="System.String" /> that represents this instance.
