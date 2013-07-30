@@ -17,7 +17,7 @@ namespace Ella.Network
 {
     internal class MessageProcessor
     {
-        private ILog _log = LogManager.GetLogger(typeof (MessageProcessor));
+        private ILog _log = LogManager.GetLogger(typeof(MessageProcessor));
         private readonly Dictionary<int, EndPoint> _remoteHosts = new Dictionary<int, EndPoint>();
         internal Dictionary<int, Type> SubscriptionCache { get; set; }
 
@@ -47,47 +47,47 @@ namespace Ella.Network
             switch (e.Message.Type)
             {
                 case MessageType.Discover:
-                {
-                    ProcessDiscover(e);
-                    break;
-                }
+                    {
+                        ProcessDiscover(e);
+                        break;
+                    }
                 case MessageType.DiscoverResponse:
-                {
-                    ProcessDiscoverResponse(e);
-                    break;
-                }
+                    {
+                        ProcessDiscoverResponse(e);
+                        break;
+                    }
                 case MessageType.Publish:
-                {
-                    ProcessPublish(e);
+                    {
+                        ProcessPublish(e);
 
-                    break;
-                }
+                        break;
+                    }
                 case MessageType.Subscribe:
-                {
-                    ProcessSubscribe(e);
-                    break;
-                }
+                    {
+                        ProcessSubscribe(e);
+                        break;
+                    }
                 case MessageType.SubscribeResponse:
-                {
-                    ProcessSubscribeResponse(e);
-                    break;
-                }
+                    {
+                        ProcessSubscribeResponse(e);
+                        break;
+                    }
                 case MessageType.Unsubscribe:
-                {
-                    ProcessUnsubscribe(e);
-                    break;
-                }
+                    {
+                        ProcessUnsubscribe(e);
+                        break;
+                    }
                 case MessageType.ApplicationMessage:
-                {
-                    ApplicationMessage msg = Serializer.Deserialize<ApplicationMessage>(e.Message.Data);
-                    Send.DeliverApplicationMessage(msg);
-                    break;
-                }
+                    {
+                        ApplicationMessage msg = Serializer.Deserialize<ApplicationMessage>(e.Message.Data);
+                        Send.DeliverApplicationMessage(msg);
+                        break;
+                    }
                 case MessageType.ApplicationMessageResponse:
-                {
-                    ProcessApplicationMessageResponse(e);
-                    break;
-                }
+                    {
+                        ProcessApplicationMessageResponse(e);
+                        break;
+                    }
                 case MessageType.EventCorrelation:
                     ProcessEventCorrelation(e);
                     break;
@@ -188,6 +188,10 @@ namespace Ella.Network
                     Networking.Unsubscribe(inResponseTo, e.Message.Sender);
                 }
             }
+            else
+            {
+                _log.Debug("Received SubscriptionResponse message with no payload");
+            }
         }
 
         /// <summary>
@@ -207,8 +211,8 @@ namespace Ella.Network
             }
             //get the subscriptions that this node is already subscribed for, to avoid double subscriptions
             var currentHandles = (from s1 in (EllaModel.Instance.Subscriptions.Where(s => s.Event.EventDetail.DataType == type).Select(s => s.Handle)).OfType<RemoteSubscriptionHandle>()
-                where s1.SubscriberNodeID == e.Message.Sender
-                select s1).ToList().GroupBy(s => s.SubscriptionReference);
+                                  where s1.SubscriberNodeID == e.Message.Sender
+                                  select s1).ToList().GroupBy(s => s.SubscriptionReference);
 
             IEnumerable<RemoteSubscriptionHandle> handles = SubscriptionController.SubscribeRemoteSubscriber(type, e.Message.Sender,
                 (IPEndPoint)
@@ -254,7 +258,7 @@ namespace Ella.Network
                 SenderBase.SendAsync(m, ep);
             }
             _log.Debug("Checking for relevant event correlations");
-
+            Thread.Sleep(1000);
             if (handles != null)
             {
                 /*
@@ -331,15 +335,24 @@ namespace Ella.Network
             byte[] data = new byte[e.Message.Data.Length - 4];
             Buffer.BlockCopy(e.Message.Data, 4, data, 0, data.Length);
             var subscriptions = from s in EllaModel.Instance.Subscriptions
-                let h = (s.Handle as RemoteSubscriptionHandle)
-                where h != null && h == handle
-                select s;
+                                let h = (s.Handle as RemoteSubscriptionHandle)
+                                where h != null && CompareSubscriptionHandles(handle, h)
+                                select s;
             var subs = subscriptions as SubscriptionBase[] ?? subscriptions.ToArray();
             _log.DebugFormat("Found {0} subscriptions for handle {1}", subs.Length, handle);
             foreach (var sub in subs)
             {
                 (sub.Event.Publisher as Stub).NewMessage(data);
             }
+        }
+
+        private static bool CompareSubscriptionHandles(RemoteSubscriptionHandle handle, RemoteSubscriptionHandle h)
+        {
+            return
+                handle.EventID == h.EventID &&
+                handle.PublisherNodeID == h.PublisherNodeID &&
+                handle.PublisherId == h.PublisherId &&
+                handle.SubscriberNodeID == h.SubscriberNodeID;
         }
         #endregion
         /// <summary>
@@ -350,8 +363,8 @@ namespace Ella.Network
         {
             ApplicationMessage msg = Serializer.Deserialize<ApplicationMessage>(e.Message.Data);
             object subscriber = (from s in EllaModel.Instance.Subscriptions
-                where EllaModel.Instance.GetSubscriberId(s.Subscriber) == msg.Handle.SubscriberId
-                select s.Subscriber).FirstOrDefault();
+                                 where EllaModel.Instance.GetSubscriberId(s.Subscriber) == msg.Handle.SubscriberId
+                                 select s.Subscriber).FirstOrDefault();
             if (subscriber != null)
                 Send.DeliverMessage(msg, subscriber);
             else
@@ -375,12 +388,13 @@ namespace Ella.Network
              * Deliver to subscribers
              *      The subscriptions point directly to the subscriber instances, the handle is matching already
              */
-            var results =
-                EllaModel.Instance.Subscriptions.GroupBy(s => s.Subscriber)
+            var groupings = EllaModel.Instance.Subscriptions.GroupBy(s => s.Subscriber);
+            var relevantsubscribers = groupings
                     .Where(
                         g =>
                             g.Any(g1 => Equals(g1.Handle.EventHandle, first)) &&
-                            g.Any(g2 => Equals(g2.Handle.EventHandle, second)))
+                            g.Any(g2 => Equals(g2.Handle.EventHandle, second)));
+            var results = relevantsubscribers
                     .Select(
                         g =>
                             new
@@ -389,6 +403,7 @@ namespace Ella.Network
                                 Method =
                                     ReflectionUtils.GetAttributedMethod(g.Key.GetType(), typeof(AssociateAttribute))
                             });
+            _log.DebugFormat("Found {0} relevant subscribers for event correlation", results.Count());
             foreach (var result in results)
             {
                 if (result.Method != null)
@@ -396,9 +411,12 @@ namespace Ella.Network
                     if (result.Method.GetParameters().Count() != 2 || result.Method.GetParameters().Any(p => p.ParameterType != typeof(SubscriptionHandle)))
                         throw new IllegalAttributeUsageException(String.Format("Method {0} attributed as Associate has invalid parameters (count or type)", result.Method));
                     int subscriberid = EllaModel.Instance.GetSubscriberId(result.Object);
-                    RemoteSubscriptionHandle handle1 = new RemoteSubscriptionHandle() { EventHandle = first, SubscriberNodeID = EllaConfiguration.Instance.NodeId, SubscriberId = subscriberid };
-                    RemoteSubscriptionHandle handle2 = new RemoteSubscriptionHandle() { EventHandle = second, SubscriberNodeID = EllaConfiguration.Instance.NodeId, SubscriberId = subscriberid };
-
+                    var subscriber = relevantsubscribers.Single(g => g.Key == result.Object);
+                    var subscription = subscriber
+                        .Where(s => Equals(s.Handle.EventHandle,first));
+                    SubscriptionHandle handle1 = subscription
+                        .Select(s => s.Handle).First();
+                    SubscriptionHandle handle2 = relevantsubscribers.Where(g => g.Key == result.Object).First().Where(s => Equals(s.Handle.EventHandle,second)).Select(s => s.Handle).First();
                     result.Method.Invoke(result.Object, new object[] { handle1, handle2 });
                     result.Method.Invoke(result.Object, new object[] { handle2, handle1 });
                 }

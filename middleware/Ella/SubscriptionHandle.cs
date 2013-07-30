@@ -129,7 +129,6 @@ namespace Ella
     [Serializable]
     internal class RemoteSubscriptionHandle : SubscriptionHandle
     {
-        [NonSerialized]
         private int _subscriptionReference;
 
 
@@ -225,7 +224,7 @@ namespace Ella
         /// </returns>
         public override string ToString()
         {
-            return string.Format("S{0}/PN{1}/P{2}/E{3}:H{4}", SubscriberId, PublisherNodeID, PublisherId, EventID, GetHashCode());
+            return string.Format("S{0}/PN{1}/P{2}/E{3}/R{5}/SN{6}:H{4}", SubscriberId, PublisherNodeID, PublisherId, EventID, GetHashCode(), SubscriptionReference, SubscriberNodeID);
         }
     }
 
