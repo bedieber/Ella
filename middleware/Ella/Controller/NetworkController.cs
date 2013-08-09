@@ -60,7 +60,7 @@ namespace Ella.Controller
         {
             Message m = new Message { Data = Serializer.Serialize(message), Type = isReply ? MessageType.ApplicationMessageResponse : MessageType.ApplicationMessage };
 
-            IPEndPoint ep = (IPEndPoint)_messageProcessor.RemoteHosts[isReply ? remoteSubscriptionHandle.SubscriberNodeID : remoteSubscriptionHandle.PublisherNodeID];
+            IPEndPoint ep = (IPEndPoint)_messageProcessor.RemoteHosts[remoteSubscriptionHandle.PublisherNodeID == EllaConfiguration.Instance.NodeId ? remoteSubscriptionHandle.SubscriberNodeID : remoteSubscriptionHandle.PublisherNodeID];
             if (ep != null)
             {
                 SenderBase.SendAsync(m, ep);

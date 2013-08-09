@@ -6,6 +6,7 @@ using Ella;
 using Ella.Attributes;
 using Ella.Control;
 using Ella.Data;
+using Ella.Internal;
 
 namespace Ella
 {
@@ -38,6 +39,8 @@ namespace Ella
         {
             Publish.Event("hello", this, 1);
         }
+
+
 
         [ReceiveMessage]
         public void ReceiveMessage(ApplicationMessage message)
@@ -169,6 +172,8 @@ namespace Ella
     {
         internal bool b = true;
         internal int callback = 0;
+        private SubscriptionHandle _handle;
+        public bool _replyReceived;
 
         [Factory]
         public PublisherWithCallbackMethod() { }
@@ -187,6 +192,31 @@ namespace Ella
         public void Callback(int id, SubscriptionHandle h)
         {
             callback++;
+            _handle = h;
+        }
+
+        internal void SendMessage()
+        {
+            ApplicationMessage msg = new ApplicationMessage { Data = new byte[1], MessageId = 0, MessageType = 1 };
+            Send.Message(msg, _handle, this);
+        }
+        public void SendMessageReply()
+        {
+            ApplicationMessage msg = new ApplicationMessage();
+            RemoteSubscriptionHandle handle = new RemoteSubscriptionHandle()
+            {
+                EventID = 1,
+                PublisherId = 234,
+                PublisherNodeID = EllaConfiguration.Instance.NodeId,
+                SubscriberNodeID = EllaConfiguration.Instance.NodeId + 1
+            };
+            ApplicationMessage inReplyTo = new ApplicationMessage() { Handle = handle };
+            Send.Reply(msg, inReplyTo, this);
+        }
+        [ReceiveMessage]
+        public void ReceiveMessage(ApplicationMessage msg)
+        {
+            _replyReceived = true;
         }
 
     }

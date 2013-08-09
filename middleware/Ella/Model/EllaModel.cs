@@ -197,7 +197,7 @@ namespace Ella.Model
         /// <returns></returns>
         internal int GetPublisherId(object p)
         {
-            return ActivePublishers.Where(k => k.Key.Instance == p).Select(k => k.Value).FirstOrDefault();
+            return ActivePublishers.Where(k => k.Key.Instance == p).Select(k => k.Value).DefaultIfEmpty(-1).FirstOrDefault();
         }
 
         /// <summary>
@@ -221,6 +221,15 @@ namespace Ella.Model
             return null;
         }
 
+        internal object GetSubscriber(int id)
+        {
+            if (ActiveSubscribers.Values.Contains(id))
+            {
+                return ActiveSubscribers.Where(p => p.Value == id).Select(p => p.Key).FirstOrDefault();
+            }
+            return null;
+
+        }
         /// <summary>
         /// Gets the subscriber id.
         /// </summary>
@@ -228,7 +237,15 @@ namespace Ella.Model
         /// <returns></returns>
         internal int GetSubscriberId(object p)
         {
-            return ActiveSubscribers[p];
+            if (ActiveSubscribers.ContainsKey(p))
+            {
+                return ActiveSubscribers[p];
+            }
+            else
+            {
+                return -1;
+            }
+
         }
 
         internal IEnumerable<Publisher> GetActivePublishers()

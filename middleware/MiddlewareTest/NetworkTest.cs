@@ -52,7 +52,6 @@ namespace Ella
             s.Subscribe();
 
             Assert.AreEqual(2, FakeNetworkController.Subscriptions[typeof(string)]);
-
         }
 
         [TestMethod]
@@ -214,7 +213,7 @@ namespace Ella
 
             Thread.Sleep(1000);
 
-            Assert.AreEqual(1,sender._messages[MessageType.Unsubscribe]);
+            Assert.AreEqual(1, sender._messages[MessageType.Unsubscribe]);
         }
 
         [TestMethod]
@@ -243,7 +242,7 @@ namespace Ella
 
             Stop.Ella();
 
-            Assert.AreEqual(1,sender._messages[MessageType.NodeShutdown]);
+            Assert.AreEqual(1, sender._messages[MessageType.NodeShutdown]);
         }
 
         [TestMethod]
@@ -263,7 +262,7 @@ namespace Ella
         [TestMethod]
         public void NetworkControllerConnectToMulticastGroup()
         {
-          
+
             NetworkController nc = new NetworkController();
             FakeServer server = new FakeServer();
             FakeSender sender = new FakeSender();
@@ -275,8 +274,8 @@ namespace Ella
             SenderBase.FactoryMethod = e => sender;
 
             MulticastRemoteSubscriptionhandle h = new MulticastRemoteSubscriptionhandle();
-        
-            Networking.ConnectToMulticast(h.IpAddress,h.Port);
+
+            Networking.ConnectToMulticast(h.IpAddress, h.Port);
 
             TestSubscriber s = new TestSubscriber();
             s.Subscribe();
@@ -301,7 +300,7 @@ namespace Ella
 
             Message msg = new Message();
             msg.Data = data;
-            msg.Sender = EllaConfiguration.Instance.NodeId +1;
+            msg.Sender = EllaConfiguration.Instance.NodeId + 1;
             msg.Type = MessageType.Discover;
 
             IPEndPoint ep = new IPEndPoint(IPAddress.Parse("234.234.234.4"), 3456);
@@ -323,8 +322,41 @@ namespace Ella
 
             Thread.Sleep(1000);
 
-            Assert.AreEqual(1,sender._messages[MessageType.ApplicationMessage]);
-            
+            Assert.AreEqual(1, sender._messages[MessageType.ApplicationMessage]);
+
+        }
+
+        [TestMethod]
+        public void NetworkControllerSubscriptionMessageIsProcessed()
+        {
+            byte[] b = new byte[1024];
+
+            NetworkController nc = new NetworkController();
+            FakeServer server = new FakeServer();
+
+            nc.Servers.Add(server);
+            Networking.NetworkController = nc;
+            Networking.Start();
+
+            FakeSender sender = new FakeSender();
+            SenderBase.FactoryMethod = e => sender;
+
+            Message msg = new Message();
+            msg.Data = b;
+            msg.Sender = EllaConfiguration.Instance.NodeId + 1;
+            msg.Type = MessageType.Discover;
+
+            IPEndPoint ep = new IPEndPoint(IPAddress.Parse("234.234.234.4"), 3456);
+
+            server.DiscoveryMessageEvent(msg, ep);
+
+            PublisherWithCallbackMethod p = new PublisherWithCallbackMethod();
+            Start.Publisher(p);
+
+
+            server.SubscriptionMessage(typeof(bool));
+            Thread.Sleep(1000);
+            Assert.IsTrue(sender._messages.ContainsKey(MessageType.SubscribeResponse));
         }
     }
 }

@@ -7,6 +7,7 @@ using Ella;
 using Ella.Control;
 using Ella.Data;
 using System.Threading;
+using Ella.Internal;
 
 namespace Ella
 {
@@ -130,7 +131,10 @@ namespace Ella
         public void ReceiveMessage(ApplicationMessage message)
         {
             if (message != null)
+            {
                 ReplyReceived = true;
+                Send.Reply(new ApplicationMessage(), message, this);
+            }
         }
 
         #endregion
@@ -141,6 +145,21 @@ namespace Ella
         {
             if (SubscriptionCallBackHandle.Contains(first) && SubscriptionCallBackHandle.Contains(second))
                 Interlocked.Increment(ref NumAssociationsReceived);
+        }
+
+
+        public void SendMessageReply()
+        {
+            ApplicationMessage msg = new ApplicationMessage();
+            RemoteSubscriptionHandle handle = new RemoteSubscriptionHandle()
+            {
+                EventID = 1,
+                PublisherId = 234,
+                PublisherNodeID = EllaConfiguration.Instance.NodeId+1,
+                SubscriberNodeID = EllaConfiguration.Instance.NodeId
+            };
+            ApplicationMessage inReplyTo = new ApplicationMessage() { Handle = handle };
+            Send.Reply(msg, inReplyTo, this);
         }
     }
 

@@ -80,7 +80,7 @@ namespace Ella.Network
                 case MessageType.ApplicationMessage:
                     {
                         ApplicationMessage msg = Serializer.Deserialize<ApplicationMessage>(e.Message.Data);
-                        Send.DeliverApplicationMessage(msg);
+                        Send.DeliverApplicationMessage(msg,((RemoteSubscriptionHandle)msg.Handle).SubscriberNodeID==EllaConfiguration.Instance.NodeId);
                         break;
                     }
                 case MessageType.ApplicationMessageResponse:
@@ -362,15 +362,17 @@ namespace Ella.Network
         private void ProcessApplicationMessageResponse(MessageEventArgs e)
         {
             ApplicationMessage msg = Serializer.Deserialize<ApplicationMessage>(e.Message.Data);
-            object subscriber = (from s in EllaModel.Instance.Subscriptions
-                                 where EllaModel.Instance.GetSubscriberId(s.Subscriber) == msg.Handle.SubscriberId
-                                 select s.Subscriber).FirstOrDefault();
-            if (subscriber != null)
-                Send.DeliverMessage(msg, subscriber);
-            else
-            {
-                _log.FatalFormat("No suitable subscriber for message reply found", msg);
-            }
+            Send.DeliverApplicationMessage(msg, ((RemoteSubscriptionHandle)msg.Handle).SubscriberNodeID == EllaConfiguration.Instance.NodeId);
+
+            //object subscriber = (from s in EllaModel.Instance.Subscriptions
+            //                     where EllaModel.Instance.GetSubscriberId(s.Subscriber) == msg.Handle.SubscriberId
+            //                     select s.Subscriber).FirstOrDefault();
+            //if (subscriber != null)
+            //    Send.DeliverMessage(msg, subscriber);
+            //else
+            //{
+            //    _log.FatalFormat("No suitable subscriber for message reply found", msg);
+            //}
         }
 
         /// <summary>

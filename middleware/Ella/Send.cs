@@ -31,7 +31,7 @@ namespace Ella
     public static class Send
     {
         private static ILog _log = LogManager.GetLogger(typeof(Send));
-        
+
         /// <summary>
         /// Sends the specified <paramref name="message" /> to the publisher identified by handle <paramref name="to" />.<br />
         /// This is used by subscribers to send messages directly to a certain publisher of an event.<br />
@@ -43,10 +43,9 @@ namespace Ella
         public static bool Message(ApplicationMessage message, SubscriptionHandle to, object sender)
         {
             //TODO check if sender is subscriber
-            message.Sender = EllaModel.Instance.GetSubscriberId(sender);
             _log.DebugFormat("New application message from {0} to {1}", message.Sender, to);
-
             message.Handle = to;
+
             /*Check if subscription is remote or local
              * if local: pass it to local module
              * if remote: serialize, wrap in Message, send
@@ -54,12 +53,42 @@ namespace Ella
             if (to is RemoteSubscriptionHandle)
             {
                 _log.Debug("Sending message to remote receiver");
+                int nodeId = EllaConfiguration.Instance.NodeId;
+
+                RemoteSubscriptionHandle h = (RemoteSubscriptionHandle)to;
+                if (h.PublisherNodeID == nodeId)
+                {
+                    message.Sender = EllaModel.Instance.GetPublisherId(sender);
+                }
+                else if (h.SubscriberNodeID == nodeId)
+                {
+                    message.Sender = EllaModel.Instance.GetSubscriberId(sender);
+                }
+
                 return Networking.SendApplicationMessage(message, to as RemoteSubscriptionHandle);
             }
             else
-                {
+            {
+                int publisherId = EllaModel.Instance.GetPublisherId(sender);
+                int subscriberId = EllaModel.Instance.GetSubscriberId(sender);
+                bool senderIsPublisher = false;
+
                 _log.Debug("Delivering message locally");
-                return DeliverApplicationMessage(message);
+
+                //publisher sends msg to subscriber
+                if (to.PublisherId == publisherId)
+                {
+                    message.Sender = publisherId;
+                    senderIsPublisher = true;
+
+                }
+                //subscriber sends msg to publisher
+                else if (to.SubscriberId == subscriberId)
+                {
+                    message.Sender = subscriberId;
+                }
+
+                return DeliverApplicationMessage(message, senderIsPublisher);
             }
         }
 
@@ -69,18 +98,37 @@ namespace Ella
         /// </summary>
         /// <param name="message">The message.</param>
         /// <returns></returns>
-        internal static bool DeliverApplicationMessage(ApplicationMessage message)
+        internal static bool DeliverApplicationMessage(ApplicationMessage message, bool senderIsPublisher = false)
         {
-            Publisher publisher = EllaModel.Instance.GetPublisher(message.Handle.PublisherId);
-            if (publisher != null)
+            if (!senderIsPublisher)
             {
-                return DeliverMessage(message, publisher.Instance);
+                Publisher publisher = EllaModel.Instance.GetPublisher(message.Handle.PublisherId);
+
+                if (publisher != null)
+                {
+                    return DeliverMessage(message, publisher.Instance);
+                }
+                else
+                {
+                    _log.FatalFormat("Found no suitable subscriber for handle {0}", message.Handle);
+                    return false;
+                }
             }
             else
             {
-                _log.FatalFormat("Found no suitable publisher for handle {0}", message.Handle);
-                return false;
+                Object subscriber = EllaModel.Instance.GetSubscriber(message.Handle.SubscriberId);
+
+                if (subscriber != null)
+                {
+                    return DeliverMessage(message, subscriber);
+                }
+                else
+                {
+                    _log.FatalFormat("Found no suitable publisher for handle {0}", message.Handle);
+                    return false;
+                }
             }
+
         }
 
         /// <summary>
@@ -91,8 +139,8 @@ namespace Ella
         internal static bool DeliverMessageReply(ApplicationMessage message)
         {
             object subscriber = (from s in EllaModel.Instance.Subscriptions
-                                where s.Handle == message.Handle
-                                select s.Subscriber).SingleOrDefault();
+                                 where s.Handle == message.Handle
+                                 select s.Subscriber).SingleOrDefault();
             if (subscriber != null)
             {
                 return DeliverMessage(message, subscriber);
@@ -143,21 +191,50 @@ namespace Ella
         /// <returns></returns>
         public static bool Reply(ApplicationMessage reply, ApplicationMessage inReplyTo, object sender)
         {
-            reply.Sender = EllaModel.Instance.GetPublisherId(sender);
             reply.Handle = inReplyTo.Handle;
             _log.DebugFormat("Delivering reply message {0} in reply to {1} from {2}", reply, inReplyTo, reply.Sender);
-            if (inReplyTo.Handle is RemoteSubscriptionHandle)
+
+            _log.Debug("Delivering reply locally");
+
+            if (inReplyTo.Handle.PublisherId == inReplyTo.Sender)
             {
-                _log.Debug("Delivering reply to remote receiver");
-                return Networking.SendApplicationMessage(reply, inReplyTo.Handle as RemoteSubscriptionHandle,
-                                                                isReply: true);
+                Publisher publisher = EllaModel.Instance.GetPublisher(inReplyTo.Sender);
+                reply.Sender = EllaModel.Instance.GetSubscriberId(sender);
+
+                if (inReplyTo.Handle is RemoteSubscriptionHandle)
+                {
+                    _log.Debug("Delivering reply to remote receiver");
+                    return Networking.SendApplicationMessage(reply, inReplyTo.Handle as RemoteSubscriptionHandle,
+                                                             isReply: true);
+                }
+                else
+                {
+                    DeliverMessage(reply, publisher.Instance);
+                }
+            }
+            else if (inReplyTo.Handle.SubscriberId == inReplyTo.Sender)
+            {
+                Object subscriber = EllaModel.Instance.GetSubscriber(inReplyTo.Sender);
+                reply.Sender = EllaModel.Instance.GetPublisherId(sender);
+
+                if (inReplyTo.Handle is RemoteSubscriptionHandle)
+                {
+                    _log.Debug("Delivering reply to remote receiver");
+                    return Networking.SendApplicationMessage(reply, inReplyTo.Handle as RemoteSubscriptionHandle,
+                                                             isReply: true);
+                }
+                else
+                {
+                    DeliverMessage(reply, subscriber);
+                }
             }
             else
             {
-                _log.Debug("Delivering reply locally");
-                DeliverMessageReply(reply);
-                return true;
+                return false;
             }
+
+            return true;
+
         }
     }
 }
