@@ -31,7 +31,7 @@ namespace Ella.Network.Communication
         private static readonly ILog _log = LogManager.GetLogger(typeof(IpSender));
 
         private bool _run;
-        private int _maxQueueSize = int.MaxValue;
+        private int _maxQueueSize = Ella.Internal.EllaConfiguration.Instance.MaxQueueSize;
 
         private readonly Queue<Message> _pendingMessages = new Queue<Message>();
         private readonly AutoResetEvent _are = new AutoResetEvent(false);

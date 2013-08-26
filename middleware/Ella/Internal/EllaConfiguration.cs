@@ -136,6 +136,13 @@ namespace Ella.Internal
             set { this["MulticastPortRangeSize"] = value; }
         }
 
+        [ConfigurationProperty("MaxQueueSize",DefaultValue=(int)50, IsRequired=false)]
+        [IntegerValidator(MinValue=1,MaxValue=65535,ExcludeRange=false)]
+        public int MaxQueueSize
+        {
+            get { return (int)this["MaxQueueSize"]; }
+            set { this["MaxQueueSize"] = value; }
+        }
 
         /// <summary>
         /// Gets or sets the Multicast address.
@@ -171,5 +178,7 @@ namespace Ella.Internal
 
             throw new ConfigurationErrorsException("MulticastAddress is not in a valid range.");
         }
+
+        
     }
 }
