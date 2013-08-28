@@ -53,9 +53,15 @@ namespace Ella.Attributes
         public DataCopyPolicy CopyPolicy { get; set; }
 
         /// <summary>
-        /// Gets or sets the SubscriptionCallback, signature has to be (int,SubscriptionHandle)
+        /// Gets or sets the SubscriptionCallback<br />
+        /// Signature has to be (int,SubscriptionHandle)
         /// </summary>
         public string SubscriptionCallback { get; set; }
+        /// <summary>
+        /// Gets or sets the CongestionCallback. This method is called if a certain event causes congestion (i.e. publishes events faster than they can be transmitted over the network).<br />
+        /// Signature has to be (int)
+        /// </summary>
+        public string CongestionCallback { get; set; }
         #endregion
 
         /// <summary>

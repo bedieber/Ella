@@ -64,12 +64,14 @@ namespace Ella.Network.Communication
         /// Sends the specified message.
         /// </summary>
         /// <param name="m">The message</param>
-        internal void EnqueueMessage(Message m)
+        /// <returns><c>true </c> If Queue was cleared due to exceeding the buffer size.<c>false</c> otherwise</returns>
+        internal bool EnqueueMessage(Message m)
         {
+            bool queueCleared = false;
             if (_senderThread == null)
             {
                 _run = true;
-                _log.Debug("Starting seder thread");
+                _log.Debug("Starting sender thread");
                 _senderThread = new Thread(Run);
                 _senderThread.Start();
             }
@@ -77,10 +79,12 @@ namespace Ella.Network.Communication
             {
                 _log.Debug("Too many items in queue. Clearing");
                 _pendingMessages.Clear();
+                queueCleared = true;
             }
             _pendingMessages.Enqueue(m);
             _log.DebugFormat("Enqueued message, {0} items in queue", _pendingMessages.Count);
             _are.Set();
+            return queueCleared;
         }
 
         /// <summary>

@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using Ella.Attributes;
@@ -92,7 +93,35 @@ namespace Ella.Network
             }
             else
             {
-                IpSender.EnqueueMessage(m);
+                if (IpSender.EnqueueMessage(m))
+                {
+                    //Notify publisher that buffer had to be cleared. This indicates a slow communication channel or a too high publishing frequency
+                    object publisher = EventToHandle.Publisher;
+                    int eventId = EventToHandle.EventDetail.ID;
+                    _log.DebugFormat("Event {0} of publisher {1} is congested.", eventId, publisher);
+                    string callback = EventToHandle.EventDetail.CongestionCallback;
+                    if (callback == null)
+                        return;
+                    MethodInfo info = publisher.GetType().GetMethod(callback);
+
+                    if (info != null)
+                    {
+                        if (info.GetParameters().Length == 1 && info.GetParameters()[0].ParameterType == typeof(int))
+                        {
+                            object[] parameters = new object[] { eventId };
+                            info.Invoke(publisher, parameters);
+                        }
+                        else
+                        {
+                            _log.ErrorFormat("Cannot call congestioncallback on {0} due to an invalid method signature. must be (int)", publisher);
+                        }
+                    }
+                    else
+                    {
+                        _log.WarnFormat("No suitable congestion callback found on type {0}", publisher);
+                    }
+
+                }
             }
         }
     }
