@@ -65,6 +65,13 @@ namespace Ella.Model
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the list of pending subscription requests.
+        /// </summary>
+        /// <value>
+        /// The subscription requests.
+        /// </value>
+        internal List<SubscriptionRequest> SubscriptionRequests { get; set; }
 
         /// <summary>
         /// List of all started publishers
@@ -108,6 +115,7 @@ namespace Ella.Model
             ActiveSubscribers = new Dictionary<object, int>();
             EventCorrelations = new Dictionary<EventHandle, List<EventHandle>>();
             PublisherThreads = new List<Thread>();
+            SubscriptionRequests=new List<SubscriptionRequest>();
         }
 
         /// <summary>
@@ -141,7 +149,7 @@ namespace Ella.Model
             return new List<EventHandle>();
         }
 
-        #region Publisher/Subscriber Management
+        #region Publisher/SubscriptionRequest Management
 
         /// <summary>
         /// Adds an active publisher.

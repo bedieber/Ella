@@ -10,6 +10,8 @@
 // applications, documentation, and source files.
 //=============================================================================
 
+using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading;
 using Ella.Controller;
@@ -19,6 +21,7 @@ using Ella.Model;
 using Ella.Network;
 using Ella.Network.Communication;
 using log4net;
+using System.Linq;
 
 namespace Ella
 {
@@ -46,6 +49,22 @@ namespace Ella
             Thread t = new Thread(() => publisher.StartMethod.Invoke(instance, null));
             EllaModel.Instance.PublisherThreads.Add(t);
             t.Start();
+            foreach (var publishedEvent in publisher.Events)
+            {
+                var subscriptionRequests = EllaModel.Instance.SubscriptionRequests.Where(sr => sr.RequestedType == publishedEvent.EventDetail.DataType).ToList();
+                foreach (var subscriptionRequest in subscriptionRequests)
+                {
+                    _log.DebugFormat("Late-subscribing subscriber {0} of new publisher {1} for requested type {2}", subscriptionRequest.SubscriberInstance, instance, subscriptionRequest.RequestedType);
+                    try
+                    {
+                        subscriptionRequest.SubscriptionCall.Invoke();
+                    }
+                    catch (Exception ex)
+                    {
+                        _log.ErrorFormat("Could not invoke subscription call for subscriber {0}. {1}", subscriptionRequest.SubscriberInstance, ex.Message);
+                    }                    
+                }
+            }
         }
 
         /// <summary>

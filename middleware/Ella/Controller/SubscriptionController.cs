@@ -51,8 +51,10 @@ namespace Ella.Controller
         /// <param name="newDataCallback">The new data callback.</param>
         /// <param name="evaluateTemplateObject">The evaluate template object.</param>
         /// <param name="subscriptionCallback">The subscription callback.</param>
+        /// <param name="policy">The modification policy.</param>
         /// <exception cref="System.ArgumentException">subscriberInstance must be a valid subscriber</exception>
-        internal static void DoLocalSubscription<T>(object subscriberInstance, Action<T, SubscriptionHandle> newDataCallback, Func<T, bool> evaluateTemplateObject, Action<Type, SubscriptionHandle> subscriptionCallback)
+        /// <exception cref="IllegalAttributeUsageException"></exception>
+        internal static void DoLocalSubscription<T>(object subscriberInstance, Action<T, SubscriptionHandle> newDataCallback, Func<T, bool> evaluateTemplateObject, Action<Type, SubscriptionHandle> subscriptionCallback, DataModifyPolicy policy)
         {
             /*
                          * find all matching events from currently active publishers
@@ -96,7 +98,8 @@ namespace Ella.Controller
                             CallbackMethod = newDataCallback.Method,
                             CallbackTarget = newDataCallback.Target,
                             Handle = handle,
-                            DataType = typeof(T)
+                            DataType = typeof(T),
+                            ModifyPolicy = policy
                         };
 
 
@@ -222,6 +225,11 @@ namespace Ella.Controller
         }
 
 
+        /// <summary>
+        /// Performs a callback to a publisher that a new subscriber has been added
+        /// </summary>
+        /// <param name="ev">The ev.</param>
+        /// <param name="handle">The handle.</param>
         internal static void NotifyPublisher(Event ev, SubscriptionHandle handle)
         {
             string callback = ev.EventDetail.SubscriptionCallback;

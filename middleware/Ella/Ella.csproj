@@ -109,6 +109,7 @@
     <Compile Include="Start.cs" />
     <Compile Include="Stop.cs" />
     <Compile Include="Subscribe.cs" />
+    <Compile Include="Model\Subscriber.cs" />
     <Compile Include="SubscriptionHandle.cs" />
     <Compile Include="Unsubscribe.cs" />
   </ItemGroup>

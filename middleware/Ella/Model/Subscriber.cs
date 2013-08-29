@@ -1,16 +1,13 @@
 ﻿using System;
 using System.Reflection;
+using Ella.Data;
 
 namespace Ella.Model
 {
-    internal class Subscriber
+    internal class SubscriptionRequest
     {
-        internal object Instance { get; set; }
-        internal Type SubscriptionType { get; set; }
-
-
-        internal MethodBase HandlingMethod { get; set; }
-        internal MethodBase MessageCallback { get; set; }
-        internal MethodBase SubscriptionCallback { get; set; }
+        internal object SubscriberInstance { get; set; }
+        internal Action SubscriptionCall { get; set; }
+        internal Type RequestedType { get; set; }
     }
 }

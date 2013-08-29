@@ -135,7 +135,12 @@ namespace Ella.Internal
             get { return (int)this["MulticastPortRangeSize"]; }
             set { this["MulticastPortRangeSize"] = value; }
         }
-
+        /// <summary>
+        /// The maximum buffer size for the IPSender. If this size is reached, the items currently in queue will be dropped.
+        /// </summary>
+        /// <value>
+        /// The size of the max queue.
+        /// </value>
         [ConfigurationProperty("MaxQueueSize",DefaultValue=(int)50, IsRequired=false)]
         [IntegerValidator(MinValue=1,MaxValue=65535,ExcludeRange=false)]
         public int MaxQueueSize

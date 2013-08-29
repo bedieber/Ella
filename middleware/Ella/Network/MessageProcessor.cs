@@ -319,7 +319,7 @@ namespace Ella.Network
                 * Remote publisher ID
                 * Remote publisher-event ID
                 * The message reference (message ID used for the subscribe message)
-                * Subscriber node ID
+                * SubscriptionRequest node ID
                 * Assume shorts for all
                 *   
             */
@@ -365,8 +365,8 @@ namespace Ella.Network
             Send.DeliverApplicationMessage(msg, ((RemoteSubscriptionHandle)msg.Handle).SubscriberNodeID == EllaConfiguration.Instance.NodeId);
 
             //object subscriber = (from s in EllaModel.Instance.Subscriptions
-            //                     where EllaModel.Instance.GetSubscriberId(s.Subscriber) == msg.Handle.SubscriberId
-            //                     select s.Subscriber).FirstOrDefault();
+            //                     where EllaModel.Instance.GetSubscriberId(s.SubscriptionRequest) == msg.Handle.SubscriberId
+            //                     select s.SubscriptionRequest).FirstOrDefault();
             //if (subscriber != null)
             //    Send.DeliverMessage(msg, subscriber);
             //else

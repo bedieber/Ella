@@ -57,8 +57,16 @@ namespace Ella
             if (evaluateTemplateObject == null)
                 evaluateTemplateObject = (o => true);
 
-            SubscriptionController.DoLocalSubscription(subscriberInstance, newDataCallback, evaluateTemplateObject, subscriptionCallback);
-
+            
+            SubscriptionRequest sr = new SubscriptionRequest()
+                {
+                    SubscriberInstance = subscriberInstance,
+                    RequestedType = typeof(T)
+                };
+            sr.SubscriptionCall = ()=> SubscriptionController.DoLocalSubscription<T>(subscriberInstance, newDataCallback,
+                                                                                             evaluateTemplateObject, subscriptionCallback, policy);
+            EllaModel.Instance.SubscriptionRequests.Add(sr);
+            SubscriptionController.DoLocalSubscription(subscriberInstance, newDataCallback, evaluateTemplateObject, subscriptionCallback,policy);
         }
     }
 }

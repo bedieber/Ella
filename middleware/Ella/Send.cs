@@ -97,6 +97,7 @@ namespace Ella
         /// Delivers an application message.
         /// </summary>
         /// <param name="message">The message.</param>
+        /// <param name="senderIsPublisher">if set to <c>true</c> the sender is a publisher.</param>
         /// <returns></returns>
         internal static bool DeliverApplicationMessage(ApplicationMessage message, bool senderIsPublisher = false)
         {
