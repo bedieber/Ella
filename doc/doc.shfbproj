@@ -28,9 +28,15 @@
     <FeedbackEMailAddress>bernhard.dieber%40aau.at</FeedbackEMailAddress>
     <FeedbackEMailLinkText>Send us feedback</FeedbackEMailLinkText>
     <HeaderText>Ella Middleware</HeaderText>
-    <HelpTitle>Publish/Subscribe Middleware for Embedded Smart Cameras</HelpTitle>
-    <Preliminary>True</Preliminary>
-    <PresentationStyle>vs2010</PresentationStyle>
+    <HelpTitle>Publish/Subscribe Middleware</HelpTitle>
+    <Preliminary>False</Preliminary>
+    <PresentationStyle>VS2010</PresentationStyle>
+    <MissingTags>AutoDocumentCtors, AutoDocumentDispose</MissingTags>
+    <SyntaxFilters>Standard</SyntaxFilters>
+    <SdkLinkTarget>Blank</SdkLinkTarget>
+    <RootNamespaceContainer>False</RootNamespaceContainer>
+    <NamingMethod>Guid</NamingMethod>
+    <ContentPlacement>AboveNamespaces</ContentPlacement>
   </PropertyGroup>
   <!-- There are no properties for these groups.  AnyCPU needs to appear in
        order for Visual Studio to perform the build.  The others are optional
