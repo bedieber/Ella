@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="744.09448819"
+   height="1052.3622047"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.48.4 r9939"
+   sodipodi:docname="logo.svg">
+  <defs
+     id="defs4">
+    <linearGradient
+       id="linearGradient3916">
+      <stop
+         style="stop-color:#002b8d;stop-opacity:0.70535713;"
+         offset="0"
+         id="stop3918" />
+      <stop
+         id="stop3920"
+         offset="0.5"
+         style="stop-color:#009cd8;stop-opacity:0.6785714;" />
+      <stop
+         style="stop-color:#004d95;stop-opacity:0.64285713;"
+         offset="1"
+         id="stop3922" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient3894">
+      <stop
+         id="stop3896"
+         offset="0"
+         style="stop-color:#b10064;stop-opacity:1;" />
+      <stop
+         style="stop-color:#009cd8;stop-opacity:1;"
+         offset="0.5"
+         id="stop3900" />
+      <stop
+         id="stop3898"
+         offset="1"
+         style="stop-color:#004d95;stop-opacity:1;" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient3757">
+      <stop
+         style="stop-color:#27001d;stop-opacity:1;"
+         offset="0"
+         id="stop3759" />
+      <stop
+         style="stop-color:#ff229e;stop-opacity:0.73214287;"
+         offset="1"
+         id="stop3761" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient3894"
+       id="linearGradient3771"
+       x1="229.10435"
+       y1="64.740807"
+       x2="286.76059"
+       y2="64.740807"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(-72.336191,37.727568)" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient3916"
+       id="linearGradient3914"
+       x1="197.91388"
+       y1="73.618156"
+       x2="213.86118"
+       y2="73.618156"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(-12.058703,31.955909)" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="11.2"
+     inkscape:cx="195.25235"
+     inkscape:cy="944.78061"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1920"
+     inkscape:window-height="1017"
+     inkscape:window-x="3832"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     showguides="true"
+     inkscape:guide-bbox="true">
+    <sodipodi:guide
+       orientation="0,1"
+       position="142.24211,941.1465"
+       id="guide3926" />
+  </sodipodi:namedview>
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <text
+       xml:space="preserve"
+       style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:url(#linearGradient3771);fill-opacity:1;stroke:#202020;stroke-width:0.05000000000000000;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;font-family:Sans"
+       x="150.57677"
+       y="112.94689"
+       id="text2985"
+       sodipodi:linespacing="125%"
+       transform="matrix(0.99994186,-0.01078361,0.01078361,0.99994186,0,0)"
+       inkscape:export-filename="D:\Projekte\middleware\logo3.png"
+       inkscape:export-xdpi="1232.84"
+       inkscape:export-ydpi="1232.84"><tspan
+         sodipodi:role="line"
+         id="tspan2987"
+         x="150.57677"
+         y="112.94689"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;text-anchor:start;fill:url(#linearGradient3771);fill-opacity:1;stroke:#202020;stroke-width:0.05000000000000000;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;font-family:Edwardian Script ITC;-inkscape-font-specification:Edwardian Script ITC">E<tspan
+   style="font-size:22px;stroke-width:0.05000000000000000;stroke-miterlimit:4;stroke-dasharray:none;stroke:#202020;stroke-opacity:1"
+   id="tspan3924" /></tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:22.35458183000000100px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:url(#linearGradient3914);fill-opacity:1;stroke:#404040;stroke-width:0.05;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;font-family:Sans"
+       x="184.93822"
+       y="111.02628"
+       id="text3902"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="D:\Projekte\middleware\logo3.png"
+       inkscape:export-xdpi="1232.84"
+       inkscape:export-ydpi="1232.84"><tspan
+         sodipodi:role="line"
+         id="tspan3904"
+         x="184.93822"
+         y="111.02628"
+         style="font-size:22px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;fill:url(#linearGradient3914);fill-opacity:1;stroke:#404040;stroke-width:0.05;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;font-family:Edwardian Script ITC;-inkscape-font-specification:Edwardian Script ITC">lla</tspan></text>
+  </g>
+</svg>
