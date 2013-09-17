@@ -126,56 +126,71 @@ namespace Ella.Network.Communication
         /// </summary>
         private void Run()
         {
-            _log.Debug("IpSender running, connecting to remote host");
-            TcpClient client = new TcpClient();
-            client.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
-            IAsyncResult ar = client.BeginConnect(IPAddress.Parse(_address), _port, null, null);
-
-            if (!ar.AsyncWaitHandle.WaitOne(TimeSpan.FromSeconds(5), false))
+            while (_run)
             {
-                client.Close();
-                _log.WarnFormat("Could not connect to {0} in time, aborting send operation", _address);
-                return;
-            }
+                _log.Debug("IpSender running, connecting to remote host");
+                TcpClient client = new TcpClient();
+                client.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
 
-            client.EndConnect(ar);
-            //GZipStream stream = new GZipStream(client.GetStream(), CompressionMode.Compress);
-            NetworkStream stream = client.GetStream();
-            _log.DebugFormat("IpSender connected to {0}:{1}", _address, _port);
-            try
-            {
-                while (_run)
+                IAsyncResult ar = client.BeginConnect(IPAddress.Parse(_address), _port, null, null);
+
+                if (!ar.AsyncWaitHandle.WaitOne(TimeSpan.FromSeconds(5), false))
                 {
-                    if (_pendingMessages.Count == 0)
-                    {
-                        _are.Reset();
-                        _log.Debug("waiting for new messages");
-                        _are.WaitOne();
-                    }
-                    Message m = _pendingMessages.Dequeue();
-                    byte[] serialize = m.Serialize();
-                   
-                    _log.DebugFormat("Transferring {0} bytes of data", serialize.Length);
-
-                    //_client.GetStream().Write(serialize, 0, serialize.Length);
-                    stream.Write(serialize, 0, serialize.Length);
-                    stream.Flush();
+                    client.Close();
+                    _log.WarnFormat("Could not connect to {0} in time, aborting send operation", _address);
+                    return;
                 }
-            }
-            catch (SocketException sex)
-            {
-                _log.WarnFormat("NetworkClient: failed to send message  {0} with socket error: {1}",
-                                  _address, sex.ErrorCode);
-            }
-            catch (Exception e)
-            {
-                _log.WarnFormat("NetworkClient: failed to send message to {0}: {1} \n{2}",
-                                  _address, e.Message, e);
-            }
-            finally
-            {
-                stream.Close();
-                client.Close();
+
+                try
+                {
+                    client.EndConnect(ar);
+                }
+                catch (SocketException socketEx)
+                {
+                    _log.ErrorFormat("Initial connect to host {0} failed", _address);
+                }
+                if (client.Connected)
+                {
+
+                    //GZipStream stream = new GZipStream(client.GetStream(), CompressionMode.Compress);
+                    NetworkStream stream = client.GetStream();
+                    _log.DebugFormat("IpSender connected to {0}:{1}", _address, _port);
+                    try
+                    {
+                        while (_run && client.Connected)
+                        {
+                            if (_pendingMessages.Count == 0)
+                            {
+                                _are.Reset();
+                                _log.Debug("waiting for new messages");
+                                _are.WaitOne();
+                            }
+                            Message m = _pendingMessages.Dequeue();
+                            byte[] serialize = m.Serialize();
+
+                            _log.DebugFormat("Transferring {0} bytes of data", serialize.Length);
+
+                            //_client.GetStream().Write(serialize, 0, serialize.Length);
+                            stream.Write(serialize, 0, serialize.Length);
+                            stream.Flush();
+                        }
+                    }
+                    catch (SocketException sex)
+                    {
+                        _log.WarnFormat("NetworkClient: failed to send message  {0} with socket error: {1}",
+                                          _address, sex.ErrorCode);
+                    }
+                    catch (Exception e)
+                    {
+                        _log.WarnFormat("NetworkClient: failed to send message to {0}: {1} \n{2}",
+                                          _address, e.Message, e);
+                    }
+                    finally
+                    {
+                        stream.Close();
+                        client.Close();
+                    }
+                }
             }
         }
 
