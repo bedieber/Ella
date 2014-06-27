@@ -45,6 +45,11 @@ namespace Ella
         public static void Event<T>(T eventData, object publisher, int eventId,List<SubscriptionHandle> subscribers =null )
         {
             _log.DebugFormat("{0} publishes {1} for event {2}", publisher, eventData, eventId);
+            if (publisher == null)
+            {
+                _log.Error("NULL publisher supplied for event");
+                return;
+            }
             if (Is.Publisher(publisher.GetType()))
             {
                 //check if this one was started before

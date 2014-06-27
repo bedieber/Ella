@@ -108,6 +108,14 @@ namespace Ella.Controller
         }
 
         /// <summary>
+        /// Stops the network controller and all servers
+        /// </summary>
+        public void Stop()
+        {
+            Servers.ForEach(s => s.Stop());
+        }
+
+        /// <summary>
         /// Indicates if the controller is already running
         /// </summary>
         public bool IsRunning { get { return Servers.Any(); } }
@@ -122,9 +130,5 @@ namespace Ella.Controller
         {
             Servers.OfType<IMulticastListener>().ToList().ForEach(s => s.ConnectToMulticastGroup(group, port));
         }
-
-
-
-
     }
 }

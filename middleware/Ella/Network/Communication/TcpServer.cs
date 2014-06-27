@@ -28,7 +28,7 @@ namespace Ella.Network.Communication
     {
 
         private ILog _log = LogManager.GetLogger(typeof(TcpServer));
-      
+
         /// <summary>
         /// Occurs when a new message arrives.
         /// </summary>
@@ -68,10 +68,15 @@ namespace Ella.Network.Communication
                                                               _log.DebugFormat("TcpServer: Started");
                                                               try
                                                               {
+                                                                  AutoResetEvent witHandle = new AutoResetEvent(false);
                                                                   while (true)
                                                                   {
+                                                                      var asyncResult = listener.BeginAcceptTcpClient(null, null);
 
-                                                                      TcpClient client = listener.AcceptTcpClient();
+                                                                      while (!asyncResult.AsyncWaitHandle.WaitOne(2000))
+                                                                      { }
+                                                                      TcpClient client =
+                                                                          listener.EndAcceptTcpClient(asyncResult);
                                                                       ThreadPool.QueueUserWorkItem(delegate
                                                                                                        {
                                                                                                            ProcessMessage

@@ -51,5 +51,10 @@ namespace Ella.Network
         /// <param name="group"></param>
         /// <param name="port"></param>
         void ConnectToMulticastGroup(string group, int port);
+
+        /// <summary>
+        /// Stops the network controller and all servers
+        /// </summary>
+        void Stop();
     }
 }

@@ -12,14 +12,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading;
 using log4net;
-using log4net.Core;
-using log4net.Repository.Hierarchy;
 
 namespace Ella.Network.Communication
 {
@@ -61,11 +57,16 @@ namespace Ella.Network.Communication
                 UdpClient listener = new UdpClient(_port);
                 try
                 {
-                    while (true)
-                    {
                         IPEndPoint ep = new IPEndPoint(IPAddress.Any, 0);
 
-                        byte[] datagram = listener.Receive(ref ep);
+                    while (true)
+                    {
+                        byte[] datagram;
+                        var asyncResult = listener.BeginReceive(null,null);
+
+                        while (!asyncResult.AsyncWaitHandle.WaitOne(2000))
+                        {}
+                        datagram = listener.EndReceive(asyncResult, ref ep);
                         IPEndPoint sender = ep;
                         ThreadPool.QueueUserWorkItem(delegate
                         {
@@ -125,6 +126,8 @@ namespace Ella.Network.Communication
 
                     while (true)
                     {
+                        //TODO rework since it might hinder graceful termination
+
                         byte[] datagram = client.Receive(ref groupEp);
 
                         ThreadPool.QueueUserWorkItem(delegate

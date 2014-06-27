@@ -12,7 +12,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
+using System.Reflection;
 using System.Threading;
 using Ella.Controller;
 using Ella.Exceptions;
@@ -22,6 +24,8 @@ using Ella.Network;
 using Ella.Network.Communication;
 using log4net;
 using System.Linq;
+using log4net.Appender;
+using log4net.Config;
 
 namespace Ella
 {
@@ -85,11 +89,23 @@ namespace Ella
         /// </summary>
         public static void Ella()
         {
-            //  XmlConfigurator.ConfigureAndWatch(new FileInfo(
-            //Path.GetDirectoryName(
-            //      Assembly.GetAssembly(typeof(Start)).Location)
-            //     + @"\" + "Ella.dll.config"));
-            //  _log.Info("Ella started");
+            if (!LogManager.GetRepository().Configured)
+            {
+                var configFile = new FileInfo(
+                    Path.GetDirectoryName(
+                        Assembly.GetAssembly(typeof (Start)).Location)
+                    + @"\" + "Ella.dll.config");
+                if (File.Exists(configFile.FullName))
+                {
+                    XmlConfigurator.ConfigureAndWatch(configFile);
+                }
+                else
+                {
+                    ConsoleAppender appender = new ConsoleAppender();
+                    BasicConfigurator.Configure(appender);
+                }
+                _log.Info("Ella started");
+            }
         }
 
 

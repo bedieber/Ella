@@ -71,6 +71,11 @@ namespace Ella.Fakes
             started = true;
         }
 
+        public void Stop()
+        {
+            started = false;
+        }
+
         public bool IsRunning { get { return true; } }
         public List<INetworkServer> Servers { get; private set; }
 

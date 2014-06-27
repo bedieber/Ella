@@ -80,7 +80,7 @@ namespace Ella.Network
                 case MessageType.ApplicationMessage:
                     {
                         ApplicationMessage msg = Serializer.Deserialize<ApplicationMessage>(e.Message.Data);
-                        Send.DeliverApplicationMessage(msg,((RemoteSubscriptionHandle)msg.Handle).SubscriberNodeID==EllaConfiguration.Instance.NodeId);
+                        Send.DeliverApplicationMessage(msg, ((RemoteSubscriptionHandle)msg.Handle).SubscriberNodeID == EllaConfiguration.Instance.NodeId);
                         break;
                     }
                 case MessageType.ApplicationMessageResponse:
@@ -116,7 +116,14 @@ namespace Ella.Network
             if (!RemoteHosts.ContainsKey(e.Message.Sender))
             {
                 _log.InfoFormat("Discovered host {0} on {1}", e.Message.Sender, ep);
-                RemoteHosts.Add(e.Message.Sender, ep);
+                try
+                {
+                    RemoteHosts.Add(e.Message.Sender, ep);
+                }
+                catch (Exception ex)
+                {
+                    _log.ErrorFormat("Could not add sender {0} to remotehosts list due to {1}", e.Message.Sender, ex.GetType().Name);
+                }
             }
             byte[] portBytes = BitConverter.GetBytes(EllaConfiguration.Instance.NetworkPort);
             //byte[] bytes = new byte[idBytes.Length + portBytes.Length];
@@ -415,10 +422,10 @@ namespace Ella.Network
                     int subscriberid = EllaModel.Instance.GetSubscriberId(result.Object);
                     var subscriber = relevantsubscribers.Single(g => g.Key == result.Object);
                     var subscription = subscriber
-                        .Where(s => Equals(s.Handle.EventHandle,first));
+                        .Where(s => Equals(s.Handle.EventHandle, first));
                     SubscriptionHandle handle1 = subscription
                         .Select(s => s.Handle).First();
-                    SubscriptionHandle handle2 = relevantsubscribers.Where(g => g.Key == result.Object).First().Where(s => Equals(s.Handle.EventHandle,second)).Select(s => s.Handle).First();
+                    SubscriptionHandle handle2 = relevantsubscribers.Where(g => g.Key == result.Object).First().Where(s => Equals(s.Handle.EventHandle, second)).Select(s => s.Handle).First();
                     result.Method.Invoke(result.Object, new object[] { handle1, handle2 });
                     result.Method.Invoke(result.Object, new object[] { handle2, handle1 });
                 }

@@ -46,7 +46,7 @@ namespace Ella
                 if (publisher == null)
                 {
                     _log.DebugFormat("{0} was not found to be an active publisher", instance);
-                    throw new InvalidPublisherException();
+                    //throw new InvalidPublisherException();
                 }
                 try
                 {
@@ -62,11 +62,10 @@ namespace Ella
             {
                 throw new InvalidPublisherException(string.Format("{0} is not a publisher", instance));
             }
-
         }
 
         /// <summary>
-        /// Performs a clear termination of the Ella system<br />
+        /// Performs a clean termination of the Ella system<br />
         /// Includes
         /// <list type="bullet">
         /// <item>
@@ -107,11 +106,11 @@ namespace Ella
             {
                 try
                 {
-                    Stop.Publisher(activePublisher);
+                    Stop.Publisher(activePublisher.Instance);
                 }
                 catch (Exception ex)
                 {
-                    _log.ErrorFormat("Could not stop publisher {0}. {1}", activePublisher, ex.Message);
+                    _log.ErrorFormat("Could not stop publisher {0}. {1}", activePublisher.Instance, ex.Message);
                 }
             }
 
@@ -133,6 +132,8 @@ namespace Ella
                 }
             }
 
+            Networking.Stop();
         }
+
     }
 }

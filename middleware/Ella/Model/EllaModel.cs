@@ -182,6 +182,8 @@ namespace Ella.Model
         /// <param name="instance">The instance.</param>
         internal void RemoveActivePublisher(Publisher instance)
         {
+            if (instance == null)
+                return;
             if (ActivePublishers.ContainsKey(instance))
                 ActivePublishers.Remove(instance);
         }

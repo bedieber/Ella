@@ -71,5 +71,10 @@ namespace Ella
         {
             NetworkController.ConnectToMulticastGroup(@group, port);
         }
+
+        internal static void Stop()
+        {
+            NetworkController.Stop();
+        }
     }
 }

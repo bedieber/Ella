@@ -216,8 +216,8 @@ namespace Ella
 
             p.PublishEvent();
 
-            Assert.IsTrue(s.numEventsReceived.Equals(1));
-            Assert.IsTrue(y.numEventsReceived.Equals(1));
+            Assert.AreEqual(1, s.numEventsReceived);
+            Assert.AreEqual(1, y.numEventsReceived);
         }
 
     }

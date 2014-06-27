@@ -134,7 +134,7 @@ namespace Ella.Network.Communication
 
                 IAsyncResult ar = client.BeginConnect(IPAddress.Parse(_address), _port, null, null);
 
-                if (!ar.AsyncWaitHandle.WaitOne(TimeSpan.FromSeconds(5), false))
+                if (!_run || !ar.AsyncWaitHandle.WaitOne(5000))
                 {
                     client.Close();
                     _log.WarnFormat("Could not connect to {0} in time, aborting send operation", _address);
@@ -152,25 +152,21 @@ namespace Ella.Network.Communication
                 if (client.Connected)
                 {
 
-                    //GZipStream stream = new GZipStream(client.GetStream(), CompressionMode.Compress);
                     NetworkStream stream = client.GetStream();
                     _log.DebugFormat("IpSender connected to {0}:{1}", _address, _port);
                     try
                     {
                         while (_run && client.Connected)
                         {
-                            if (_pendingMessages.Count == 0)
+                            while (_pendingMessages.Count == 0 && _are.Reset() && _are.WaitOne(2000))
                             {
-                                _are.Reset();
                                 _log.Debug("waiting for new messages");
-                                _are.WaitOne();
                             }
                             Message m = _pendingMessages.Dequeue();
                             byte[] serialize = m.Serialize();
 
                             _log.DebugFormat("Transferring {0} bytes of data", serialize.Length);
 
-                            //_client.GetStream().Write(serialize, 0, serialize.Length);
                             stream.Write(serialize, 0, serialize.Length);
                             stream.Flush();
                         }
