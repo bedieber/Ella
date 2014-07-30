@@ -49,7 +49,7 @@ namespace Ella
             if (publisher == null)
                 throw new InvalidPublisherException(string.Format("{0} is not a valid publisher", instance));
             EllaModel.Instance.AddActivePublisher(publisher);
-            _log.InfoFormat("Starting publisher {0}", EllaModel.Instance.GetPublisherId(instance));
+            _log.InfoFormat("Starting publisher {0} of type {1}", EllaModel.Instance.GetPublisherId(instance), instance.GetType().Name);
             Thread t = new Thread(() => publisher.StartMethod.Invoke(instance, null));
             EllaModel.Instance.PublisherThreads.Add(t);
             t.Start();

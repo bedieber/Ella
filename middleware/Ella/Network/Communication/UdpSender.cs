@@ -112,5 +112,10 @@ namespace Ella.Network.Communication
                 }
             }
         }
+
+        public override void Dispose()
+        {
+            
+        }
     }
 }

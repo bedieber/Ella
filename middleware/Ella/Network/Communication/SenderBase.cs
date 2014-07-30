@@ -4,7 +4,7 @@ using System.Threading;
 
 namespace Ella.Network.Communication
 {
-    internal abstract class SenderBase
+    internal abstract class SenderBase:IDisposable
     {
 
         private static Func<EndPoint, SenderBase> _factoryMethod = Create;
@@ -19,6 +19,8 @@ namespace Ella.Network.Communication
         /// </summary>
         /// <param name="m">The message to send</param>
         internal abstract void Send(Message m);
+
+        public abstract void Dispose();
 
         /// <summary>
         /// Creates a sender according to the provided endpoint
@@ -35,7 +37,8 @@ namespace Ella.Network.Communication
             if (ep is IPEndPoint)
             {
                 IPEndPoint ipEndPoint = ep as IPEndPoint;
-                return new IpSender(ipEndPoint.Address.ToString(), ipEndPoint.Port);
+                var sender = new IpSender(ipEndPoint.Address.ToString(), ipEndPoint.Port);
+                return sender;
             }
             return null;
         }
@@ -73,5 +76,6 @@ namespace Ella.Network.Communication
             SenderBase s = CreateSender(endPoint);
             s.Send(m);
         }
+
     }
 }

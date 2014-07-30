@@ -22,7 +22,7 @@ namespace Ella.Network.Communication
     /// <summary>
     /// The networking client used to contact a remote endpoint
     /// </summary>
-    internal partial class IpSender : SenderBase, IDisposable
+    internal class IpSender : SenderBase, IDisposable
     {
         private string _address;
         private int _port;
@@ -193,7 +193,7 @@ namespace Ella.Network.Communication
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
-        public void Dispose()
+        public override void Dispose()
         {
             _log.Debug("Disposing IpSender");
             _run = false;

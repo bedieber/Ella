@@ -44,7 +44,6 @@ namespace Ella
         /// <exception cref="InvalidPublisherException"></exception>
         public static void Event<T>(T eventData, object publisher, int eventId,List<SubscriptionHandle> subscribers =null )
         {
-            _log.DebugFormat("{0} publishes {1} for event {2}", publisher, eventData, eventId);
             if (publisher == null)
             {
                 _log.Error("NULL publisher supplied for event");
@@ -79,6 +78,8 @@ namespace Ella
                         _log.DebugFormat("No subscribers found for event {0} of publisher {1}", eventId, publisher);
                         return;
                     }
+                    _log.DebugFormat("{0} publishes {1} for event {2}", publisher, eventData, eventId);
+
                     if (subscriptionsArray.ElementAt(0).Event.EventDetail.CopyPolicy == DataCopyPolicy.Copy)
                     {
                         data = Serializer.SerializeCopy(eventData);

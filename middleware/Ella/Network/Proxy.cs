@@ -46,6 +46,12 @@ namespace Ella.Network
         {
         }
 
+        ~Proxy()
+        {
+            IpSender.Dispose();
+            IpSender = null;
+        }
+
 
         /// <summary>
         /// Handles a new event by serializing and sending it to the remote subscriber

@@ -118,13 +118,16 @@ namespace Ella.Network
                 _log.InfoFormat("Discovered host {0} on {1}", e.Message.Sender, ep);
                 try
                 {
-                    RemoteHosts.Add(e.Message.Sender, ep);
+                    if (!AddRemoteHost(e, ep))
+                        return;
                 }
                 catch (Exception ex)
                 {
                     _log.ErrorFormat("Could not add sender {0} to remotehosts list due to {1}", e.Message.Sender, ex.GetType().Name);
                 }
             }
+            else
+                return;
             byte[] portBytes = BitConverter.GetBytes(EllaConfiguration.Instance.NetworkPort);
             //byte[] bytes = new byte[idBytes.Length + portBytes.Length];
             //Array.Copy(idBytes, bytes, idBytes.Length);
@@ -138,11 +141,40 @@ namespace Ella.Network
             //TODO a delay makes sense here because the other node may still be starting publishers when the local node already inquires. However this only covers most of an automatic startup
             //TODO think about regular inquiries to known nodes or a notification mechanism about a newly started publisher
             Thread.Sleep(2000);
+            if (SubscriptionCache.Any())
+            {
+                var subscriptionCacheString = SubscriptionCache.Select(
+                    cs => string.Format("{0}-{1}\n", cs.Key, cs.Value)).Aggregate((s1, s2) => s1 + "\n" + s2);
+                _log.DebugFormat("Processing subscription cache for newly discovered host {0}\n{1}", e.Message.Sender,
+                    subscriptionCacheString);
+            }
             foreach (var sub in SubscriptionCache)
             {
                 Message subscription = new Message(sub.Key) { Type = MessageType.Subscribe, Data = Serializer.Serialize(sub.Value) };
                 SenderBase.SendAsync(subscription, ep);
             }
+        }
+
+        private bool AddRemoteHost(MessageEventArgs e, IPEndPoint ep)
+        {
+            bool added = false;
+            lock (_remoteHosts)
+            {
+                if (!_remoteHosts.ContainsKey(e.Message.Sender))
+                {
+                    _log.DebugFormat("Adding new remote Host {0}", ep);
+                    RemoteHosts.Add(e.Message.Sender, ep);
+                    added = true;
+                }
+                else
+                {
+                    _log.DebugFormat("Not adding host {0} since its already in the list", e.Message.Sender);
+                }
+            }
+            string hostlist =
+                     (from r in RemoteHosts.Values select r.ToString()).Aggregate((s1, s2) => s1 + "\n" + s2);
+            _log.DebugFormat("New Host list, length {1}, values {0}", hostlist, _remoteHosts.Count);
+            return added;
         }
 
         /// <summary>
@@ -157,7 +189,7 @@ namespace Ella.Network
                 IPEndPoint ep = (IPEndPoint)e.Address;
                 ep.Port = port;
                 _log.InfoFormat("Host {0} on {1} responded to discovery", e.Message.Sender, ep);
-                RemoteHosts.Add(e.Message.Sender, ep);
+                AddRemoteHost(e, ep);
             }
         }
         #endregion
