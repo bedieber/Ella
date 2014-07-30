@@ -358,5 +358,36 @@ namespace Ella
             Thread.Sleep(1000);
             Assert.IsTrue(sender._messages.ContainsKey(MessageType.SubscribeResponse));
         }
+
+        [TestMethod]
+        public void NetworkControllerSubscriptionCacheIsSentOnlyOnce()
+        {
+            byte[] b = new byte[1024];
+
+            NetworkController nc = new NetworkController();
+            FakeServer server = new FakeServer();
+            FakeSender sender = new FakeSender();
+
+            nc.Servers.Add(server);
+            Networking.NetworkController = nc;
+            Networking.Start();
+
+            SenderBase.FactoryMethod = e => sender;
+
+            TestSubscriber subscriber = new TestSubscriber();
+            subscriber.Subscribe();
+
+            Message msg = new Message();
+            msg.Data = b;
+            msg.Sender = EllaConfiguration.Instance.NodeId + 1;
+            msg.Type = MessageType.Discover;
+
+            IPEndPoint ep = new IPEndPoint(IPAddress.Parse("234.234.234.4"), 3456);
+
+            server.DiscoveryMessageEvent(msg, ep);
+
+            Thread.Sleep(3000);
+            Assert.AreEqual(1, sender._messages[MessageType.Subscribe]);
+        }
     }
 }

@@ -28,5 +28,9 @@ namespace Ella.Fakes
             }
         }
 
+        public override void Dispose()
+        {
+            
+        }
     }
 }
