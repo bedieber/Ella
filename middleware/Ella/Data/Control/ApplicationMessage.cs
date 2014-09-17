@@ -11,6 +11,7 @@
 //=============================================================================
 
 using System;
+using Ella.Internal;
 
 namespace Ella.Control
 {
@@ -56,6 +57,26 @@ namespace Ella.Control
         /// The subscriptionhandle
         /// </summary>
         public SubscriptionHandle Handle { get; internal set; }
+
+        /// <summary>
+        /// Serializes an object and stores it in the <see cref="Data"/> property.<br />
+        /// This uses a standard binary serializer
+        /// </summary>
+        /// <param name="payloadObject">The payload object.</param>
+        public void SerializeData(object payloadObject)
+        {
+            Data = Serializer.Serialize(payloadObject);
+        }
+
+        /// <summary>
+        /// Deserializes the <see cref="Data"/> property and returns an object of the given type.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public T DeserializeData<T>()
+        {
+            return (T)Serializer.Deserialize<T>(Data);
+        }
 
         /// <summary>
         /// Returns a <see cref="System.String" /> that represents this instance.

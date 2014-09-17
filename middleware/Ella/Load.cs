@@ -15,6 +15,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using Ella.Attributes;
+using Ella.Internal;
 using Ella.Model;
 using log4net;
 
@@ -25,12 +27,14 @@ namespace Ella
     /// </summary>
     public static class Load
     {
-        private static ILog _log = LogManager.GetLogger(typeof (Load));
+        private static ILog _log = LogManager.GetLogger(typeof(Load));
+
         /// <summary>
         /// Loads all publishers from a given assembly and adds them to the Ella-internal management
         /// </summary>
         /// <param name="a">The assembly where to search publishers in</param>
-        public static void Publishers(Assembly a)
+        /// <param name="createInstances">if <c>true</c>, instances of the found publisher types are created and started during the discovery process</param>
+        public static void Publishers(Assembly a, bool createInstances = false)
         {
             if (a == (Assembly)null)
                 throw new ArgumentNullException("a");
@@ -47,16 +51,25 @@ namespace Ella
                 {
                     _log.DebugFormat("Found publisher {0} in assembly {1}", t, a.FullName);
                     if (!EllaModel.Instance.Publishers.Contains(t))
+                    {
                         EllaModel.Instance.Publishers.Add(t);
+                        if (createInstances)
+                        {
+                            var instance = Create.ModuleInstance(t);
+                            Start.Publisher(instance);
+                        }
+                    }
                 }
             }
         }
+
         /// <summary>
         /// Load all Subscribers from a given assembly and adds them to the Ella-internal management<br />
         /// <remarks>Any type must define the <see cref="Ella.Attributes.SubscriberAttribute"/> attribute in order to be detected as subcriber</remarks>
         /// </summary>
         /// <param name="a">The assembly where to search subscribers</param>
-        public static void Subscribers(Assembly a)
+        /// <param name="createInstances">if <c>true</c>, instances of discovered subscribers are created</param>
+        public static void Subscribers(Assembly a, bool createInstances)
         {
             if (a == (Assembly)null)
                 throw new ArgumentNullException("a");
@@ -69,6 +82,9 @@ namespace Ella
                 {
                     _log.DebugFormat("Found subscriber {0} in assembly {1}", t, a.FullName);
                     EllaModel.Instance.Subscribers.Add(t);
+                    if (createInstances)
+                        Create.ModuleInstance(t);
+
                 }
             }
         }

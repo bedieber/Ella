@@ -29,9 +29,10 @@ namespace Ella
         /// Searches a given file for types that are publishers or subscribers
         /// </summary>
         /// <param name="fi">Fileinfo pointing to the file to inspect, must be a .dll or .exe file</param>
-        public static void Modules(System.IO.FileInfo fi)
+        /// <param name="createInstances">If <c>true</c>, instances of the discovered types are created and publishers are started</param>
+        public static void Modules(System.IO.FileInfo fi, bool createInstances = false)
         {
-            ILog log = LogManager.GetLogger(typeof (Discover));
+            ILog log = LogManager.GetLogger(typeof(Discover));
             if (!fi.Exists)
             {
                 log.ErrorFormat("Assembly file {0} not found", fi);
@@ -44,8 +45,8 @@ namespace Ella
             }
 
             Assembly a = Assembly.LoadFrom(fi.FullName);
-            Load.Publishers(a);
-            Load.Subscribers(a);
+            Load.Publishers(a, createInstances);
+            Load.Subscribers(a, createInstances);
         }
     }
 }
