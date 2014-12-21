@@ -28,34 +28,46 @@ namespace Ella
     public static class Create
     {
         private static ILog _log = LogManager.GetLogger(typeof(Create));
+
         /// <summary>
         /// Creates an instance of a module type.
         /// </summary>
         /// <param name="type">The type.</param>
+        /// <param name="activation">An optional activation function which replaces the default behavior of searching for a factory attribute</param>
         /// <returns></returns>
         /// <exception cref="System.ArgumentException">Class does not define static factory method defining the [Factory] Attribute</exception>
-        public static object ModuleInstance(Type type)
+        public static object ModuleInstance(Type type, Func<Type, object> activation = null)
         {
             _log.DebugFormat("Creating instance of {0}", type);
             if (Is.Publisher(type) || Is.Subscriber(type))
             {
-                var methodInfo = ReflectionUtils.GetAttributedMethod(type, typeof(FactoryAttribute), true);
-                if (methodInfo != null && !methodInfo.GetParameters().Any() &&
-                    (methodInfo is ConstructorInfo || (methodInfo is MethodInfo && methodInfo.IsStatic)))
+                object instance = null;
+                if (activation == null)
                 {
-                    object instance = null;
-                    if (methodInfo is ConstructorInfo)
-                        instance = (methodInfo as ConstructorInfo).Invoke(null);
+                    var methodInfo = ReflectionUtils.GetAttributedMethod(type, typeof(FactoryAttribute), true);
+                    if (methodInfo != null && !methodInfo.GetParameters().Any() &&
+                        (methodInfo is ConstructorInfo || (methodInfo is MethodInfo && methodInfo.IsStatic)))
+                    {
+
+                        //use activation via reflection of Factory attribute
+                        if (methodInfo is ConstructorInfo)
+                            instance = (methodInfo as ConstructorInfo).Invoke(null);
+                        else
+                            instance = methodInfo.Invoke(new object[] { }, null);
+
+                    }
                     else
-                        instance = methodInfo.Invoke(new object[] { }, null);
-                    return instance;
+                    {
+                        _log.ErrorFormat("{0} does not define static factory method defining the [Factory] Attribute", type);
+                        return null;
+                    }
                 }
                 else
                 {
-                    _log.ErrorFormat("{0} does not define static factory method defining the [Factory] Attribute", type);
-                    throw new ArgumentException(
-                        "Class does not define static factory method defining the [Factory] Attribute");
+                    //use activation func to integrate i.e., IoC container
+                    instance = activation(type);
                 }
+                return instance;
             }
             else
             {
@@ -148,7 +160,7 @@ namespace Ella
                         _log.WarnFormat("{0} does not provide any template objects for event ID {1}", instance.GetType(),
                                         eventId);
                 }
-                
+
             }
             else
             {

@@ -26,6 +26,9 @@ namespace Ella.Model
 
         private int _nextModuleID = new Random().Next(100);
 
+        private readonly ReaderWriterLockSlim _subscriptionLock = new ReaderWriterLockSlim();
+        private readonly ReaderWriterLockSlim _activePublishersLock = new ReaderWriterLockSlim();
+
         #region internal Singleton
         private static readonly EllaModel _instance = new EllaModel();
 
@@ -59,7 +62,7 @@ namespace Ella.Model
         /// </summary>
         internal ICollection<Type> Subscribers { get; set; }
 
-        internal List<SubscriptionBase> Subscriptions
+        private List<SubscriptionBase> Subscriptions
         {
             get;
             set;
@@ -95,11 +98,19 @@ namespace Ella.Model
         {
             get
             {
-                //from all active publishers, take their publishes attributes as one flat list
-                IEnumerable<Event> atr = (from p in ActivePublishers.Keys select p.Events).SelectMany(i => i);
-                //make a dictionary out of that list, where the key is the type of published data
-                return atr.GroupBy(a => a.EventDetail.DataType);
-                //return atr.ToLookup(a => a.EventDetail.DataType);
+                _activePublishersLock.EnterReadLock();
+                try
+                {
+                    //from all active publishers, take their publishes attributes as one flat list
+                    IEnumerable<Event> atr = (from p in ActivePublishers.Keys select p.Events).SelectMany(i => i);
+                    //make a dictionary out of that list, where the key is the type of published data
+                    return atr.GroupBy(a => a.EventDetail.DataType).ToList();
+
+                }
+                finally
+                {
+                    _activePublishersLock.ExitReadLock();
+                }
             }
         }
 
@@ -115,7 +126,7 @@ namespace Ella.Model
             ActiveSubscribers = new Dictionary<object, int>();
             EventCorrelations = new Dictionary<EventHandle, List<EventHandle>>();
             PublisherThreads = new List<Thread>();
-            SubscriptionRequests=new List<SubscriptionRequest>();
+            SubscriptionRequests = new List<SubscriptionRequest>();
         }
 
         /// <summary>
@@ -138,7 +149,10 @@ namespace Ella.Model
             }
             else
             {
-                EventCorrelations.Add(first, new List<EventHandle>() { second });
+                lock (EventCorrelations)
+                {
+                    EventCorrelations.Add(first, new List<EventHandle>() { second });
+                }
             }
         }
 
@@ -157,11 +171,12 @@ namespace Ella.Model
         /// <param name="instance">The instance.</param>
         internal void AddActivePublisher(Publisher instance)
         {
-
+            _activePublishersLock.EnterWriteLock();
             if (!ActivePublishers.ContainsKey(instance))
             {
                 ActivePublishers.Add(instance, Interlocked.Increment(ref _nextModuleID));
             }
+            _activePublishersLock.ExitWriteLock();
         }
 
         /// <summary>
@@ -170,9 +185,12 @@ namespace Ella.Model
         /// <param name="instance">The instance.</param>
         internal void AddActiveSubscriber(object instance)
         {
-            if (!ActiveSubscribers.ContainsKey(instance))
+            lock (ActiveSubscribers)
             {
-                ActiveSubscribers.Add(instance, Interlocked.Increment(ref _nextModuleID));
+                if (!ActiveSubscribers.ContainsKey(instance))
+                {
+                    ActiveSubscribers.Add(instance, Interlocked.Increment(ref _nextModuleID));
+                }
             }
         }
 
@@ -184,8 +202,11 @@ namespace Ella.Model
         {
             if (instance == null)
                 return;
+            _activePublishersLock.EnterWriteLock();
+
             if (ActivePublishers.ContainsKey(instance))
                 ActivePublishers.Remove(instance);
+            _activePublishersLock.ExitWriteLock();
         }
 
         /// <summary>
@@ -197,7 +218,16 @@ namespace Ella.Model
         /// </returns>
         internal bool IsActivePublisher(object publisher)
         {
-            return ActivePublishers.Any(k => k.Key.Instance == publisher);
+            _activePublishersLock.EnterReadLock();
+            try
+            {
+
+                return ActivePublishers.Any(k => k.Key.Instance == publisher);
+            }
+            finally
+            {
+                _activePublishersLock.ExitReadLock();
+            }
         }
 
         /// <summary>
@@ -207,7 +237,15 @@ namespace Ella.Model
         /// <returns></returns>
         internal int GetPublisherId(object p)
         {
-            return ActivePublishers.Where(k => k.Key.Instance == p).Select(k => k.Value).DefaultIfEmpty(-1).FirstOrDefault();
+            _activePublishersLock.EnterReadLock();
+            try
+            {
+                return ActivePublishers.Where(k => k.Key.Instance == p).Select(k => k.Value).DefaultIfEmpty(-1).FirstOrDefault();
+            }
+            finally
+            {
+                _activePublishersLock.ExitReadLock();
+            }
         }
 
         /// <summary>
@@ -217,18 +255,34 @@ namespace Ella.Model
         /// <returns>The publisher object associated with the specified <paramref name="id"/>, or <c>null</c> if no such id has been issued</returns>
         internal Publisher GetPublisher(int id)
         {
-            if (ActivePublishers.Values.Contains(id))
+            _activePublishersLock.EnterReadLock();
+            try
             {
-                return ActivePublishers.Where(p => p.Value == id).Select(p => p.Key).FirstOrDefault();
+                if (ActivePublishers.Values.Contains(id))
+                {
+                    return ActivePublishers.Where(p => p.Value == id).Select(p => p.Key).FirstOrDefault();
+                }
+                return null;
             }
-            return null;
+            finally
+            {
+                _activePublishersLock.ExitReadLock();
+            }
         }
 
         internal Publisher GetPublisher(object instance)
         {
-            if (IsActivePublisher(instance))
-                return ActivePublishers.Where(p => p.Key.Instance == instance).Select(p => p.Key).FirstOrDefault();
-            return null;
+            _activePublishersLock.EnterReadLock();
+            try
+            {
+                if (IsActivePublisher(instance))
+                    return ActivePublishers.Where(p => p.Key.Instance == instance).Select(p => p.Key).FirstOrDefault();
+                return null;
+            }
+            finally
+            {
+                _activePublishersLock.ExitReadLock();
+            }
         }
 
         internal object GetSubscriber(int id)
@@ -260,7 +314,104 @@ namespace Ella.Model
 
         internal IEnumerable<Publisher> GetActivePublishers()
         {
-            return ActivePublishers.Keys;
+            _activePublishersLock.EnterReadLock();
+            try
+            {
+                return ActivePublishers.Keys.ToList();
+            }
+            finally
+            {
+                _activePublishersLock.ExitReadLock();
+            }
+        }
+
+        #endregion
+        #region Subscriptions
+        internal int CheckSubscriptionSanity()
+        {
+            int subscriptionsRemoved = 0;
+            _subscriptionLock.EnterWriteLock();
+
+            try
+            {
+                for (int i = 0; i < Subscriptions.Count; i++)
+                {
+                    var sub = Subscriptions[i];
+
+                    if (Subscriptions.Count(s => s == sub) > 1)
+                    {
+                        Subscriptions.RemoveAt(i);
+                        subscriptionsRemoved++;
+                        i--;
+                    }
+                }
+            }
+            finally
+            {
+                _subscriptionLock.ExitWriteLock();
+            }
+            return subscriptionsRemoved;
+        }
+
+        internal IEnumerable<SubscriptionBase> FilterSubscriptions(Predicate<SubscriptionBase> filterPredicate)
+        {
+            var filteredSubscriptions = new List<SubscriptionBase>();
+            _subscriptionLock.EnterReadLock();
+            try
+            {
+                filteredSubscriptions = Subscriptions.Where(s => filterPredicate(s)).ToList(); //force enumerate
+            }
+            finally
+            {
+                _subscriptionLock.ExitReadLock();
+            }
+            return filteredSubscriptions;
+        }
+
+        internal bool ContainsSubscriptions(SubscriptionBase sub)
+        {
+            _subscriptionLock.EnterReadLock();
+            try
+            {
+                return Subscriptions.Contains(sub);
+            }
+            finally
+            {
+                _subscriptionLock.ExitReadLock();
+            }
+        }
+
+        internal void AddSubscription(SubscriptionBase sub)
+        {
+            _subscriptionLock.EnterUpgradeableReadLock();
+            try
+            {
+                if (!Subscriptions.Contains(sub))
+                {
+                    _subscriptionLock.EnterWriteLock();
+                    Subscriptions.Add(sub);
+                    _subscriptionLock.ExitWriteLock();
+                }
+            }
+            finally
+            {
+                _subscriptionLock.ExitUpgradeableReadLock();
+            }
+
+        }
+
+        internal int RemoveSubscriptions(Predicate<SubscriptionBase> selector)
+        {
+            _subscriptionLock.EnterWriteLock();
+            try
+            {
+                return Subscriptions.RemoveAll(selector);
+            }
+            finally
+            {
+                _subscriptionLock.ExitWriteLock();
+            }
+
         }
 
         #endregion

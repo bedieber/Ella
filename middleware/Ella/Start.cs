@@ -26,6 +26,8 @@ using log4net;
 using System.Linq;
 using log4net.Appender;
 using log4net.Config;
+using log4net.Repository;
+using log4net.Repository.Hierarchy;
 
 namespace Ella
 {
@@ -65,8 +67,18 @@ namespace Ella
                     }
                     catch (Exception ex)
                     {
-                        _log.ErrorFormat("Could not invoke subscription call for subscriber {0}. {1}", subscriptionRequest.SubscriberInstance, ex.Message);
-                    }                    
+                        _log.ErrorFormat("Could not invoke late-subscription delegate for subscriber {0}. {1}, {2}", subscriptionRequest.SubscriberInstance, ex.Message, ex.InnerException == null ? string.Empty : ex.InnerException.Message);
+                    }
+                }
+            }
+            if (Networking.IsRunning && !(instance is Stub))
+            {
+                foreach (var ev in publisher.Events)
+                {
+                    Message msg = new Message();
+                    msg.Data = Serializer.Serialize(ev.EventDetail.DataType);
+                    msg.Type = MessageType.NewPublisher;
+                    Networking.BroadcastMessage(msg);
                 }
             }
         }
@@ -80,7 +92,11 @@ namespace Ella
             _log.Info("Starting network controller");
             Networking.NetworkController = new NetworkController();
             Networking.NetworkController.Servers.Add(new UdpServer(EllaConfiguration.Instance.NetworkPort));
-            Networking.NetworkController.Servers.Add(new TcpServer(EllaConfiguration.Instance.NetworkPort, IPAddress.Any));
+            IPAddress listenAddress = !string.IsNullOrEmpty(EllaConfiguration.Instance.BindAddress) &&
+                                      EllaConfiguration.Instance.BindAddress != "0.0.0.0"
+                ? IPAddress.Parse(EllaConfiguration.Instance.BindAddress)
+                : IPAddress.Any;
+            Networking.NetworkController.Servers.Add(new TcpServer(EllaConfiguration.Instance.NetworkPort,listenAddress));
             global::Ella.Networking.Start();
         }
 
@@ -89,23 +105,26 @@ namespace Ella
         /// </summary>
         public static void Ella()
         {
-            if (!LogManager.GetRepository().Configured)
+
+            //if (!LogManager.GetRepository(Assembly.GetAssembly(typeof(Start))).Configured)
+            //{
+            var loggerRepository = LogManager.CreateRepository(Assembly.GetAssembly(typeof(Start)), typeof(Hierarchy));
+
+            var configFile = new FileInfo(
+                Path.GetDirectoryName(
+                    Assembly.GetAssembly(typeof(Start)).Location)
+                + @"\" + "Ella.dll.config");
+            if (File.Exists(configFile.FullName))
             {
-                var configFile = new FileInfo(
-                    Path.GetDirectoryName(
-                        Assembly.GetAssembly(typeof (Start)).Location)
-                    + @"\" + "Ella.dll.config");
-                if (File.Exists(configFile.FullName))
-                {
-                    XmlConfigurator.ConfigureAndWatch(configFile);
-                }
-                else
-                {
-                    ConsoleAppender appender = new ConsoleAppender();
-                    BasicConfigurator.Configure(appender);
-                }
-                _log.Info("Ella started");
+                XmlConfigurator.ConfigureAndWatch(loggerRepository, configFile);
             }
+            else
+            {
+                ConsoleAppender appender = new ConsoleAppender();
+                BasicConfigurator.Configure(appender);
+            }
+            _log.Info("Ella started");
+            //}
         }
 
 

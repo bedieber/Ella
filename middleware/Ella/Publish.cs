@@ -13,6 +13,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -42,7 +43,7 @@ namespace Ella
         /// <param name="eventId">The publisher-internal event ID associated with this event </param>
         /// <param name="subscribers">A list of subscribers, to which the events should be published. If it is null, all subscribers get the event.</param>
         /// <exception cref="InvalidPublisherException"></exception>
-        public static void Event<T>(T eventData, object publisher, int eventId,List<SubscriptionHandle> subscribers =null )
+        public static void Event<T>(T eventData, object publisher, int eventId, List<SubscriptionHandle> subscribers = null)
         {
             if (publisher == null)
             {
@@ -62,7 +63,23 @@ namespace Ella
                     /*
                      * Check if event ID matches
                      */
-                    IEnumerable<Subscription> subscriptions = from s in EllaModel.Instance.Subscriptions where s.DataType == typeof(T) && s.Event.Publisher == publisher && s.Event.EventDetail.ID == eventId select s as Subscription;
+                    Predicate<SubscriptionBase> checkValid =
+                        (s) =>
+                        {
+
+                            if (s.DataType.FullName == typeof(T).FullName)
+                                if (s.Event.Publisher == publisher)
+                                    if (s.Event.EventDetail.ID == eventId)
+                                        return true;
+                            //if (s.Handle is RemoteSubscriptionHandle)
+                            //{
+                            //    _log.DebugFormat(
+                            //        "not valid: types {0} {1},  publisher==publisher? {2}, event ids {3} {4}",
+                            //        s.DataType.FullName, typeof(T).FullName, s.Event.Publisher == publisher, s.Event.EventDetail.ID, eventId);
+                            //}
+                            return false;
+                        };
+                    IEnumerable<Subscription> subscriptions = (from s in EllaModel.Instance.FilterSubscriptions( checkValid) select s as Subscription).ToArray();
                     /*
                      * Data modification and data policies
                      * No copy: publisher has DataCopyPolicy.None && All subscribers have DataModificationPolicy.NoModify
@@ -78,7 +95,7 @@ namespace Ella
                         _log.DebugFormat("No subscribers found for event {0} of publisher {1}", eventId, publisher);
                         return;
                     }
-                    _log.DebugFormat("{0} publishes {1} for event {2}", publisher, eventData, eventId);
+                    _log.DebugFormat("{0} publishes {1} for event {2} {3}", publisher, eventData, eventId, subscribers == null ? "to " + subscriptionsArray.Length + " subscribers" : "to a subset of subscribers");
 
                     if (subscriptionsArray.ElementAt(0).Event.EventDetail.CopyPolicy == DataCopyPolicy.Copy)
                     {
@@ -90,16 +107,34 @@ namespace Ella
                         foreach (var sub in subscriptionsArray)
                         {
                             Thread t =
-                                new Thread(
-                                    () =>
-                                    sub.CallbackMethod.Invoke(sub.CallbackTarget,
-                                                              new object[]
-                                                                  {
-                                                                      sub.ModifyPolicy == DataModifyPolicy.Modify
-                                                                          ? Serializer.SerializeCopy(data)
-                                                                          : data,
-                                                                      sub.Handle
-                                                                  }));
+                                new Thread((ThreadStart)
+                                    delegate
+                                    {
+                                        try
+                                        {
+                                            sub.CallbackMethod.Invoke(sub.CallbackTarget,
+                                                                                new object[]
+                                            {
+                                                sub.ModifyPolicy == DataModifyPolicy.Modify
+                                                    ? Serializer.SerializeCopy(data)
+                                                    : data,
+                                                sub.Handle
+                                            });
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            if (Debugger.IsAttached)
+                                                Debugger.Break();
+                                            do
+                                            {
+                                                _log.FatalFormat(
+                                                    "Could not invoke callbackmethod {0} on type {1}  for subscription {2}: {3} \n{4}",
+                                                    sub.CallbackMethod.Name, sub.CallbackTarget.GetType(), typeof (T),
+                                                    ex.Message, ex.StackTrace);
+                                                ex = ex.InnerException;
+                                            } while (ex.InnerException != null);
+                                        }
+                                    });
                             t.Start();
                         }
                     }

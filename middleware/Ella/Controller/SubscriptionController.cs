@@ -39,7 +39,7 @@ namespace Ella.Controller
             get
             {
                 return
-                    EllaModel.Instance.Subscriptions.Where(s => s.Subscriber is Proxy)
+                    EllaModel.Instance.FilterSubscriptions(s => s.Subscriber is Proxy)
                              .Select(s => s.Subscriber as Proxy).ToList();
             }
         }
@@ -57,10 +57,10 @@ namespace Ella.Controller
         internal static void DoLocalSubscription<T>(object subscriberInstance, Action<T, SubscriptionHandle> newDataCallback, Func<T, bool> evaluateTemplateObject, Action<Type, SubscriptionHandle> subscriptionCallback, DataModifyPolicy policy)
         {
             /*
-                         * find all matching events from currently active publishers
-                         * check if subscriber instace is valid subscriber
-                         * hold a list of subscriptions
-                         */
+            * find all matching events from currently active publishers
+            * check if subscriber instace is valid subscriber
+            * hold a list of subscriptions
+            */
             if (!Is.Subscriber(subscriberInstance.GetType()))
             {
                 _log.ErrorFormat("{0} is not a valid subscriber", subscriberInstance.GetType().ToString());
@@ -106,11 +106,11 @@ namespace Ella.Controller
 
                     if (templateObject == null || evaluateTemplateObject(template))
                     {
-                        if (!EllaModel.Instance.Subscriptions.Contains(subscription))
+                        if (!EllaModel.Instance.ContainsSubscriptions(subscription))
                         {
                             _log.InfoFormat("Subscribing {0} to {1} for type {2}", subscriberInstance, m.Publisher,
                                             m.EventDetail.DataType);
-                            EllaModel.Instance.Subscriptions.Add(subscription);
+                            EllaModel.Instance.AddSubscription(subscription);
                             if (subscriptionCallback != null)
                             {
                                 subscriptionCallback(typeof(T), subscription.Handle);
@@ -150,10 +150,10 @@ namespace Ella.Controller
                     foreach (var handlePair in correlatedEvents)
                     {
                         //Only do this if subscriber is subscribed to both events
-                        if (EllaModel.Instance.Subscriptions.Any(s =>
+                        if (EllaModel.Instance.FilterSubscriptions(s =>
                                                                  Equals(s.Handle.EventHandle,
                                                                         handlePair.Value.EventHandle) &&
-                                                                 s.Subscriber == subscriberInstance))
+                                                                 s.Subscriber == subscriberInstance).Any())
                             associateMethod.Invoke(subscriberInstance,
                                                    new object[] { handlePair.Key, handlePair.Value });
                     }
@@ -182,6 +182,19 @@ namespace Ella.Controller
                 List<RemoteSubscriptionHandle> handles = new List<RemoteSubscriptionHandle>();
                 foreach (var match in matches)
                 {
+                    Predicate<SubscriptionBase> filterExisting = (s) =>
+                    {
+                        var remoteSubHandle = s.Handle as RemoteSubscriptionHandle;
+                        if (remoteSubHandle==null)
+                            return false;
+                        return remoteSubHandle.SubscriptionReference == subscriptionReference &&
+                               remoteSubHandle.PublisherId == EllaModel.Instance.GetPublisherId(match.Publisher);
+                    };
+                    if (EllaModel.Instance.FilterSubscriptions(filterExisting).Any())
+                    {
+                        _log.DebugFormat("Subscription from reference {0} to publisher {1} already exists", subscriptionReference, EllaModel.Instance.GetPublisherId(match.Publisher));
+                        continue;
+                    }
                     var proxy = match.EventDetail.NeedsReliableTransport
                         ? new Proxy()
                         : GetMulticastProxy(match);
@@ -209,16 +222,19 @@ namespace Ella.Controller
                     handle.SubscriberId = EllaModel.Instance.GetSubscriberId(proxy);
                     handle.SubscriptionReference = subscriptionReference;
 
-                    _log.DebugFormat("Constructing remote subscription handle {0}", handle);
+                    _log.DebugFormat("Constructing remote subscription handle {0} for {1} subscription", handle, type);
                     SubscriptionBase subscription = new Subscription(proxy, match,
                         proxy.GetType().GetMethod("HandleEvent", BindingFlags.NonPublic | BindingFlags.Instance), proxy);
                     subscription.Handle = handle;
                     subscription.DataType = type;
                     _log.InfoFormat("Subscribing remote subscriber to {0} for type {1}", match.Publisher,
                         match.EventDetail.DataType);
-                    EllaModel.Instance.Subscriptions.Add(subscription);
+                    EllaModel.Instance.AddSubscription(subscription);
+                    var removedSubscriptions = EllaModel.Instance.CheckSubscriptionSanity();
+                    if (removedSubscriptions > 0)
+                        _log.WarnFormat("Subscription sanity restored after subscribing remote subscriber. removed {0} subscriptions", removedSubscriptions);
                     handles.Add(handle);
-
+                    _log.DebugFormat("Notifying publisher {0} of new subscription (if callback is supplied)", match.Publisher.GetType().Name);
                     NotifyPublisher(match, handle);
                 }
                 return handles;
@@ -239,7 +255,10 @@ namespace Ella.Controller
             string callback = ev.EventDetail.SubscriptionCallback;
 
             if (callback == null)
+            {
+                _log.DebugFormat("No subscription callback supplied for event {0} of publisher {1}", ev.EventDetail.ID, ev.Publisher.GetType().Name);
                 return;
+            }
 
             MethodInfo info = ev.Publisher.GetType().GetMethod(callback);
 
@@ -248,6 +267,10 @@ namespace Ella.Controller
             {
                 object[] parameters = { ev.EventDetail.ID, handle };
                 info.Invoke(ev.Publisher, parameters);
+            }
+            else
+            {
+                _log.DebugFormat("Could not find callback method {0}", callback);
             }
 
         }
@@ -270,13 +293,18 @@ namespace Ella.Controller
         /// </summary>
         internal static void SubscribeToRemotePublisher<T>(RemoteSubscriptionHandle handle, object subscriberInstance, Action<T, SubscriptionHandle> newDataCallBack, DataModifyPolicy policy, Func<T, bool> evaluateTemplateObject, Action<Type, SubscriptionHandle> subscriptionCallback)
         {
-            _log.DebugFormat("Completing subscription to remote publisher {0} on node {1},handle: {2}",
-                             handle.PublisherId, handle.PublisherNodeID, handle);
+            _log.DebugFormat("Completing subscription to remote publisher {0} on node {1},handle: {2}, type: {3}",
+                             handle.PublisherId, handle.PublisherNodeID, handle, typeof(T).Name);
             //TODO template object
 
             //Create a stub
             Stub<T> s = new Stub<T> { DataType = typeof(T), Handle = handle };
-
+            if (
+                (EllaModel.Instance.GetActivePublishers().Where(p => p.Instance is Stub && (p.Instance as Stub).Handle == handle)).Any())
+            {
+                _log.DebugFormat("Avoiding double subscription for handle {0}. Anready an active stub available.", handle);
+                return;
+            }
             var publishesAttribute = (PublishesAttribute)s.GetType().GetCustomAttributes(typeof(PublishesAttribute), false).First();
 
             if (handle is MulticastRemoteSubscriptionhandle)
@@ -302,7 +330,13 @@ namespace Ella.Controller
                 };
             handle.SubscriberId = EllaModel.Instance.GetSubscriberId(subscriberInstance);
             Subscription sub = new Subscription(subscriberInstance, ev, newDataCallBack.Method, newDataCallBack.Target) { Handle = s.Handle, DataType = typeof(T) };
-            EllaModel.Instance.Subscriptions.Add(sub);
+
+
+            EllaModel.Instance.AddSubscription(sub);
+            var sanity = EllaModel.Instance.CheckSubscriptionSanity();
+            if (sanity > 0)
+                _log.WarnFormat("Subscription sanity restored. removed {0} subscriptions", sanity);
+
             if (subscriptionCallback != null)
             {
                 _log.DebugFormat("Found subscription callback for {0}, notifying subscriber", handle);
@@ -320,9 +354,9 @@ namespace Ella.Controller
         /// </summary>
         /// <param name="selector">The selector.</param>
         /// <param name="performRemoteUnsubscribe">if set to <c>true</c> [perform remote unsubscribe].</param>
-        internal static void PerformUnsubscribe(Func<SubscriptionBase, bool> selector, bool performRemoteUnsubscribe = true)
+        internal static void PerformUnsubscribe(Predicate<SubscriptionBase> selector, bool performRemoteUnsubscribe = true)
         {
-            var remoteSubscriptions = EllaModel.Instance.Subscriptions.Where(selector).Where(s => s.Handle is RemoteSubscriptionHandle);
+            var remoteSubscriptions = EllaModel.Instance.FilterSubscriptions(selector).Where(s => s.Handle is RemoteSubscriptionHandle);
 
             foreach (var remoteSubscription in remoteSubscriptions)
             {
@@ -335,7 +369,7 @@ namespace Ella.Controller
                     Networking.Unsubscribe(handle.SubscriptionReference, handle.PublisherNodeID);
                 Stop.Publisher(remoteSubscription.Event.Publisher);
             }
-            int removedSubscriptions = EllaModel.Instance.Subscriptions.RemoveAll(s => selector(s));
+            int removedSubscriptions = EllaModel.Instance.RemoveSubscriptions(selector);
 
             _log.DebugFormat("{0} local subscriptions have been removed.", removedSubscriptions);
         }

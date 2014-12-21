@@ -27,6 +27,7 @@ namespace Ella.Network
         ApplicationMessage,
         ApplicationMessageResponse,
         EventCorrelation,
-        NodeShutdown
+        NodeShutdown,
+        NewPublisher
     }
 }

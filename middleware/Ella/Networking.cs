@@ -72,6 +72,15 @@ namespace Ella
             NetworkController.ConnectToMulticastGroup(@group, port);
         }
 
+        /// <summary>
+        /// Sends a message to all known remote hosts
+        /// </summary>
+        /// <param name="msg">The MSG.</param>
+        internal static void BroadcastMessage(Message msg)
+        {
+            NetworkController.BroadcastMessage(msg);
+        }
+
         internal static void Stop()
         {
             NetworkController.Stop();

@@ -58,6 +58,16 @@ namespace Ella
             Ella.Subscribe.To<String>(this, Callback, DataModifyPolicy.NoModify);
         }
 
+        internal void SubscribeForPublisherWithCallbackMethod()
+        {
+            Ella.Subscribe.To<bool>(this, BoolCallback);
+        }
+
+        internal void SubscribeForPublisherWithSpecificSubscribers()
+        {
+            Ella.Subscribe.To<bool>(this, BoolCallback);
+        }
+
 #endregion 
 
         #region Unsubscribe
@@ -82,15 +92,6 @@ namespace Ella
             Ella.Unsubscribe.From(this);
         }
 
-        internal void SubscribeForPublisherWithCallbackMethod()
-        {
-            Ella.Subscribe.To<bool>(this,BoolCallback);
-        }
-
-        internal void SubscribeForPublisherWithSpecificSubscribers()
-        {
-            Ella.Subscribe.To<bool>(this,BoolCallback);
-        }
 
         #endregion
 

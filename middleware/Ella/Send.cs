@@ -139,8 +139,8 @@ namespace Ella
         /// <returns></returns>
         internal static bool DeliverMessageReply(ApplicationMessage message)
         {
-            object subscriber = (from s in EllaModel.Instance.Subscriptions
-                                 where s.Handle == message.Handle
+            object subscriber = (from s in EllaModel.Instance.FilterSubscriptions(s =>
+                                 s.Handle == message.Handle)
                                  select s.Subscriber).SingleOrDefault();
             if (subscriber != null)
             {
@@ -169,7 +169,14 @@ namespace Ella
                 ParameterInfo[] parameterInfos = method.GetParameters();
                 if (parameterInfos.Length == 1 && parameterInfos[0].ParameterType == typeof(ApplicationMessage))
                 {
-                    new Thread((ThreadStart)delegate { method.Invoke(instance, new object[] { message }); }).Start();
+                    try
+                    {
+                        new Thread((ThreadStart)delegate { method.Invoke(instance, new object[] { message }); }).Start();
+                    }
+                    catch (Exception ex)
+                    {
+                        _log.ErrorFormat("Exception during application message delivery: {0} {1}", ex.Message, ex.InnerException == null ? string.Empty : ex.InnerException.Message);
+                    }
                 }
             }
             else

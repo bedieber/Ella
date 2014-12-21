@@ -16,6 +16,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using Ella.Attributes;
 using Ella.Data;
 using Ella.Internal;
+using Ella.Model;
 using Ella.Network.Communication;
 using log4net;
 
@@ -46,7 +47,7 @@ namespace Ella.Network
     [Publishes(typeof(Unknown), 1, CopyPolicy = DataCopyPolicy.None)]
     internal class Stub<T> : Stub
     {
-        private ILog _log = LogManager.GetLogger(typeof(Stub));
+        private ILog _log;
 
         /// <summary>
         /// Starts this instance.
@@ -54,7 +55,16 @@ namespace Ella.Network
         [Start]
         public void Start()
         {
-
+            try
+            {
+                var publisherId = EllaModel.Instance.GetPublisherId(this);
+                _log = LogManager.GetLogger(GetType().Name + publisherId.ToString());
+            }
+            catch (Exception)
+            {
+                _log = LogManager.GetLogger(GetType());
+                _log.Debug("Could not get publisher-id specific logger");
+            }
         }
 
         /// <summary>
@@ -85,7 +95,7 @@ namespace Ella.Network
             _log.DebugFormat("New {0} message", typeof (T).Name);
             BinaryFormatter bf = new BinaryFormatter();
             var dto = bf.Deserialize(new MemoryStream(data));
-            if (dto.GetType() == typeof (T))
+            if (dto.GetType()== typeof (T))
             {
                 T d = (T)dto;
                 Publish.Event(d, this, 1);

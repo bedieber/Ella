@@ -30,7 +30,7 @@ namespace Ella.Internal
         /// <value>
         /// The instance.
         /// </value>
-        internal static EllaConfiguration Instance
+        public static EllaConfiguration Instance
         {
             get
             {
@@ -59,7 +59,7 @@ namespace Ella.Internal
         /// <value>
         /// The MTU.
         /// </value>
-        [ConfigurationProperty("MTU",IsRequired = false,IsKey = false,DefaultValue = 1440)]
+        [ConfigurationProperty("MTU", IsRequired = false, IsKey = false, DefaultValue = 1440)]
         public int MTU
         {
             get { return (int)this["MTU"]; }
@@ -92,6 +92,20 @@ namespace Ella.Internal
         {
             get { return (int)this["NetworkPort"]; }
             set { this["NetworkPort"] = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the bind address.
+        /// </summary>
+        /// <value>
+        /// The bind address.
+        /// </value>
+        [ConfigurationProperty("BindAddress", IsRequired = false, DefaultValue = "0.0.0.0")]
+        [CallbackValidator(CallbackMethodName = "ValidateIpAddress", Type = typeof(EllaConfiguration))]
+        public string BindAddress
+        {
+            get { return (string)this["BindAddress"]; }
+            set { this["BindAddress"] = value; }
         }
 
         /// <summary>
@@ -141,8 +155,8 @@ namespace Ella.Internal
         /// <value>
         /// The size of the max queue.
         /// </value>
-        [ConfigurationProperty("MaxQueueSize",DefaultValue=(int)50, IsRequired=false)]
-        [IntegerValidator(MinValue=1,MaxValue=65535,ExcludeRange=false)]
+        [ConfigurationProperty("MaxQueueSize", DefaultValue = (int)50, IsRequired = false)]
+        [IntegerValidator(MinValue = 1, MaxValue = 65535, ExcludeRange = false)]
         public int MaxQueueSize
         {
             get { return (int)this["MaxQueueSize"]; }
@@ -168,12 +182,8 @@ namespace Ella.Internal
         /// <param name="o"></param>
         public static void ValidateMulticastAddress(object o)
         {
-            string ipString = o as string;
 
-            if (ipString == null)
-                throw new ConfigurationErrorsException("MulticastAddress is not an string.");
-
-            IPAddress ip = IPAddress.Parse(ipString);
+            var ip = IPAddress.Parse(o as string);
             byte[] addressBytes = ip.GetAddressBytes();
 
             if (224 <= addressBytes[0] && addressBytes[0] <= 239)
@@ -184,6 +194,16 @@ namespace Ella.Internal
             throw new ConfigurationErrorsException("MulticastAddress is not in a valid range.");
         }
 
-        
+        public static void ValidateIpAddress(object o)
+        {
+            if (o == null)
+                return;
+            string ipString = o as string;
+
+            if (string.IsNullOrEmpty(ipString))
+                throw new ConfigurationErrorsException(string.Format("IpAddress {0} is not an string.", ipString));
+
+            IPAddress ip = IPAddress.Parse(ipString);
+        }
     }
 }

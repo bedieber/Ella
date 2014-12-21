@@ -61,7 +61,7 @@ namespace Ella
                     };
                 EllaModel.Instance.AddEventCorrelation(first, second);
 
-                foreach (var result in EllaModel.Instance.Subscriptions.GroupBy(s => s.Subscriber).Where(g => g.Any(g1 => Equals(g1.Handle.EventHandle, first)) && g.Any(g2 => Equals(g2.Handle.EventHandle, second))).Select(g => new { Object = g.Key, Method = ReflectionUtils.GetAttributedMethod(g.Key.GetType(), typeof(AssociateAttribute)) }))
+                foreach (var result in EllaModel.Instance.FilterSubscriptions(s=>true).GroupBy(s => s.Subscriber).Where(g => g.Any(g1 => Equals(g1.Handle.EventHandle, first)) && g.Any(g2 => Equals(g2.Handle.EventHandle, second))).Select(g => new { Object = g.Key, Method = ReflectionUtils.GetAttributedMethod(g.Key.GetType(), typeof(AssociateAttribute)) }))
                 {
                     if (result.Method != null)
                     {

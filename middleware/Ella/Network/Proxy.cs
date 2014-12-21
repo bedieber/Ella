@@ -65,24 +65,34 @@ namespace Ella.Network
              * Serialize it
              * Transfer
              */
-            if (data.GetType().IsSerializable)
+            try
             {
-                Message m = new Message();
-                m.Type = MessageType.Publish;
-                byte[] serialize = Serializer.Serialize(data);
-                //PublisherID
-                //EventID
-                //data
-                byte[] payload = new byte[serialize.Length + 4];
-                Array.Copy(BitConverter.GetBytes((int)EllaModel.Instance.GetPublisherId(EventToHandle.Publisher)), payload, 2);
-                Array.Copy(BitConverter.GetBytes(EventToHandle.EventDetail.ID), 0, payload, 2, 2);
-                Array.Copy(serialize, 0, payload, 4, serialize.Length);
-                m.Data = payload;
-                Send(m);
+                if (data.GetType().IsSerializable)
+                {
+                    Message m = new Message();
+                    m.Type = MessageType.Publish;
+                    byte[] serialize = Serializer.Serialize(data);
+                    //PublisherID
+                    //EventID
+                    //data
+                    byte[] payload = new byte[serialize.Length + 4];
+                    Array.Copy(BitConverter.GetBytes((int)EllaModel.Instance.GetPublisherId(EventToHandle.Publisher)), payload, 2);
+                    Array.Copy(BitConverter.GetBytes(EventToHandle.EventDetail.ID), 0, payload, 2, 2);
+                    Array.Copy(serialize, 0, payload, 4, serialize.Length);
+                    m.Data = payload;
+                    _log.DebugFormat("Sending message with data type {0} to remote stub", data.GetType().Name);
+
+                    Send(m);
+                }
+                else
+                {
+                    _log.ErrorFormat("Object {0} of Event {1} is not serializable", data, handle);
+                }
             }
-            else
+            catch (Exception ex)
             {
-                _log.ErrorFormat("Object {0} of Event {1} is not serializable", data, handle);
+                _log.FatalFormat("Could not send {0}: {1}", data.GetType(), ex.Message);
+                throw;
             }
 
         }

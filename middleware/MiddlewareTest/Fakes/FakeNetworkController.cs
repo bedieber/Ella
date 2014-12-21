@@ -76,6 +76,11 @@ namespace Ella.Fakes
             started = false;
         }
 
+        public void BroadcastMessage(Message msg)
+        {
+            //TODO implement
+        }
+
         public bool IsRunning { get { return true; } }
         public List<INetworkServer> Servers { get; private set; }
 

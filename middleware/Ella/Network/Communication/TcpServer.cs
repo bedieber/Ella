@@ -178,7 +178,6 @@ namespace Ella.Network.Communication
                     NewMessage(this, new MessageEventArgs(m) { Address = client.Client.RemoteEndPoint });
                     if (messageType != (short)MessageType.Publish)
                     {
-                        _log.Debug("Not continuing to read since message type was not publish");
                         break;
                     }
 

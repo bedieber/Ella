@@ -12,6 +12,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -34,16 +35,18 @@ namespace Ella
         /// </summary>
         /// <param name="a">The assembly where to search publishers in</param>
         /// <param name="createInstances">if <c>true</c>, instances of the found publisher types are created and started during the discovery process</param>
-        public static void Publishers(Assembly a, bool createInstances = false)
+        /// <param name="activation"></param>
+        public static void Publishers(Assembly a, bool createInstances = false, Func<Type, object> activation = null)
         {
             if (a == (Assembly)null)
                 throw new ArgumentNullException("a");
             _log.DebugFormat("Loading publishers from {0}", a.FullName);
-            //AssemblyName[] referencedAssemblies = a.GetReferencedAssemblies();
-            //foreach (AssemblyName name in referencedAssemblies)
-            //{
-            //    Assembly.Load(name);
-            //}
+            AssemblyName[] referencedAssemblies = a.GetReferencedAssemblies();
+            foreach (AssemblyName name in referencedAssemblies)
+            {
+                ResolveAndLoadAssembly(name);
+            }
+
             Type[] exportedTypes = a.GetExportedTypes();
             foreach (Type t in exportedTypes)
             {
@@ -55,8 +58,9 @@ namespace Ella
                         EllaModel.Instance.Publishers.Add(t);
                         if (createInstances)
                         {
-                            var instance = Create.ModuleInstance(t);
-                            Start.Publisher(instance);
+                            var instance = Create.ModuleInstance(t, activation);
+                            if (instance != null)
+                                Start.Publisher(instance);
                         }
                     }
                 }
@@ -69,24 +73,80 @@ namespace Ella
         /// </summary>
         /// <param name="a">The assembly where to search subscribers</param>
         /// <param name="createInstances">if <c>true</c>, instances of discovered subscribers are created</param>
-        public static void Subscribers(Assembly a, bool createInstances)
+        /// <param name="activation"></param>
+        public static void Subscribers(Assembly a, bool createInstances = false, Func<Type, object> activation = null)
         {
             if (a == (Assembly)null)
                 throw new ArgumentNullException("a");
 
             _log.DebugFormat("Loading subscribers from {0}", a.FullName);
+            AssemblyName[] referencedAssemblies = a.GetReferencedAssemblies();
+
+            foreach (AssemblyName name in referencedAssemblies)
+            {
+                   ResolveAndLoadAssembly(name);
+            }
             Type[] exportedTypes = a.GetExportedTypes();
             foreach (Type t in exportedTypes)
             {
                 if (Is.Subscriber(t))
                 {
                     _log.DebugFormat("Found subscriber {0} in assembly {1}", t, a.FullName);
-                    EllaModel.Instance.Subscribers.Add(t);
+                    if (!EllaModel.Instance.Subscribers.Contains(t))
+                        EllaModel.Instance.Subscribers.Add(t);
                     if (createInstances)
-                        Create.ModuleInstance(t);
-
+                        Create.ModuleInstance(t, activation);
                 }
             }
+        }
+
+        /// <summary>
+        /// Resolves the assembly.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        private static void ResolveAndLoadAssembly(AssemblyName name)
+        {
+            if (AppDomain.CurrentDomain.GetAssemblies().All(r => r.FullName != name.FullName))
+            {
+                DirectoryInfo di = new DirectoryInfo(Directory.GetCurrentDirectory());
+
+                if (di.Exists)
+                {
+                    try
+                    {
+                        var assemblyName = new AssemblyName(name.FullName);
+                        var files = di.GetFiles(string.Format("{0}.*", assemblyName.Name),
+                            SearchOption.AllDirectories);
+                        var fileInfos =
+                            files
+                                .Where(f => f.Extension == ".dll" || f.Extension == ".exe");
+                        if (fileInfos.Any())
+                        {
+                            var assemblyFile = fileInfos.First();
+                            var assembly = Load.Assembly(assemblyFile);
+
+                            _log.DebugFormat("Assembly {0} loaded", assemblyFile);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _log.DebugFormat("Could not load referenced assembly {0}: {1}", name.FullName, ex.Message);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Loads the specified assembly file into the runtime
+        /// </summary>
+        /// <param name="assemblyFile">The assembly file.</param>
+        /// <returns></returns>
+        public static Assembly Assembly(FileInfo assemblyFile)
+        {
+            byte[] assemblyBytes = new byte[assemblyFile.Length];
+            File.OpenRead(assemblyFile.FullName).Read(assemblyBytes, 0, assemblyBytes.Length);
+            var assembly = System.Reflection.Assembly.Load(assemblyBytes);
+            return assembly;
         }
     }
 }

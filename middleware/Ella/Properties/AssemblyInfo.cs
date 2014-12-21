@@ -5,6 +5,10 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
+using log4net.Config;
+using log4net.Repository;
+using log4net.Repository.Hierarchy;
+
 [assembly: AssemblyTitle("Ella")]
 [assembly: AssemblyDescription("Ella Publish/Subscribe Middleware")]
 [assembly: AssemblyConfiguration("")]
@@ -16,6 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: InternalsVisibleTo("MiddlewareTest")]
 
 //Log4net
+[assembly: Repository("ella", RepositoryType = typeof(Hierarchy))]
 [assembly: log4net.Config.XmlConfigurator(Watch = false, ConfigFile = "Ella.dll.config")]
 
 // Setting ComVisible to false makes the types in this assembly not visible 

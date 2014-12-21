@@ -30,7 +30,8 @@ namespace Ella
         /// </summary>
         /// <param name="fi">Fileinfo pointing to the file to inspect, must be a .dll or .exe file</param>
         /// <param name="createInstances">If <c>true</c>, instances of the discovered types are created and publishers are started</param>
-        public static void Modules(System.IO.FileInfo fi, bool createInstances = false)
+        /// <param name="activation">An optional activation function to be used instead of the default factory</param>
+        public static void Modules(System.IO.FileInfo fi, bool createInstances = false, Func<Type,object> activation=null)
         {
             ILog log = LogManager.GetLogger(typeof(Discover));
             if (!fi.Exists)
@@ -44,9 +45,9 @@ namespace Ella
                 throw new ArgumentException("Assembly must be a .exe or .dll");
             }
 
-            Assembly a = Assembly.LoadFrom(fi.FullName);
-            Load.Publishers(a, createInstances);
-            Load.Subscribers(a, createInstances);
+            Assembly a = Load.Assembly(fi);
+            Load.Publishers(a, createInstances, activation);
+            Load.Subscribers(a, createInstances,activation);
         }
     }
 }

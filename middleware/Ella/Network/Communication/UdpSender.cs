@@ -16,6 +16,7 @@ using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Threading;
 using Ella.Internal;
+using Ella.Model;
 using log4net;
 
 namespace Ella.Network.Communication
@@ -28,6 +29,7 @@ namespace Ella.Network.Communication
         private static ILog _log = LogManager.GetLogger(typeof(UdpSender));
         internal static int NextFreeMulticastPort;
         internal IPEndPoint TargetNode;
+        private static Timer _discoveryTimer;
 
         /// <summary>
         /// Initializes the <see cref="UdpSender"/> class.
@@ -74,48 +76,60 @@ namespace Ella.Network.Communication
         /// </summary>
         internal static void Broadcast()
         {
-            byte[] idBytes = BitConverter.GetBytes(EllaConfiguration.Instance.NodeId);
-            byte[] portBytes = BitConverter.GetBytes(EllaConfiguration.Instance.NetworkPort);
-            byte[] bytes = new byte[idBytes.Length + portBytes.Length];
-            Array.Copy(idBytes, bytes, idBytes.Length);
-            Array.Copy(portBytes, 0, bytes, idBytes.Length, portBytes.Length);
-
-            /*
-             * Iterate over all port numbers in the configuration port range
-             */
-            for (int i = EllaConfiguration.Instance.DiscoveryPortRangeStart;
-                i <= EllaConfiguration.Instance.DiscoveryPortRangeEnd;
-                i++)
+            TimerCallback broadcast = o =>
             {
-                IPEndPoint ip = new IPEndPoint(IPAddress.Parse("255.255.255.255"), i);
+                byte[] idBytes = BitConverter.GetBytes(EllaConfiguration.Instance.NodeId);
+                byte[] portBytes = BitConverter.GetBytes(EllaConfiguration.Instance.NetworkPort);
+                byte[] bytes = new byte[idBytes.Length + portBytes.Length];
+                Array.Copy(idBytes, bytes, idBytes.Length);
+                Array.Copy(portBytes, 0, bytes, idBytes.Length, portBytes.Length);
 
                 /*
+             * Iterate over all port numbers in the configuration port range
+             */
+                for (int i = EllaConfiguration.Instance.DiscoveryPortRangeStart;
+                    i <= EllaConfiguration.Instance.DiscoveryPortRangeEnd;
+                    i++)
+                {
+                    IPEndPoint ip = new IPEndPoint(IPAddress.Parse("255.255.255.255"), i);
+
+                    /*
                  * Iterate over all network interfaces to perform discovery on each IF
                  */
-                NetworkInterface[] allNetworkInterfaces = NetworkInterface.GetAllNetworkInterfaces();
-                foreach (NetworkInterface nIf in allNetworkInterfaces)
-                {
-                    foreach (UnicastIPAddressInformation ua in nIf.GetIPProperties().UnicastAddresses)
+                    NetworkInterface[] allNetworkInterfaces = NetworkInterface.GetAllNetworkInterfaces();
+                    foreach (NetworkInterface nIf in allNetworkInterfaces)
                     {
-                        if (ua.Address.AddressFamily != AddressFamily.InterNetwork || IPAddress.IsLoopback(ua.Address))
-                            continue;
-                        try
+                        foreach (UnicastIPAddressInformation ua in nIf.GetIPProperties().UnicastAddresses)
                         {
-                            _log.DebugFormat("Broadcasting to {0}", ip);
-                            UdpClient client = new UdpClient(new IPEndPoint(ua.Address, 0));
-                            client.Send(bytes, bytes.Length, ip);
-                        }
-                        catch
-                        {
+                            if (!string.IsNullOrEmpty(EllaConfiguration.Instance.BindAddress) &&
+                                EllaConfiguration.Instance.BindAddress != "0.0.0.0" &&
+                                ua.Address.ToString() != EllaConfiguration.Instance.BindAddress)
+                            {
+                                continue;
+                            }
+                            if (ua.Address.AddressFamily != AddressFamily.InterNetwork
+                                /*|| IPAddress.IsLoopback(ua.Address)*/)
+                                //do not exclude local loopback, might be a multi-process single-node application
+                                continue;
+                            try
+                            {
+                                _log.DebugFormat("Broadcasting to NIC {0} port {1}", ua.Address, i);
+                                UdpClient client = new UdpClient(new IPEndPoint(ua.Address, 0));
+                                client.Send(bytes, bytes.Length, ip);
+                            }
+                            catch
+                            {
+                            }
                         }
                     }
                 }
-            }
+            };
+            _discoveryTimer = new Timer(broadcast, null, 0, 5000);
         }
 
         public override void Dispose()
         {
-            
+
         }
     }
 }

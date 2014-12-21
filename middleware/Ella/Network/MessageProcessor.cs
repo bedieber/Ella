@@ -42,8 +42,10 @@ namespace Ella.Network
         internal void NewMessage(object sender, MessageEventArgs e)
         {
             if (e.Message.Sender == EllaConfiguration.Instance.NodeId)
+            {
                 return;
-            _log.DebugFormat("New {1} message from {0}", e.Address, e.Message.Type);
+            }
+            _log.DebugFormat("New {1} message from {0} with id {2}", e.Address, e.Message.Type, e.Message.Id);
             switch (e.Message.Type)
             {
                 case MessageType.Discover:
@@ -94,9 +96,13 @@ namespace Ella.Network
                 case MessageType.NodeShutdown:
                     ProcessNodeShutdown(e);
                     break;
+                case MessageType.NewPublisher:
+                    ProcessNewPublisher(e);
+                    break;
 
             }
         }
+
 
         #region Discovery
 
@@ -119,15 +125,21 @@ namespace Ella.Network
                 try
                 {
                     if (!AddRemoteHost(e, ep))
+                    {
                         return;
+                    }
                 }
                 catch (Exception ex)
                 {
-                    _log.ErrorFormat("Could not add sender {0} to remotehosts list due to {1}", e.Message.Sender, ex.GetType().Name);
+                    _log.ErrorFormat("Could not add sender {0} to remotehosts list due to {1}", e.Message.Sender,
+                        ex.GetType().Name);
                 }
             }
             else
+            {
+                _log.WarnFormat("Discarding discovery message from node {0}", e.Message.Sender);
                 return;
+            }
             byte[] portBytes = BitConverter.GetBytes(EllaConfiguration.Instance.NetworkPort);
             //byte[] bytes = new byte[idBytes.Length + portBytes.Length];
             //Array.Copy(idBytes, bytes, idBytes.Length);
@@ -136,21 +148,30 @@ namespace Ella.Network
             SenderBase.SendMessage(m, ep);
 
             /*
-             * EnqueueMessage a message to the new host and inquiry about possible new publishers
+             * EnqueueMessage a message to the new host and inquire about possible new publishers
              */
-            //TODO a delay makes sense here because the other node may still be starting publishers when the local node already inquires. However this only covers most of an automatic startup
-            //TODO think about regular inquiries to known nodes or a notification mechanism about a newly started publisher
+
             Thread.Sleep(2000);
-            if (SubscriptionCache.Any())
+            RetryPendingSubscriptions(ep);
+        }
+
+        private void RetryPendingSubscriptions(IPEndPoint ep, Type type = null)
+        {
+            _log.DebugFormat("Retrying to find publishers for pending subscriptions {0}", type == null ? string.Empty : string.Format("of type {0}", type.Name));
+            var cache = type == null ? SubscriptionCache.ToArray() : SubscriptionCache.Where(c => c.Value == type).ToArray();
+
+            foreach (var sub in cache)
             {
-                var subscriptionCacheString = SubscriptionCache.Select(
-                    cs => string.Format("{0}-{1}\n", cs.Key, cs.Value)).Aggregate((s1, s2) => s1 + "\n" + s2);
-                _log.DebugFormat("Processing subscription cache for newly discovered host {0}\n{1}", e.Message.Sender,
-                    subscriptionCacheString);
-            }
-            foreach (var sub in SubscriptionCache)
-            {
-                Message subscription = new Message(sub.Key) { Type = MessageType.Subscribe, Data = Serializer.Serialize(sub.Value) };
+                if (type != null && sub.Value != type)
+                    return;
+
+                Message subscription = new Message(sub.Key)
+                {
+                    Type = MessageType.Subscribe,
+                    Data = Serializer.Serialize(sub.Value)
+                };
+
+                _log.DebugFormat("Resending subscription request message {0}", subscription.Id);
                 SenderBase.SendAsync(subscription, ep);
             }
         }
@@ -190,6 +211,7 @@ namespace Ella.Network
                 ep.Port = port;
                 _log.InfoFormat("Host {0} on {1} responded to discovery", e.Message.Sender, ep);
                 AddRemoteHost(e, ep);
+                RetryPendingSubscriptions(ep);
             }
         }
         #endregion
@@ -243,13 +265,15 @@ namespace Ella.Network
             try
             {
                 type = Serializer.Deserialize<Type>(e.Message.Data);
+                _log.DebugFormat("Processing remote subscription request for {0}", type.Name);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _log.ErrorFormat("Could not process remote subscription request. {0}", ex.Message);
                 return;
             }
             //get the subscriptions that this node is already subscribed for, to avoid double subscriptions
-            var currentHandles = (from s1 in (EllaModel.Instance.Subscriptions.Where(s => s.Event.EventDetail.DataType == type).Select(s => s.Handle)).OfType<RemoteSubscriptionHandle>()
+            var currentHandles = (from s1 in (EllaModel.Instance.FilterSubscriptions(s => s.Event.EventDetail.DataType == type).Select(s => s.Handle)).OfType<RemoteSubscriptionHandle>()
                                   where s1.SubscriberNodeID == e.Message.Sender
                                   select s1).ToList().GroupBy(s => s.SubscriptionReference);
 
@@ -334,7 +358,7 @@ namespace Ella.Network
             int ID = e.Message.Id;
 
             List<SubscriptionBase> remoteSubs =
-                EllaModel.Instance.Subscriptions.FindAll(s => s.Handle is RemoteSubscriptionHandle);
+                EllaModel.Instance.FilterSubscriptions(s => s.Handle is RemoteSubscriptionHandle).ToList();
 
             remoteSubs = remoteSubs.FindAll(s => (s.Handle as RemoteSubscriptionHandle).SubscriptionReference == ID);
 
@@ -373,10 +397,12 @@ namespace Ella.Network
             };
             byte[] data = new byte[e.Message.Data.Length - 4];
             Buffer.BlockCopy(e.Message.Data, 4, data, 0, data.Length);
-            var subscriptions = from s in EllaModel.Instance.Subscriptions
-                                let h = (s.Handle as RemoteSubscriptionHandle)
-                                where h != null && CompareSubscriptionHandles(handle, h)
-                                select s;
+            var subscriptions = EllaModel.Instance.FilterSubscriptions(s =>
+            {
+                var h = (s.Handle as RemoteSubscriptionHandle);
+
+                return h != null && CompareSubscriptionHandles(handle, h);
+            });
             var subs = subscriptions as SubscriptionBase[] ?? subscriptions.ToArray();
             _log.DebugFormat("Found {0} subscriptions for handle {1}", subs.Length, handle);
             foreach (var sub in subs)
@@ -402,16 +428,6 @@ namespace Ella.Network
         {
             ApplicationMessage msg = Serializer.Deserialize<ApplicationMessage>(e.Message.Data);
             Send.DeliverApplicationMessage(msg, ((RemoteSubscriptionHandle)msg.Handle).SubscriberNodeID == EllaConfiguration.Instance.NodeId);
-
-            //object subscriber = (from s in EllaModel.Instance.Subscriptions
-            //                     where EllaModel.Instance.GetSubscriberId(s.SubscriptionRequest) == msg.Handle.SubscriberId
-            //                     select s.SubscriptionRequest).FirstOrDefault();
-            //if (subscriber != null)
-            //    Send.DeliverMessage(msg, subscriber);
-            //else
-            //{
-            //    _log.FatalFormat("No suitable subscriber for message reply found", msg);
-            //}
         }
 
         /// <summary>
@@ -429,7 +445,7 @@ namespace Ella.Network
              * Deliver to subscribers
              *      The subscriptions point directly to the subscriber instances, the handle is matching already
              */
-            var groupings = EllaModel.Instance.Subscriptions.GroupBy(s => s.Subscriber);
+            var groupings = EllaModel.Instance.FilterSubscriptions(s => true).GroupBy(s => s.Subscriber);
             var relevantsubscribers = groupings
                     .Where(
                         g =>
@@ -482,7 +498,7 @@ namespace Ella.Network
             SubscriptionController.PerformUnsubscribe(s => s.Handle.EventHandle.PublisherNodeId == e.Message.Sender, performRemoteUnsubscribe: false);
             //Subscriptions of modules on the remote node being subscribed to local publishers
             //Here, the proxy
-            var subscriptionsFromRemoteNode = EllaModel.Instance.Subscriptions.Where(s => s.Handle is RemoteSubscriptionHandle).Where(s => (s.Handle as RemoteSubscriptionHandle).SubscriberNodeID == e.Message.Sender);
+            var subscriptionsFromRemoteNode = EllaModel.Instance.FilterSubscriptions(s => s.Handle is RemoteSubscriptionHandle).Where(s => (s.Handle as RemoteSubscriptionHandle).SubscriberNodeID == e.Message.Sender);
             foreach (var sub in subscriptionsFromRemoteNode)
             {
                 Ella.Unsubscribe.From(sub.Subscriber as Proxy, sub.Handle);
@@ -490,5 +506,30 @@ namespace Ella.Network
 
             RemoteHosts.Remove(e.Message.Sender);
         }
+
+        /// <summary>
+        /// Processes a "new publisher"- message. That message indicates that on a remote host, a new publisher has been started. As a consequence, the local node tries to resend old subscription requests
+        /// </summary>
+        /// <param name="e">The <see cref="MessageEventArgs"/> instance containing the event data.</param>
+        private void ProcessNewPublisher(MessageEventArgs e)
+        {
+            Type type = null;
+            if (e.Message.Data != null)
+            {
+                try
+                {
+                    type = Serializer.Deserialize<Type>(e.Message.Data);
+                }
+                catch (Exception ex)
+                {
+                    //TODO what to log here? if type is unknnown, this is not a problem
+                }
+            }
+            IPEndPoint ep = (IPEndPoint)e.Address;
+
+
+            RetryPendingSubscriptions((IPEndPoint)_remoteHosts[e.Message.Sender], type);
+        }
+
     }
 }

@@ -46,9 +46,14 @@ namespace Ella.Controller
         public void SubscribeTo(Type type, Action<RemoteSubscriptionHandle> callback)
         {
             Message m = new Message { Type = MessageType.Subscribe, Data = Serializer.Serialize(type) };
-            //TODO when to remove?
-            _messageProcessor.PendingSubscriptions.Add(m.Id, callback);
-            _messageProcessor.SubscriptionCache.Add(m.Id, type);
+            lock (_messageProcessor.PendingSubscriptions)
+            {
+                _messageProcessor.PendingSubscriptions.Add(m.Id, callback);
+            }
+            lock (_messageProcessor.SubscriptionCache)
+            {
+                _messageProcessor.SubscriptionCache.Add(m.Id, type);
+            }
             foreach (IPEndPoint ep in _messageProcessor.RemoteHosts.Values)
             {
                 SenderBase.CreateSender(ep).SendAsync(m);
@@ -113,6 +118,14 @@ namespace Ella.Controller
         public void Stop()
         {
             Servers.ForEach(s => s.Stop());
+        }
+
+        public void BroadcastMessage(Message msg)
+        {
+            foreach (var remoteHost in _messageProcessor.RemoteHosts)
+            {
+                SenderBase.SendAsync(msg, remoteHost.Value);
+            }
         }
 
         /// <summary>

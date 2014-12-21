@@ -91,7 +91,7 @@ namespace Ella
             /*
              * Cancel all subscriptions
              */
-            var groupedSubscriptions = EllaModel.Instance.Subscriptions.GroupBy(s => s.Subscriber).ToArray();
+            var groupedSubscriptions = EllaModel.Instance.FilterSubscriptions(s=>true).GroupBy(s => s.Subscriber).ToArray();
             foreach (var s in groupedSubscriptions)
             {
                 Unsubscribe.From(s.Key);

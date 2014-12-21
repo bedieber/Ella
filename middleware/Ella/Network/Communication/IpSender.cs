@@ -116,7 +116,7 @@ namespace Ella.Network.Communication
             }
             catch (Exception e)
             {
-                _log.WarnFormat("NetworkClient: failed to send message {0} to {1}", m.Id,
+                _log.WarnFormat("NetworkClient: failed to send message {0} to {1}:{2}", m.Id,
                                   _address, e.Message);
             }
         }
@@ -158,7 +158,7 @@ namespace Ella.Network.Communication
                     {
                         while (_run && client.Connected)
                         {
-                            while (_pendingMessages.Count == 0 && _are.Reset() && _are.WaitOne(2000))
+                            while (_pendingMessages.Count == 0 && _are.Reset() && !_are.WaitOne(2000))
                             {
                                 _log.Debug("waiting for new messages");
                             }

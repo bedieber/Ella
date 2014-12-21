@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using Ella.Internal;
 using log4net;
 
 namespace Ella.Network.Communication
@@ -35,6 +36,7 @@ namespace Ella.Network.Communication
         private List<IPEndPoint> EndPointsMulticastGroup = new List<IPEndPoint>();
 
         private List<Thread> _multicastThreads = new List<Thread>();
+        private bool _run;
 
 
         /// <summary>
@@ -57,16 +59,18 @@ namespace Ella.Network.Communication
                 UdpClient listener = new UdpClient(_port);
                 try
                 {
-                        IPEndPoint ep = new IPEndPoint(IPAddress.Any, 0);
-
-                    while (true)
+                    IPEndPoint ep = new IPEndPoint(IPAddress.Any, 0);
+                    _run = true;
+                    while (_run)
                     {
-                        byte[] datagram;
-                        var asyncResult = listener.BeginReceive(null,null);
+                        var asyncResult = listener.BeginReceive(null, null);
 
-                        while (!asyncResult.AsyncWaitHandle.WaitOne(2000))
-                        {}
-                        datagram = listener.EndReceive(asyncResult, ref ep);
+                        bool received = asyncResult.AsyncWaitHandle.WaitOne(2000);
+                        if (!_run || !received)
+                        {
+                            continue;
+                        }
+                        byte[] datagram = listener.EndReceive(asyncResult, ref ep);
                         IPEndPoint sender = ep;
                         ThreadPool.QueueUserWorkItem(delegate
                         {
@@ -120,15 +124,20 @@ namespace Ella.Network.Communication
                     EndPointsMulticastGroup.Add(endpoint);
 
                     UdpClient client = new UdpClient(endpoint);
-                    
+
                     IPEndPoint groupEp = new IPEndPoint(IPAddress.Parse(group), port);
                     client.Connect(groupEp);
-
-                    while (true)
+                    _run = true;
+                    while (_run)
                     {
-                        //TODO rework since it might hinder graceful termination
-
-                        byte[] datagram = client.Receive(ref groupEp);
+                        var waitHandle = new ManualResetEvent(false);
+                        var asyncResult = client.BeginReceive((e) => waitHandle.Set(), null);
+                        bool received = !waitHandle.WaitOne(2000);
+                        if (!_run || !received)
+                        {
+                            continue;
+                        }
+                        byte[] datagram = client.EndReceive(asyncResult, ref groupEp);
 
                         ThreadPool.QueueUserWorkItem(delegate
                             {

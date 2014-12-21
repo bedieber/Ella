@@ -52,8 +52,7 @@ namespace Ella
             TestSubscriber subscriber = new TestSubscriber();
             subscriber.Subscribe();
             Assert.AreEqual(2, EllaModel.Instance.Subscriptions.Count());
-            subscriber.Subscribe();
-            Assert.AreEqual(2, EllaModel.Instance.Subscriptions.Count());
+            subscriber.Subscribe(); Assert.AreEqual(2, EllaModel.Instance.Subscriptions.Count());
         }
 
         [TestMethod]
@@ -134,7 +133,7 @@ namespace Ella
 
             s.UnsubscribeFromObject();
 
-            Assert.AreEqual(0,EllaModel.Instance.Subscriptions.Count);
+            Assert.AreEqual(0, EllaModel.Instance.Subscriptions.Count);
         }
 
         [TestMethod]
@@ -175,10 +174,10 @@ namespace Ella
 
             Thread.Sleep(1000);
 
-            IEnumerable<EventHandle> ev= EllaModel.Instance.GetEventCorrelations(handle);
+            IEnumerable<EventHandle> ev = EllaModel.Instance.GetEventCorrelations(handle);
 
             Assert.AreEqual(1, ev.Count());
-            Assert.AreEqual(2,ev.ElementAt(0).EventId);
+            Assert.AreEqual(2, ev.ElementAt(0).EventId);
         }
         [TestMethod]
         public void PublisherWithCallbackMethod()
@@ -218,6 +217,19 @@ namespace Ella
 
             Assert.AreEqual(1, s.numEventsReceived);
             Assert.AreEqual(1, y.numEventsReceived);
+        }
+
+        [TestMethod]
+        public void LateStartOfPublisherResultsInValidSubscription()
+        {
+            TestSubscriber s = new TestSubscriber();
+            s.Subscribe();
+            Thread.Sleep(100);
+            TestPublisher p = new TestPublisher();
+            Start.Publisher(p);
+            p.PublishEvent();
+            Thread.Sleep(500);
+            Assert.AreEqual(1, s.numEventsReceived);
         }
 
     }

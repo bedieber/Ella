@@ -56,5 +56,7 @@ namespace Ella.Network
         /// Stops the network controller and all servers
         /// </summary>
         void Stop();
+
+        void BroadcastMessage(Message msg);
     }
 }
