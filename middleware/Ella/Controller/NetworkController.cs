@@ -54,7 +54,7 @@ namespace Ella.Controller
             {
                 _messageProcessor.SubscriptionCache.Add(m.Id, type);
             }
-            foreach (IPEndPoint ep in _messageProcessor.RemoteHosts.Values)
+            foreach (IPEndPoint ep in _messageProcessor.RemoteHosts.Values.ToArray())
             {
                 SenderBase.CreateSender(ep).SendAsync(m);
             }
@@ -122,7 +122,8 @@ namespace Ella.Controller
 
         public void BroadcastMessage(Message msg)
         {
-            foreach (var remoteHost in _messageProcessor.RemoteHosts)
+            var remoteHosts = _messageProcessor.RemoteHosts.ToArray();
+            foreach (var remoteHost in remoteHosts)
             {
                 SenderBase.SendAsync(msg, remoteHost.Value);
             }

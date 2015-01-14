@@ -272,11 +272,13 @@ namespace Ella.Model
 
         internal Publisher GetPublisher(object instance)
         {
-            _activePublishersLock.EnterReadLock();
             try
             {
                 if (IsActivePublisher(instance))
+                {
+                    _activePublishersLock.EnterReadLock();
                     return ActivePublishers.Where(p => p.Key.Instance == instance).Select(p => p.Key).FirstOrDefault();
+                }
                 return null;
             }
             finally
