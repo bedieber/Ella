@@ -51,8 +51,8 @@ namespace Ella
             Start.Publisher(pub);
             TestSubscriber subscriber = new TestSubscriber();
             subscriber.Subscribe();
-            Assert.AreEqual(2, EllaModel.Instance.Subscriptions.Count());
-            subscriber.Subscribe(); Assert.AreEqual(2, EllaModel.Instance.Subscriptions.Count());
+            Assert.AreEqual(2, EllaModel.Instance.TotalNumberOfSubscriptions);
+            subscriber.Subscribe(); Assert.AreEqual(2, EllaModel.Instance.TotalNumberOfSubscriptions);
         }
 
         [TestMethod]
@@ -66,7 +66,7 @@ namespace Ella
             Start.Publisher(pub);
             TestSubscriber subscriber = new TestSubscriber();
             subscriber.SubscribeWithObject();
-            Assert.AreEqual(1, EllaModel.Instance.Subscriptions.Count());
+            Assert.AreEqual(1, EllaModel.Instance.TotalNumberOfSubscriptions);
         }
 
         [TestMethod]
@@ -93,11 +93,11 @@ namespace Ella
             s.Subscribe();
             p.PublishEvent();
             Thread.Sleep(100);
-            Assert.IsTrue(EllaModel.Instance.Subscriptions.Count > 0);
+            Assert.IsTrue(EllaModel.Instance.TotalNumberOfSubscriptions > 0);
             Thread.Sleep(100);
 
             s.UnsubscribeFromString();
-            Assert.IsTrue(EllaModel.Instance.Subscriptions.Count == 0);
+            Assert.IsTrue(EllaModel.Instance.TotalNumberOfSubscriptions == 0);
         }
 
         [TestMethod]
@@ -111,12 +111,12 @@ namespace Ella
             s.Subscribe();
             p.PublishEvent();
             Thread.Sleep(100);
-            int count = EllaModel.Instance.Subscriptions.Count;
+            int count = EllaModel.Instance.TotalNumberOfSubscriptions;
             Assert.IsTrue(count > 0);
             Thread.Sleep(100);
 
             s.UnsubscribeByHandle();
-            Assert.IsTrue(EllaModel.Instance.Subscriptions.Count == count - 1);
+            Assert.IsTrue(EllaModel.Instance.TotalNumberOfSubscriptions == count - 1);
         }
 
         [TestMethod]
@@ -133,7 +133,7 @@ namespace Ella
 
             s.UnsubscribeFromObject();
 
-            Assert.AreEqual(0, EllaModel.Instance.Subscriptions.Count);
+            Assert.AreEqual(0, EllaModel.Instance.TotalNumberOfSubscriptions);
         }
 
         [TestMethod]

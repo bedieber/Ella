@@ -416,6 +416,8 @@ namespace Ella.Model
 
         }
 
+        internal int TotalNumberOfSubscriptions{get { return Subscriptions.Count; }}
+
         #endregion
     }
 }

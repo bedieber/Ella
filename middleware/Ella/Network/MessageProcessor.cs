@@ -141,9 +141,7 @@ namespace Ella.Network
                 return;
             }
             byte[] portBytes = BitConverter.GetBytes(EllaConfiguration.Instance.NetworkPort);
-            //byte[] bytes = new byte[idBytes.Length + portBytes.Length];
-            //Array.Copy(idBytes, bytes, idBytes.Length);
-            //Array.Copy(portBytes, 0, bytes, idBytes.Length, portBytes.Length);
+            
             Message m = new Message { Type = MessageType.DiscoverResponse, Data = portBytes };
             SenderBase.SendMessage(m, ep);
 

@@ -71,7 +71,7 @@ namespace Ella
             try
             {
                 subscriber = Create.ModuleInstance(typeof(TestSubscriberMethodFactory));
-                Assert.Fail();
+                Assert.IsNull(subscriber);
             }
             catch (ArgumentException)
             {
@@ -81,7 +81,7 @@ namespace Ella
             try
             {
                 subscriber = Create.ModuleInstance(typeof(TestSubscriberNoFactory));
-                Assert.Fail();
+                Assert.IsNull(subscriber);
             }
             catch (ArgumentException)
             {
@@ -96,7 +96,7 @@ namespace Ella
             try
             {
                 subscriber = Create.ModuleInstance(typeof(TestSubscriberStaticConstructerFactory));
-                Assert.Fail();
+                Assert.IsNull(subscriber);
             }
             catch (ArgumentException)
             {
