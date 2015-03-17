@@ -214,8 +214,9 @@ namespace Ella
             Thread.Sleep(1000);
 
             p.PublishEvent();
-
+            Thread.Sleep(1000);
             Assert.AreEqual(1, s.numEventsReceived);
+            Assert.AreEqual(0, x.numEventsReceived);
             Assert.AreEqual(1, y.numEventsReceived);
         }
 

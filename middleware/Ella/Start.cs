@@ -57,7 +57,7 @@ namespace Ella
             t.Start();
             foreach (var publishedEvent in publisher.Events)
             {
-                var subscriptionRequests = EllaModel.Instance.SubscriptionRequests.Where(sr => sr.RequestedType == publishedEvent.EventDetail.DataType).ToList();
+                var subscriptionRequests = EllaModel.Instance.FilterSubscriptionRequests(sr => sr.RequestedType == publishedEvent.EventDetail.DataType).ToList();
                 foreach (var subscriptionRequest in subscriptionRequests)
                 {
                     _log.DebugFormat("Late-subscribing subscriber {0} of new publisher {1} for requested type {2}", subscriptionRequest.SubscriberInstance, instance, subscriptionRequest.RequestedType);

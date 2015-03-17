@@ -65,7 +65,7 @@ namespace Ella
                 };
             sr.SubscriptionCall = ()=> SubscriptionController.DoLocalSubscription<T>(subscriberInstance, newDataCallback,
                                                                                              evaluateTemplateObject, subscriptionCallback, policy);
-            EllaModel.Instance.SubscriptionRequests.Add(sr);
+            EllaModel.Instance.AddSubscriptionRequest(sr);
             SubscriptionController.DoLocalSubscription(subscriberInstance, newDataCallback, evaluateTemplateObject, subscriptionCallback,policy);
         }
     }

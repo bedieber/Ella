@@ -115,6 +115,7 @@ namespace Ella
         private void BoolCallback(bool t, SubscriptionHandle h)
         {
             NewDataHandle.Add(h);
+            numEventsReceived++;
         }
 
         #endregion

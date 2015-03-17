@@ -175,6 +175,19 @@ namespace Ella.Internal
             get { return (string)this["MulticastAddress"]; }
             set { this["MulticastAddress"] = value; }
         }
+        ///// <summary>
+        ///// Gets or sets a value indicating whether to monitor other nodes for inactivity and in which interval to send/receive keepalives.
+        ///// </summary>
+        ///// <value>
+        /////   <c>true</c> if [monitor inactivity]; otherwise, <c>false</c>.
+        ///// </value>
+        //[ConfigurationProperty("KeepaliveInterval", DefaultValue = false)]
+        //[IntegerValidator(MinValue = 0, MaxValue = 120, ExcludeRange = false)]
+        //public int KeepaliveInterval
+        //{
+        //    get { return (int)this["KeepaliveInterval"]; }
+        //    set { this["KeepaliveInterval"] = value; }
+        //}
 
         /// <summary>
         /// Validator method to check whether the string, holding the ip address, is a multicast address or not.

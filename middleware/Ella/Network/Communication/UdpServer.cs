@@ -71,10 +71,11 @@ namespace Ella.Network.Communication
                             continue;
                         }
                         byte[] datagram = listener.EndReceive(asyncResult, ref ep);
+                        _log.Debug("Processing UDP Message");
+
                         IPEndPoint sender = ep;
                         ThreadPool.QueueUserWorkItem(delegate
                         {
-                            _log.Debug("Processing UDP Message");
                             ProcessUdpMessage
                                 (datagram, sender);
                         });
@@ -90,9 +91,11 @@ namespace Ella.Network.Communication
                 }
                 catch (Exception e)
                 {
-                    _log.ErrorFormat("Exception in TcpServer: {0}",
+                    _log.ErrorFormat("Exception in UDP Server: {0}",
                                       e.Message);
                 }
+                _log.DebugFormat("UDP server stopping");
+
             });
             _udpListenerThread.Start();
         }
@@ -159,6 +162,7 @@ namespace Ella.Network.Communication
         private void ProcessUdpMessage(byte[] datagram, IPEndPoint ep)
         {
             Message msg = new Message(-1) { Data = datagram, Sender = BitConverter.ToInt32(datagram, 0), Type = MessageType.Discover };
+            _log.DebugFormat("New UDP message from {0}", msg.Sender);
             if (NewMessage != null)
             {
                 NewMessage(this, new MessageEventArgs(msg) { Address = ep });
@@ -180,7 +184,7 @@ namespace Ella.Network.Communication
             {
                 StopThread(multicastThread);
             }
-            _log.DebugFormat("TcpServer stopped");
+            _log.DebugFormat("UDP stopped");
         }
 
         /// <summary>

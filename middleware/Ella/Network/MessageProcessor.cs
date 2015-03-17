@@ -137,11 +137,18 @@ namespace Ella.Network
             }
             else
             {
-                _log.WarnFormat("Discarding discovery message from node {0}", e.Message.Sender);
-                return;
+                //TODO is there an exception here???
+
+                if ((RemoteHosts[e.Message.Sender] as IPEndPoint).Address.ToString() == ep.Address.ToString())
+                    _log.WarnFormat("Duplicate discovery message from node {0}", e.Message.Sender);
+                else
+                {
+                    _log.WarnFormat("Duplicate discovery message from node {0} from different address. Stored {1} New {2}", e.Message.Sender, (RemoteHosts[e.Message.Sender] as IPEndPoint).Address.ToString(), ep.Address.ToString());
+                }
+                //return;
             }
             byte[] portBytes = BitConverter.GetBytes(EllaConfiguration.Instance.NetworkPort);
-            
+
             Message m = new Message { Type = MessageType.DiscoverResponse, Data = portBytes };
             SenderBase.SendMessage(m, ep);
 
@@ -156,23 +163,32 @@ namespace Ella.Network
         private void RetryPendingSubscriptions(IPEndPoint ep, Type type = null)
         {
             _log.DebugFormat("Retrying to find publishers for pending subscriptions {0}", type == null ? string.Empty : string.Format("of type {0}", type.Name));
-            var cache = type == null ? SubscriptionCache.ToArray() : SubscriptionCache.Where(c => c.Value == type).ToArray();
-
-            foreach (var sub in cache)
+            try
             {
-                if (type != null && sub.Value != type)
-                    return;
-
-                Message subscription = new Message(sub.Key)
+                var cache = type == null ? SubscriptionCache.ToArray() : SubscriptionCache.Where(c => c.Value == type).ToArray();
+                foreach (var sub in cache)
                 {
-                    Type = MessageType.Subscribe,
-                    Data = Serializer.Serialize(sub.Value)
-                };
+                    if (type != null && sub.Value != type)
+                        return;
 
-                _log.DebugFormat("Resending subscription request message {0}", subscription.Id);
-                SenderBase.SendAsync(subscription, ep);
+                    Message subscription = new Message(sub.Key)
+                    {
+                        Type = MessageType.Subscribe,
+                        Data = Serializer.Serialize(sub.Value)
+                    };
+
+                    _log.DebugFormat("Resending subscription request message {0}", subscription.Id);
+                    SenderBase.SendAsync(subscription, ep);
+                }
             }
+            catch (Exception ex)
+            {
+                _log.ErrorFormat("Could not retry pending subscriptions: {0}\n{1}", ex.Message, ex.StackTrace);
+                return;
+            }
+
         }
+
 
         private bool AddRemoteHost(MessageEventArgs e, IPEndPoint ep)
         {

@@ -28,6 +28,7 @@ namespace Ella.Model
 
         private readonly ReaderWriterLockSlim _subscriptionLock = new ReaderWriterLockSlim();
         private readonly ReaderWriterLockSlim _activePublishersLock = new ReaderWriterLockSlim();
+        private readonly ReaderWriterLockSlim _subscriptionRequestsLock = new ReaderWriterLockSlim();
 
         #region internal Singleton
         private static readonly EllaModel _instance = new EllaModel();
@@ -74,7 +75,7 @@ namespace Ella.Model
         /// <value>
         /// The subscription requests.
         /// </value>
-        internal List<SubscriptionRequest> SubscriptionRequests { get; set; }
+        private List<SubscriptionRequest> SubscriptionRequests { get; set; }
 
         /// <summary>
         /// List of all started publishers
@@ -419,5 +420,33 @@ namespace Ella.Model
         internal int TotalNumberOfSubscriptions{get { return Subscriptions.Count; }}
 
         #endregion
+
+        internal IEnumerable<SubscriptionRequest> FilterSubscriptionRequests(Predicate<SubscriptionRequest> predicate)
+        {
+            List<SubscriptionRequest> filteredSubscriptionRequests;
+            _subscriptionRequestsLock.EnterReadLock();
+            try
+            {
+                filteredSubscriptionRequests = SubscriptionRequests.Where(s => predicate(s)).ToList(); //force enumerate
+            }
+            finally
+            {
+                _subscriptionRequestsLock.ExitReadLock();
+            }
+            return filteredSubscriptionRequests;
+        }
+
+        internal void AddSubscriptionRequest(SubscriptionRequest request)
+        {
+            _subscriptionRequestsLock.EnterWriteLock();
+            try
+            {
+                SubscriptionRequests.Add(request);
+            }
+            finally
+            {
+                _subscriptionRequestsLock.ExitWriteLock();
+            }
+        }
     }
 }
