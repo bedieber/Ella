@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections;
 using System.IO;
+using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Ella;
+using Ella.Controller;
 using Ella.Internal;
 using Ella.Model;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -231,6 +233,38 @@ namespace Ella
             p.PublishEvent();
             Thread.Sleep(500);
             Assert.AreEqual(1, s.numEventsReceived);
+        }
+
+        [TestMethod]
+        public void RemoteSubscriptionsWithSameReferenceAreRejected()
+        {
+            var tp = new PublisherWithCallbackMethod();
+            Start.Publisher(tp);
+
+            SubscriptionController.SubscribeRemoteSubscriber(typeof(bool), 2,
+                new IPEndPoint(IPAddress.Parse("127.0.0.1"), 45000), 33);
+
+            Assert.AreEqual(1, tp.callback);
+
+            SubscriptionController.SubscribeRemoteSubscriber(typeof(bool), 2,
+               new IPEndPoint(IPAddress.Parse("127.0.0.1"), 45000), 33);
+            Assert.AreEqual(1, tp.callback);
+        }
+
+        [TestMethod]
+        public void RemoteSubscriptionsWithSameReferenceFromDifferentNodesAreAccepted()
+        {
+            var tp = new PublisherWithCallbackMethod();
+            Start.Publisher(tp);
+
+            SubscriptionController.SubscribeRemoteSubscriber(typeof(bool), 2,
+                new IPEndPoint(IPAddress.Parse("127.0.0.1"), 45000), 33);
+
+            Assert.AreEqual(1, tp.callback);
+
+            SubscriptionController.SubscribeRemoteSubscriber(typeof(bool), 3,
+               new IPEndPoint(IPAddress.Parse("127.0.0.1"), 45000), 33);
+            Assert.AreEqual(2, tp.callback);
         }
 
     }

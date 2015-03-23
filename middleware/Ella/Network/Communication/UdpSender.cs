@@ -78,6 +78,9 @@ namespace Ella.Network.Communication
         {
             TimerCallback broadcast = o =>
             {
+                //TODO put sequence number in discovery requests
+                //on processing check if sequence number is lower than the last known....then a restart has happened
+
                 byte[] idBytes = BitConverter.GetBytes(EllaConfiguration.Instance.NodeId);
                 byte[] portBytes = BitConverter.GetBytes(EllaConfiguration.Instance.NetworkPort);
                 byte[] bytes = new byte[idBytes.Length + portBytes.Length];

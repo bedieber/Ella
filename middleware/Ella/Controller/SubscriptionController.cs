@@ -185,10 +185,10 @@ namespace Ella.Controller
                     Predicate<SubscriptionBase> filterExisting = (s) =>
                     {
                         var remoteSubHandle = s.Handle as RemoteSubscriptionHandle;
-                        if (remoteSubHandle==null)
+                        if (remoteSubHandle == null)
                             return false;
                         return remoteSubHandle.SubscriptionReference == subscriptionReference &&
-                               remoteSubHandle.PublisherId == EllaModel.Instance.GetPublisherId(match.Publisher);
+                               remoteSubHandle.PublisherId == EllaModel.Instance.GetPublisherId(match.Publisher) && remoteSubHandle.SubscriberNodeID == nodeId;
                     };
                     if (EllaModel.Instance.FilterSubscriptions(filterExisting).Any())
                     {

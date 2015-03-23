@@ -197,7 +197,8 @@ namespace Ella.Network.Communication
         {
             _log.Debug("Disposing IpSender");
             _run = false;
-            _senderThread.Interrupt();
+            if (_senderThread != null)
+                _senderThread.Interrupt();
         }
     }
 }
