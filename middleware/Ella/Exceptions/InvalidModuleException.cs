@@ -20,6 +20,7 @@ namespace Ella.Exceptions
     /// <summary>
     /// This exception indicates that a specific type is neither publisher nor subscriber
     /// </summary>
+    [Serializable]
     public class InvalidModuleException:Exception
     {
 

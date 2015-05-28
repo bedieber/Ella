@@ -33,6 +33,7 @@ namespace Ella.Exceptions
     /// </list>
     /// 
     /// </summary>
+    [Serializable]
     public class InvalidPublisherException : InvalidModuleException
     {
 

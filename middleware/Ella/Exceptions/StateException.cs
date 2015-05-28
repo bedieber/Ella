@@ -20,6 +20,7 @@ namespace Ella.Exceptions
     /// <summary>
     /// This exception is thrown whenever an operation is requested which is not allowed in the current state of the application
     /// </summary>
+    [Serializable]
     public class StateException : Exception
     {
 

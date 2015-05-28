@@ -39,6 +39,11 @@ namespace Ella.Internal
                     if (_instance == null)
                     {
                         _instance = ConfigurationManager.GetSection("EllaConfiguration") as EllaConfiguration;
+                        if (_instance == null)
+                        {
+                            Console.Error.WriteLine("Warning: No Ella configuration section provided");
+                            _instance=new EllaConfiguration();
+                        }
                     }
                 }
                 return _instance;
@@ -73,7 +78,7 @@ namespace Ella.Internal
         /// The node id.
         /// </value>
         [ConfigurationProperty("NodeId", IsRequired = true, IsKey = true, DefaultValue = (int)1)]
-        [IntegerValidator(MinValue = 0, MaxValue = 0, ExcludeRange = true)]
+        [IntegerValidator(MinValue = 0, MaxValue = 255, ExcludeRange = false)]
         public int NodeId
         {
             get { return (int)this["NodeId"]; }

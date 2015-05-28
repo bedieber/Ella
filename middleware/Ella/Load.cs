@@ -143,9 +143,17 @@ namespace Ella
         /// <returns></returns>
         public static Assembly Assembly(FileInfo assemblyFile)
         {
+            var assemblyName = AssemblyName.GetAssemblyName(assemblyFile.FullName);
+            var assemblies = AppDomain.CurrentDomain.GetAssemblies().Where(a => a.FullName == assemblyName.FullName);
+            if (assemblies.Any())
+            {
+                _log.Debug("Assembly resolved from appdomain");
+                return assemblies.First();
+            }
             byte[] assemblyBytes = new byte[assemblyFile.Length];
             File.OpenRead(assemblyFile.FullName).Read(assemblyBytes, 0, assemblyBytes.Length);
             var assembly = System.Reflection.Assembly.Load(assemblyBytes);
+            
             return assembly;
         }
     }

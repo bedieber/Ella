@@ -20,6 +20,7 @@ namespace Ella.Exceptions
     /// <summary>
     /// This exception is thrown whenever an Ella attribute is used in an illegal context
     /// </summary>
+    [Serializable]
     public class IllegalAttributeUsageException:Exception
     {
 
