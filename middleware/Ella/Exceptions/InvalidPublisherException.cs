@@ -21,14 +21,17 @@ namespace Ella.Exceptions
     /// This exception is thrown whenever a publisher module is found to be invalid<br />
     /// Possible reasons for this:
     /// <list type="Bullet">
-    /// <item>
+    /// <item><description></description>
     /// No <see cref="Ella.Attributes.PublishesAttribute"/> is defined
+    /// </description>
     /// </item>
-    /// <item>
+    /// <item><description>
     /// The publisher defines one event ID multiple times
+    /// </description>
     /// </item>
-    /// <item>
+    /// <item><description>
     /// The publisher does not define start and stop methods using <see cref="Ella.Attributes.StartAttribute"/> and <see cref="Ella.Attributes.StopAttribute"/>
+    /// </description>
     /// </item>
     /// </list>
     /// 

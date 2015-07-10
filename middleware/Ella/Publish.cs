@@ -138,7 +138,7 @@ namespace Ella
                                                     sub.CallbackMethod.Name, sub.CallbackTarget.GetType(), typeof (T),
                                                     ex.Message, ex.StackTrace);
                                                 ex = ex.InnerException;
-                                            } while (ex.InnerException != null);
+                                            } while (ex != null);
                                         }
                                     });
                             t.Start();
