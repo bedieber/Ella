@@ -42,7 +42,13 @@ namespace ReferenceReflector
             StringBuilder sb = new StringBuilder();
             foreach (var type in types.Where(t => t.GetCustomAttributes(typeof(SubscriberAttribute), false).Any()))
             {
-                var methodInfos = type.GetMethods();
+                IEnumerable<MethodBase> methodInfos = type.GetMethods().Concat(type.GetMethods(BindingFlags.NonPublic));
+                var privateStaticConstructors = type.GetConstructors(BindingFlags.Static | BindingFlags.NonPublic);
+                var privateInstanceConstructors = type.GetConstructors(BindingFlags.Instance | BindingFlags.NonPublic);
+                
+                var constructors = type.GetConstructors().Concat(privateStaticConstructors).Concat(privateInstanceConstructors);
+                methodInfos = methodInfos.Concat(constructors);
+
                 foreach (var info in methodInfos)
                 {
                     if (info.GetMethodBody() == null)
