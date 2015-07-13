@@ -11,9 +11,25 @@ namespace ReferenceReflector
     {
         static void Main(string[] args)
         {
-            Directory.SetCurrentDirectory(@"E:\Dev\skiline-movie-system\src\Recorder\bin\Debug");
-            Reflector r=new Reflector();
-            r.ReflectAssembly(Assembly.LoadFrom(@"E:\Dev\skiline-movie-system\src\Recorder\bin\Debug\Recorder.exe"));
+            Console.WriteLine("digraph G {\n");
+            foreach (string s in args)
+            {
+                if (!File.Exists(s))
+                {
+                    continue;
+                }
+                Directory.SetCurrentDirectory(Path.GetDirectoryName(s));
+                Reflector r = new Reflector();
+                try
+                {
+                    r.ReflectAssembly(Assembly.LoadFrom(s));
+                }
+                catch (Exception e)
+                {
+
+                }
+            }
+            Console.WriteLine("\n}");
             Console.Read();
         }
     }

@@ -16,9 +16,7 @@ namespace ReferenceReflector
             var types = a.GetTypes();
             var subscribersCode = ReflectSubscribers(types);
             var publishersCode = ReflectPublishers(types);
-            Console.WriteLine("digraph{");
             Console.WriteLine("{0}\n{1}\n", subscribersCode, publishersCode);
-            Console.WriteLine("}");
         }
 
         private string ReflectPublishers(Type[] types)

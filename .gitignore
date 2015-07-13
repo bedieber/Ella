@@ -15,7 +15,7 @@
 # binaries #
 ############
 
-# Include dlls if they’re in the NuGet packages directory
+# Include dlls if theyï¿½re in the NuGet packages directory
 !*/packages/*/lib/*.dll
 
 # if contained in a NET40 or SL3 folder
@@ -49,7 +49,7 @@ TestResults/
 *.ReSharper.*
 # Packages #
 ############
-# it’s better to unpack these files and commit the raw source
+# itï¿½s better to unpack these files and commit the raw source
 # git has its own built in compression methods
 *.7z
 *.dmg
@@ -74,3 +74,4 @@ Thumbs.db
 #######################
 \~\$*
 \~*.tmp
+middleware/Tools/EllaTools/packages/
