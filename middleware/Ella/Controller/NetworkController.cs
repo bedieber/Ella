@@ -33,9 +33,40 @@ namespace Ella.Controller
         public List<INetworkServer> Servers { get; private set; }
 
 
-        public NetworkController()
+        public NetworkController(IEnumerable<KeyValuePair<int, string>> initialHostList)
         {
             Servers = new List<INetworkServer>();
+            if (initialHostList != null)
+            {
+                foreach (var keyValuePair in initialHostList)
+                {
+                    if (keyValuePair.Key <= 0)
+                    {
+                        _log.WarnFormat("Could not add {0} to host list. Id is not within the valid range", keyValuePair.Key);
+                        
+                    }
+                    var strings = keyValuePair.Value.Split(':');
+                    IPAddress address = null;
+                    if (!IPAddress.TryParse(strings[0], out address))
+                    {
+                        _log.WarnFormat("Could not add {0} to host list. Value has the wrong format", keyValuePair.Value);
+                        continue;
+                    }
+                    int port;
+                    if (!int.TryParse(strings[2], out port))
+                    {
+                        _log.WarnFormat("Could not add {0} to host list. Value has the wrong format", keyValuePair.Value);
+                        continue;
+                    }
+                    if (_messageProcessor.RemoteHosts.ContainsKey(keyValuePair.Key))
+                    {
+                        _log.WarnFormat("Could not add node {0} to host list. A host with the same id already exists", keyValuePair.Key);
+                        continue;
+                    }
+
+                    _messageProcessor.RemoteHosts.Add(keyValuePair.Key, new IPEndPoint(address,port));
+                }
+            }
         }
 
         /// <summary>
@@ -108,7 +139,7 @@ namespace Ella.Controller
             Servers.ForEach(delegate(INetworkServer s)
             {
                 s.NewMessage += _messageProcessor.NewMessage;
-                s.Start(); 
+                s.Start();
             });
         }
 

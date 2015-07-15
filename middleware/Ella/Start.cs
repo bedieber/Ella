@@ -87,16 +87,17 @@ namespace Ella
         /// Starts the Ella network functionality<br />
         /// Unless this method is called, your Ella application will be local-only
         /// </summary>
-        public static void Network()
+        /// <param name="initialHostlist">A list of already known hosts. The keys are host ids. The values are string representations ("ip:port") of the corresponding host. </param>
+        public static void Network(IEnumerable<KeyValuePair<int, string>> initialHostList = null)
         {
             _log.Info("Starting network controller");
-            Networking.NetworkController = new NetworkController();
+            Networking.NetworkController = new NetworkController(initialHostList);
             Networking.NetworkController.Servers.Add(new UdpServer(EllaConfiguration.Instance.NetworkPort));
             IPAddress listenAddress = !string.IsNullOrEmpty(EllaConfiguration.Instance.BindAddress) &&
                                       EllaConfiguration.Instance.BindAddress != "0.0.0.0"
                 ? IPAddress.Parse(EllaConfiguration.Instance.BindAddress)
                 : IPAddress.Any;
-            Networking.NetworkController.Servers.Add(new TcpServer(EllaConfiguration.Instance.NetworkPort,listenAddress));
+            Networking.NetworkController.Servers.Add(new TcpServer(EllaConfiguration.Instance.NetworkPort, listenAddress));
             global::Ella.Networking.Start();
         }
 
