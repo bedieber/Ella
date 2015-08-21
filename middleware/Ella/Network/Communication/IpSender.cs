@@ -160,9 +160,17 @@ namespace Ella.Network.Communication
                         {
                             while (_pendingMessages.Count == 0 && _are.Reset() && !_are.WaitOne(2000))
                             {
-                                _log.Debug("waiting for new messages");
+                                //_log.Debug("waiting for new messages");
                             }
-                            Message m = _pendingMessages.Dequeue();
+                            Message m = null;
+                            try
+                            {
+                                m = _pendingMessages.Dequeue();
+                            }
+                            catch
+                            {
+                                continue;
+                            }
                             byte[] serialize = m.Serialize();
 
                             _log.DebugFormat("Transferring {0} bytes of data", serialize.Length);

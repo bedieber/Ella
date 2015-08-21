@@ -33,7 +33,7 @@ namespace Ella.Controller
         public List<INetworkServer> Servers { get; private set; }
 
 
-        public NetworkController(IEnumerable<KeyValuePair<int, string>> initialHostList)
+        public NetworkController(IEnumerable<KeyValuePair<int, string>> initialHostList = null)
         {
             Servers = new List<INetworkServer>();
             if (initialHostList != null)
@@ -43,7 +43,7 @@ namespace Ella.Controller
                     if (keyValuePair.Key <= 0)
                     {
                         _log.WarnFormat("Could not add {0} to host list. Id is not within the valid range", keyValuePair.Key);
-                        
+
                     }
                     var strings = keyValuePair.Value.Split(':');
                     IPAddress address = null;
@@ -64,7 +64,7 @@ namespace Ella.Controller
                         continue;
                     }
 
-                    _messageProcessor.RemoteHosts.Add(keyValuePair.Key, new IPEndPoint(address,port));
+                    _messageProcessor.RemoteHosts.Add(keyValuePair.Key, new IPEndPoint(address, port));
                 }
             }
         }
