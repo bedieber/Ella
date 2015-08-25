@@ -95,8 +95,14 @@ namespace Ella.Controller
         public bool SendMessage(ApplicationMessage message, RemoteSubscriptionHandle remoteSubscriptionHandle, bool isReply = false)
         {
             Message m = new Message { Data = Serializer.Serialize(message), Type = isReply ? MessageType.ApplicationMessageResponse : MessageType.ApplicationMessage };
+            var key = remoteSubscriptionHandle.PublisherNodeID == EllaConfiguration.Instance.NodeId ? remoteSubscriptionHandle.SubscriberNodeID : remoteSubscriptionHandle.PublisherNodeID;
 
-            IPEndPoint ep = (IPEndPoint)_messageProcessor.RemoteHosts[remoteSubscriptionHandle.PublisherNodeID == EllaConfiguration.Instance.NodeId ? remoteSubscriptionHandle.SubscriberNodeID : remoteSubscriptionHandle.PublisherNodeID];
+            if (!_messageProcessor.RemoteHosts.ContainsKey(key))
+            {
+                return false;
+            }
+            IPEndPoint ep = (IPEndPoint)_messageProcessor.RemoteHosts[key];
+
             if (ep != null)
             {
                 SenderBase.SendAsync(m, ep);

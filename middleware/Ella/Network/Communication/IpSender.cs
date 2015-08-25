@@ -158,10 +158,13 @@ namespace Ella.Network.Communication
                     {
                         while (_run && client.Connected)
                         {
-                            while (_pendingMessages.Count == 0 && _are.Reset() && !_are.WaitOne(2000))
+                            while (_pendingMessages.Count == 0 && _are.Reset() && !_are.WaitOne(2000) && _run)
                             {
+
                                 //_log.Debug("waiting for new messages");
                             }
+                            if (!_run)
+                                break;
                             Message m = null;
                             try
                             {
