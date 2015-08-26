@@ -17,6 +17,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using Ella.Internal;
 using log4net;
 
 namespace Ella.Network.Communication
@@ -42,6 +43,10 @@ namespace Ella.Network.Communication
         //TODO remove NodeDictionary
         public Dictionary<int, string> NodeDictionary { get; set; }
 
+        private Queue<TcpClient> _tasks = new Queue<TcpClient>();
+        private Mutex _taskMutex = new Mutex();
+        private ManualResetEvent _taskResetEvent = new ManualResetEvent(false);
+        private List<Thread> _workerThreads = new List<Thread>(50);
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TcpServer" /> class.
@@ -52,6 +57,12 @@ namespace Ella.Network.Communication
         {
             _port = port;
             _address = address;
+            for (int i = 0; i < 50; i++)
+            {
+                Thread t = new Thread(RunWorker);
+                _workerThreads.Add(t);
+                t.Start();
+            }
         }
 
         /// <summary>
@@ -59,7 +70,7 @@ namespace Ella.Network.Communication
         /// </summary>
         public void Start()
         {
-            _log.InfoFormat("Starting TCP TcpServer on Port {0}, with listener attached: {1}", _port, NewMessage != null);
+            _log.InfoFormat("Starting TCP TcpServer on Port {0}, with listener attached: {1}.", _port, NewMessage != null);
             _tpcListenerThread = new Thread((ThreadStart)delegate
                                                           {
                                                               TcpListener listener = new TcpListener(_address, _port);
@@ -68,7 +79,6 @@ namespace Ella.Network.Communication
                                                               _log.DebugFormat("TcpServer: Started");
                                                               try
                                                               {
-                                                                  AutoResetEvent witHandle = new AutoResetEvent(false);
                                                                   while (true)
                                                                   {
                                                                       var asyncResult = listener.BeginAcceptTcpClient(null, null);
@@ -77,11 +87,15 @@ namespace Ella.Network.Communication
                                                                       { }
                                                                       TcpClient client =
                                                                           listener.EndAcceptTcpClient(asyncResult);
-                                                                      ThreadPool.QueueUserWorkItem(delegate
-                                                                                                       {
-                                                                                                           ProcessMessage
-                                                                                                               (client);
-                                                                                                       });
+                                                                      //ThreadPool.QueueUserWorkItem(delegate
+                                                                      //                                 {
+                                                                      //                                     ProcessMessage
+                                                                      //                                         (client);
+                                                                      //                                 });
+                                                                      _taskMutex.WaitOne();
+                                                                      _tasks.Enqueue(client);
+                                                                      _taskMutex.ReleaseMutex();
+                                                                      _taskResetEvent.Set();
                                                                   }
                                                               }
                                                               catch (ThreadInterruptedException)
@@ -94,8 +108,8 @@ namespace Ella.Network.Communication
                                                               }
                                                               catch (Exception e)
                                                               {
-                                                                  _log.ErrorFormat("Exception in TcpServer: {0}",
-                                                                                    e.Message);
+                                                                  _log.ErrorFormat("Exception in TcpServer: {0} {1}",
+                                                                                    e.Message, e.StackTrace);
                                                               }
                                                               finally
                                                               {
@@ -105,6 +119,38 @@ namespace Ella.Network.Communication
             _tpcListenerThread.Start();
         }
 
+        private void RunWorker()
+        {
+
+            try
+            {
+                while (!_stopReading)
+                {
+                    while (!_stopReading && !_taskResetEvent.WaitOne(200))
+                    {
+
+                    }
+                    if (_stopReading)
+                        break;
+                    _taskMutex.WaitOne();
+                    TcpClient tcpClient = null;
+                    if (_tasks.Count > 0)
+                        tcpClient = _tasks.Dequeue();
+                    else
+                        _taskResetEvent.Reset();
+                    _taskMutex.ReleaseMutex();
+                    if (tcpClient != null)
+                    {
+                        ProcessMessage(tcpClient);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _log.ErrorFormat("{0} in tcp worker: {1}", ex.GetType().Name, ex.StackTrace);
+            }
+            _log.Debug("TCP server worker thread exiting");
+        }
 
         /// <summary>
         /// Processes the message.
@@ -113,7 +159,6 @@ namespace Ella.Network.Communication
         private void ProcessMessage(TcpClient client)
         {
             client.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
-            //GZipStream stream = new GZipStream(client.GetStream(), CompressionMode.Decompress);
             NetworkStream stream = client.GetStream();
             try
             {
@@ -212,7 +257,7 @@ namespace Ella.Network.Communication
             {
                 _tpcListenerThread.Abort();
             }
-
+            _workerThreads.ForEach(t=>t.Join());
         }
     }
 }
