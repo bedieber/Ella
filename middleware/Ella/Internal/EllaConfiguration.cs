@@ -168,6 +168,14 @@ namespace Ella.Internal
             set { this["MaxQueueSize"] = value; }
         }
 
+        [ConfigurationProperty("ServerThreadPoolSize", DefaultValue = (int)50, IsRequired = false)]
+        [IntegerValidator(MinValue = 1, MaxValue = 500, ExcludeRange = false)]
+        public int ServerThreadPoolSize
+        {
+            get { return (int)this["ServerThreadPoolSize"]; }
+            set { this["ServerThreadPoolSize"] = value; }
+        }
+
         /// <summary>
         /// Gets or sets the Multicast address.
         /// </summary>

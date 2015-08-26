@@ -46,7 +46,7 @@ namespace Ella.Network.Communication
         private Queue<TcpClient> _tasks = new Queue<TcpClient>();
         private Mutex _taskMutex = new Mutex();
         private ManualResetEvent _taskResetEvent = new ManualResetEvent(false);
-        private List<Thread> _workerThreads = new List<Thread>(50);
+        private List<Thread> _workerThreads = new List<Thread>(EllaConfiguration.Instance.ServerThreadPoolSize);
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TcpServer" /> class.
@@ -57,7 +57,7 @@ namespace Ella.Network.Communication
         {
             _port = port;
             _address = address;
-            for (int i = 0; i < 50; i++)
+            for (int i = 0; i < EllaConfiguration.Instance.ServerThreadPoolSize; i++)
             {
                 Thread t = new Thread(RunWorker);
                 _workerThreads.Add(t);
