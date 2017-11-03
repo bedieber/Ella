@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<configuration>
+  
+  <configSections>
+    <section name="EllaConfiguration" type="Ella.Internal.EllaConfiguration, Ella"/>
+    <section name="log4net" type="log4net.Config.Log4NetConfigurationSectionHandler, log4net"/>
+    <sectionGroup name="userSettings" type="System.Configuration.UserSettingsGroup, System, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" >
+      <section name="TestApplication.Properties.Settings" type="System.Configuration.ClientSettingsSection, System, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" allowExeDefinition="MachineToLocalUser" requirePermission="false" />
+      <section name="TestApplication.Settings" type="System.Configuration.ClientSettingsSection, System, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" allowExeDefinition="MachineToLocalUser" requirePermission="false" />
+    </sectionGroup>
+    <sectionGroup name="applicationSettings" type="System.Configuration.ApplicationSettingsGroup, System, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" >
+      <section name="TestApplication.Properties.Settings" type="System.Configuration.ClientSettingsSection, System, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" requirePermission="false" />
+    </sectionGroup>
+  </configSections>
+
+  <startup>
+    
+  <supportedRuntime version="v2.0.50727"/></startup>
+
+  <EllaConfiguration NodeId="18" NetworkPort="33332" DiscoveryPortRangeStart="33330" DiscoveryPortRangeEnd="33333" MulticastAddress="228.4.0.2"/>
+
+  <log4net>
+    <!-- A1 is set to be a ConsoleAppender -->
+    <appender name="A1" type="log4net.Appender.ConsoleAppender">
+
+      <!-- A1 uses PatternLayout -->
+      <layout type="log4net.Layout.PatternLayout">
+        <conversionPattern value="%-4timestamp [%thread] %-5level %logger - %message%newline"/>
+      </layout>
+    </appender>
+    <root>
+      <level value="DEBUG"/>
+      <appender-ref ref="A1"/>
+    </root>
+  </log4net>
+  
+  <userSettings>
+    <TestApplication.Properties.Settings>
+      <setting name="UseVisionGraph" serializeAs="String">
+        <value>False</value>
+      </setting>
+      <setting name="Framerate" serializeAs="String">
+        <value>10</value>
+      </setting>
+    </TestApplication.Properties.Settings>
+  </userSettings>
+  
+  <applicationSettings>
+    <TestApplication.Properties.Settings>
+      <setting name="UseCSVTracker" serializeAs="String">
+        <value>False</value>
+      </setting>
+    </TestApplication.Properties.Settings>
+  </applicationSettings>
+</configuration>
