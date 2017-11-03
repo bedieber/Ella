@@ -1,5 +1,8 @@
+
 # Ella
 Welcome. Ella is a middleware project for the .NET ecosystem.
+We have recently moved from CodePlex.
+
 <div class="wikidoc">
 
 <h1></h1>
