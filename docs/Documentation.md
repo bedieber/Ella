@@ -2,10 +2,10 @@
 Ella uses .Net code attributes (annotations) for various purposes like declaring publishers or subscribers.
 Read more on that in [Attributes](Attributes)
 
-# [Writing a publisher ](-WritingPublisher)
+# [Writing a publisher ](WritingPublisher.md)
 
-# [Writing a subscriber ](-WritingSubscriber)
+# [Writing a subscriber ](WritingSubscriber.md)
 
-# [Using Ella via the facade](Facade)
+# [Using Ella via the facade](Facade.md)
 
-# [The Ella config file ](-ConfigFile)
+# [The Ella config file ](ConfigFile.md)
