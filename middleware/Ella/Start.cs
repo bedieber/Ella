@@ -76,7 +76,7 @@ namespace Ella
                 foreach (var ev in publisher.Events)
                 {
                     Message msg = new Message();
-                    msg.Data = Serializer.Serialize(ev.EventDetail.DataType);
+                    msg.Data = SerializationHelper.Serialize(ev.EventDetail.DataType);
                     msg.Type = MessageType.NewPublisher;
                     Networking.BroadcastMessage(msg);
                 }

@@ -81,7 +81,7 @@ namespace Ella.Network
                     }
                 case MessageType.ApplicationMessage:
                     {
-                        ApplicationMessage msg = Serializer.Deserialize<ApplicationMessage>(e.Message.Data);
+                        ApplicationMessage msg = SerializationHelper.Deserialize<ApplicationMessage>(e.Message.Data);
                         Send.DeliverApplicationMessage(msg, ((RemoteSubscriptionHandle)msg.Handle).SubscriberNodeID == EllaConfiguration.Instance.NodeId);
                         break;
                     }
@@ -174,7 +174,7 @@ namespace Ella.Network
                     Message subscription = new Message(sub.Key)
                     {
                         Type = MessageType.Subscribe,
-                        Data = Serializer.Serialize(sub.Value)
+                        Data = SerializationHelper.Serialize(sub.Value)
                     };
 
                     _log.DebugFormat("Resending subscription request message {0}", subscription.Id);
@@ -241,7 +241,7 @@ namespace Ella.Network
             {
                 int inResponseTo = BitConverter.ToInt32(e.Message.Data, 0);
                 ICollection<RemoteSubscriptionHandle> handles =
-                    Serializer.Deserialize<ICollection<RemoteSubscriptionHandle>>(e.Message.Data, 4);
+                    SerializationHelper.Deserialize<ICollection<RemoteSubscriptionHandle>>(e.Message.Data, 4);
                 //var stubs = from s in EllaModel.Instance.Subscriptions
                 //            where s.Event.Publisher is Stub && (s.Event.Publisher as Stub).DataType == type
                 //            select s;
@@ -278,7 +278,7 @@ namespace Ella.Network
             Type type = null;
             try
             {
-                type = Serializer.Deserialize<Type>(e.Message.Data);
+                type = SerializationHelper.Deserialize<Type>(e.Message.Data);
                 _log.DebugFormat("Processing remote subscription request for {0}", type.Name);
             }
             catch (Exception ex)
@@ -308,7 +308,7 @@ namespace Ella.Network
             if (handles != null)
             {
                 //EnqueueMessage reply
-                byte[] handledata = Serializer.Serialize(handles);
+                byte[] handledata = SerializationHelper.Serialize(handles);
                 byte[] reply = new byte[handledata.Length + 4];
                 byte[] idbytes = BitConverter.GetBytes(e.Message.Id);
                 Array.Copy(idbytes, reply, idbytes.Length);
@@ -324,7 +324,7 @@ namespace Ella.Network
             foreach (var currentHandle in currentHandles)
             {
                 //EnqueueMessage reply
-                byte[] handledata = Serializer.Serialize(currentHandle.ToList());
+                byte[] handledata = SerializationHelper.Serialize(currentHandle.ToList());
                 byte[] reply = new byte[handledata.Length + 4];
                 byte[] idbytes = BitConverter.GetBytes(currentHandle.Key);
                 Array.Copy(idbytes, reply, idbytes.Length);
@@ -355,7 +355,7 @@ namespace Ella.Network
                         Message m = new Message()
                         {
                             Type = MessageType.EventCorrelation,
-                            Data = Serializer.Serialize(pair)
+                            Data = SerializationHelper.Serialize(pair)
                         };
                         SenderBase.SendAsync(m, ep);
                     }
@@ -440,7 +440,7 @@ namespace Ella.Network
         /// <param name="e">The <see cref="MessageEventArgs"/> instance containing the event data.</param>
         private void ProcessApplicationMessageResponse(MessageEventArgs e)
         {
-            ApplicationMessage msg = Serializer.Deserialize<ApplicationMessage>(e.Message.Data);
+            ApplicationMessage msg = SerializationHelper.Deserialize<ApplicationMessage>(e.Message.Data);
             Send.DeliverApplicationMessage(msg, ((RemoteSubscriptionHandle)msg.Handle).SubscriberNodeID == EllaConfiguration.Instance.NodeId);
         }
 
@@ -451,7 +451,7 @@ namespace Ella.Network
         /// <exception cref="IllegalAttributeUsageException"></exception>
         private void ProcessEventCorrelation(MessageEventArgs e)
         {
-            var correlation = Serializer.Deserialize<KeyValuePair<EventHandle, EventHandle>>(e.Message.Data);
+            var correlation = SerializationHelper.Deserialize<KeyValuePair<EventHandle, EventHandle>>(e.Message.Data);
             EventHandle first = correlation.Key;
             EventHandle second = correlation.Value;
             /*
@@ -532,7 +532,7 @@ namespace Ella.Network
             {
                 try
                 {
-                    type = Serializer.Deserialize<Type>(e.Message.Data);
+                    type = SerializationHelper.Deserialize<Type>(e.Message.Data);
                 }
                 catch (Exception ex)
                 {

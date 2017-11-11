@@ -130,9 +130,9 @@ namespace Ella
             list.Add(h1);
             list.Add(h2);
 
-            byte [] serialized = Ella.Internal.Serializer.Serialize(list);
+            byte [] serialized = Ella.Internal.SerializationHelper.Serialize(list);
 
-            List<RemoteSubscriptionHandle> list2 = Ella.Internal.Serializer.Deserialize<List<RemoteSubscriptionHandle>>(serialized);
+            List<RemoteSubscriptionHandle> list2 = Ella.Internal.SerializationHelper.Deserialize<List<RemoteSubscriptionHandle>>(serialized);
 
             Assert.IsInstanceOfType(list2[1],typeof(MulticastRemoteSubscriptionhandle));
         }

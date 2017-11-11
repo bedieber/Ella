@@ -98,7 +98,7 @@ namespace Ella
                    
                     if (subscriptionsArray.ElementAt(0).Event.EventDetail.CopyPolicy == DataCopyPolicy.Copy)
                     {
-                        data = Serializer.SerializeCopy(eventData);
+                        data = SerializationHelper.SerializeCopy(eventData);
                     }
 
                     if (subscribers == null)
@@ -115,7 +115,7 @@ namespace Ella
                                                                                 new object[]
                                             {
                                                 sub.ModifyPolicy == DataModifyPolicy.Modify
-                                                    ? Serializer.SerializeCopy(data)
+                                                    ? SerializationHelper.SerializeCopy(data)
                                                     : data,
                                                 sub.Handle
                                             });
@@ -150,7 +150,7 @@ namespace Ella
                                                               new object[]
                                                                   {
                                                                       sub.ModifyPolicy == DataModifyPolicy.Modify
-                                                                          ? Serializer.SerializeCopy(data)
+                                                                          ? SerializationHelper.SerializeCopy(data)
                                                                           : data,
                                                                       sub.Handle
                                                                   }));

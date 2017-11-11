@@ -42,7 +42,7 @@ namespace Ella.Fakes
             List<RemoteSubscriptionHandle> handles = new List<RemoteSubscriptionHandle>();
             handles.Add(h);
 
-            byte[] handledata = Serializer.Serialize(handles);
+            byte[] handledata = SerializationHelper.Serialize(handles);
             byte[] reply = new byte[handledata.Length + 4];
             byte[] idbytes = BitConverter.GetBytes(h.SubscriptionReference);
 
@@ -60,7 +60,7 @@ namespace Ella.Fakes
 
         public void SubscriptionMessage(Type type)
         {
-            Message m = new Message { Type = MessageType.Subscribe, Data = Serializer.Serialize(type), Sender = EllaConfiguration.Instance.NodeId + 1 };
+            Message m = new Message { Type = MessageType.Subscribe, Data = SerializationHelper.Serialize(type), Sender = EllaConfiguration.Instance.NodeId + 1 };
             NewMessage(this, new MessageEventArgs(m));
         }
     }

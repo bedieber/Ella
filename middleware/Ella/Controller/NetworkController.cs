@@ -76,7 +76,7 @@ namespace Ella.Controller
         /// <param name="callback"></param>
         public void SubscribeTo(Type type, Action<RemoteSubscriptionHandle> callback)
         {
-            Message m = new Message { Type = MessageType.Subscribe, Data = Serializer.Serialize(type) };
+            Message m = new Message { Type = MessageType.Subscribe, Data = SerializationHelper.Serialize(type) };
             lock (_messageProcessor.PendingSubscriptions)
             {
                 _messageProcessor.PendingSubscriptions.Add(m.Id, callback);
@@ -94,7 +94,7 @@ namespace Ella.Controller
 
         public bool SendMessage(ApplicationMessage message, RemoteSubscriptionHandle remoteSubscriptionHandle, bool isReply = false)
         {
-            Message m = new Message { Data = Serializer.Serialize(message), Type = isReply ? MessageType.ApplicationMessageResponse : MessageType.ApplicationMessage };
+            Message m = new Message { Data = SerializationHelper.Serialize(message), Type = isReply ? MessageType.ApplicationMessageResponse : MessageType.ApplicationMessage };
             var key = remoteSubscriptionHandle.PublisherNodeID == EllaConfiguration.Instance.NodeId ? remoteSubscriptionHandle.SubscriberNodeID : remoteSubscriptionHandle.PublisherNodeID;
 
             if (!_messageProcessor.RemoteHosts.ContainsKey(key))

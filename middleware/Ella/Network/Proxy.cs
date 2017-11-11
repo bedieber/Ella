@@ -64,7 +64,7 @@ namespace Ella.Network
                 {
                     Message m = new Message();
                     m.Type = MessageType.Publish;
-                    byte[] serialize = Serializer.Serialize(data);
+                    byte[] serialize = SerializationHelper.Serialize(data);
                     //PublisherID
                     //EventID
                     //data

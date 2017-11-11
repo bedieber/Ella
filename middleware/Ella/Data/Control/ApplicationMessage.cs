@@ -65,7 +65,7 @@ namespace Ella.Control
         /// <param name="payloadObject">The payload object.</param>
         public void SerializeData(object payloadObject)
         {
-            Data = Serializer.Serialize(payloadObject);
+            Data = SerializationHelper.Serialize(payloadObject);
         }
 
         /// <summary>
@@ -75,7 +75,7 @@ namespace Ella.Control
         /// <returns></returns>
         public T DeserializeData<T>()
         {
-            return (T)Serializer.Deserialize<T>(Data);
+            return (T)SerializationHelper.Deserialize<T>(Data);
         }
 
         /// <summary>

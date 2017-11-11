@@ -1,6 +1,6 @@
 ﻿//=============================================================================
 // Project  : Ella Middleware
-// File    : Serializer.cs
+// File    : SerializationHelper.cs
 // Authors contact  : Bernhard Dieber (Bernhard.Dieber@aau.at)
 // Copyright 2013 by Bernhard Dieber, Jennifer Simonjan
 // This code is published under the Microsoft Public License (Ms-PL).  A copy
@@ -20,8 +20,16 @@ using System.Text;
 
 namespace Ella.Internal
 {
-    internal class Serializer
+    internal class SerializationHelper
     {
+        //TODO reflect a list of ISerialize implementations into _serializers
+        //Load when requested
+        //Assign weights to serializers
+        //Add optional parameter to the following methods with a Type of serializer to use
+        //Extend handshake protocol to include agreement on serialization mechanism
+
+        private static List<Type> _serializers = new List<Type>();
+
         internal static BinaryFormatter _formatter = new BinaryFormatter();
 
         /// <summary>
@@ -29,13 +37,15 @@ namespace Ella.Internal
         /// </summary>
         /// <param name="data">The data.</param>
         /// <returns>A byte[] containing the serialized <paramref name="data"/></returns>
-        internal static byte[] Serialize(object data)
+        internal static byte[] Serialize(object data, Type serializer=null)
         {
+            if (serializer == null)
+                serializer = typeof(BinaryFormatter);
+            //TODO load serializer
             MemoryStream ms = new MemoryStream();
             _formatter.Serialize(ms, data);
             ms.Seek(0, SeekOrigin.Begin);
             return ms.ToArray();
-
         }
 
         /// <summary>
