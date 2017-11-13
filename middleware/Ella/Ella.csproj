@@ -106,6 +106,7 @@
     <Compile Include="Exceptions\InvalidPublisherException.cs" />
     <Compile Include="Exceptions\StateException.cs" />
     <Compile Include="Internal\ReflectionUtils.cs" />
+    <Compile Include="Internal\Serialization\ISerialize.cs" />
     <Compile Include="Internal\Serializer.cs" />
     <Compile Include="Is.cs" />
     <Compile Include="Load.cs" />

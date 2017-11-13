@@ -10,6 +10,9 @@
 // applications, documentation, and source files.
 //=============================================================================
 
+using Ella.Attributes;
+using Ella.Internal.Serialization;
+using log4net;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -23,29 +26,30 @@ namespace Ella.Internal
     internal class SerializationHelper
     {
         //TODO reflect a list of ISerialize implementations into _serializers
-        //Load when requested
+        //Load when requested: done
         //Assign weights to serializers
-        //Add optional parameter to the following methods with a Type of serializer to use
+        //Add optional parameter to the following methods with a Type of serializer to use: done
         //Extend handshake protocol to include agreement on serialization mechanism
 
         private static List<Type> _serializers = new List<Type>();
 
-        internal static BinaryFormatter _formatter = new BinaryFormatter();
+        private static ILog _log = LogManager.GetLogger(typeof(Stop));
+
 
         /// <summary>
         /// Serializes the specified data.
         /// </summary>
         /// <param name="data">The data.</param>
+        /// <param name="serializerProtocol">An optional parameter to select a different serializer implementation</param>
         /// <returns>A byte[] containing the serialized <paramref name="data"/></returns>
-        internal static byte[] Serialize(object data, Type serializer=null)
+        internal static byte[] Serialize(object data, string serializerProtocol = null)
         {
+            if (serializerProtocol == null)
+                serializerProtocol = "CLI-Binary";
+            var serializer = GetSerializer(serializerProtocol);
             if (serializer == null)
-                serializer = typeof(BinaryFormatter);
-            //TODO load serializer
-            MemoryStream ms = new MemoryStream();
-            _formatter.Serialize(ms, data);
-            ms.Seek(0, SeekOrigin.Begin);
-            return ms.ToArray();
+                return null;
+            return serializer.Serialize(data);
         }
 
         /// <summary>
@@ -54,15 +58,18 @@ namespace Ella.Internal
         /// <typeparam name="T"></typeparam>
         /// <param name="data">The data.</param>
         /// <param name="offset">The offset.</param>
+        /// <param name="serializerProtocol">Optionally select a different serializer implementation</param>
         /// <returns>
         /// The deserialized object of type <typeparamref name="T" />
         /// </returns>
-        internal static T Deserialize<T>(byte[] data, int offset = 0)
+        internal static T Deserialize<T>(byte[] data, int offset = 0, string serializerProtocol = null)
         {
-            MemoryStream ms = new MemoryStream(data);
-            ms.Seek(offset, SeekOrigin.Begin);
-            T result = (T)_formatter.Deserialize(ms);
-            return result;
+            if(serializerProtocol == null)
+                serializerProtocol = "CLI-Binary";
+            var serializer = GetSerializer(serializerProtocol);
+            if (serializer == null)
+                return default(T);
+            return serializer.Deserialize<T>(data, offset);
         }
 
         /// <summary>
@@ -73,11 +80,35 @@ namespace Ella.Internal
         /// <returns>A clone of <paramref name="data"/></returns>
         internal static T SerializeCopy<T>(T data)
         {
+            BinaryFormatter formatter = new BinaryFormatter();
             MemoryStream ms = new MemoryStream();
-            _formatter.Serialize(ms, data);
+            formatter.Serialize(ms, data);
             ms.Seek(0, SeekOrigin.Begin);
-            T result = (T)_formatter.Deserialize(ms);
+            T result = (T)formatter.Deserialize(ms);
             return result;
+        }
+
+        /// <summary>
+        /// Loads a serializer from a given type
+        /// </summary>
+        /// <returns></returns>
+        internal static ISerialize GetSerializer(string protocolDescription)
+        {
+            try
+            {
+                var serializerType = _serializers.Where(t => t.GetCustomAttributes(typeof(SerializationProtocolAttribute), false).Any(a => (a as SerializationProtocolAttribute).ProtocolDescription.Equals(protocolDescription, StringComparison.InvariantCultureIgnoreCase))).FirstOrDefault();
+                if (serializerType == null)
+                    return null;
+                var serializer = (ISerialize)serializerType.Assembly.CreateInstance(serializerType.FullName);
+                serializer.Initialize();
+                return serializer;
+            }
+            catch (Exception ex)
+            {
+                _log.ErrorFormat("Error in Serializer: {0} - {1} ", ex.Message, ex.GetType().FullName);
+                return null;
+            }
+
         }
     }
 }
