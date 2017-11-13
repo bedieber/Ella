@@ -5,21 +5,18 @@
 // Copyright 2013 by Bernhard Dieber, Jennifer Simonjan
 // This code is published under the Microsoft Public License (Ms-PL).  A copy
 // of the license should be distributed with the code.  It can also be found
-// at the project website: http://ella.CodePlex.com.   This notice, the
+// at the project website: https://github.com/bedieber/Ella.   This notice, the
 // author's name, and all copyright notices must remain intact in all
 // applications, documentation, and source files.
 //=============================================================================
 
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using Ella.Attributes;
-using Ella.Internal;
 using Ella.Model;
 using log4net;
+using Ella.Internal.Serialization;
 
 namespace Ella
 {
@@ -68,6 +65,31 @@ namespace Ella
         }
 
         /// <summary>
+        /// Loads all serializers present in assembly <paramref name="a"/>
+        /// </summary>
+        /// <param name="a"></param>
+        internal static void Serializers(Assembly a)
+        {
+            if (a == (Assembly)null)
+                throw new ArgumentNullException("a");
+            _log.DebugFormat("Loading serializers from {0}", a.FullName);
+            AssemblyName[] referencedAssemblies = a.GetReferencedAssemblies();
+            foreach (AssemblyName name in referencedAssemblies)
+            {
+                ResolveAndLoadAssembly(name);
+            }
+
+            Type[] exportedTypes = a.GetExportedTypes().Where(t =>!t.IsInterface && !t.IsAbstract&& typeof(ISerialize).IsAssignableFrom(t)).ToArray();
+            foreach (Type t in exportedTypes)
+            {
+                if(!EllaModel.Instance.Serializers.Contains(t))
+                {
+                    EllaModel.Instance.Serializers.Add(t);
+                }
+            }
+        }
+
+        /// <summary>
         /// Load all Subscribers from a given assembly and adds them to the Ella-internal management<br />
         /// <remarks>Any type must define the <see cref="Ella.Attributes.SubscriberAttribute"/> attribute in order to be detected as subcriber</remarks>
         /// </summary>
@@ -84,7 +106,7 @@ namespace Ella
 
             foreach (AssemblyName name in referencedAssemblies)
             {
-                   ResolveAndLoadAssembly(name);
+                ResolveAndLoadAssembly(name);
             }
             Type[] exportedTypes = a.GetExportedTypes();
             foreach (Type t in exportedTypes)
@@ -153,7 +175,7 @@ namespace Ella
             byte[] assemblyBytes = new byte[assemblyFile.Length];
             File.OpenRead(assemblyFile.FullName).Read(assemblyBytes, 0, assemblyBytes.Length);
             var assembly = System.Reflection.Assembly.Load(assemblyBytes);
-            
+
             return assembly;
         }
     }

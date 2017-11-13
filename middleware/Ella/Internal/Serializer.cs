@@ -5,7 +5,7 @@
 // Copyright 2013 by Bernhard Dieber, Jennifer Simonjan
 // This code is published under the Microsoft Public License (Ms-PL).  A copy
 // of the license should be distributed with the code.  It can also be found
-// at the project website: http://ella.CodePlex.com.   This notice, the
+// at the project website: https://github.com/bedieber/Ella.   This notice, the
 // author's name, and all copyright notices must remain intact in all
 // applications, documentation, and source files.
 //=============================================================================
@@ -14,27 +14,25 @@ using Ella.Attributes;
 using Ella.Internal.Serialization;
 using log4net;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
-using System.Text;
 
 namespace Ella.Internal
 {
     internal class SerializationHelper
     {
-        //TODO reflect a list of ISerialize implementations into _serializers
-        //Load when requested: done
-        //Assign weights to serializers
-        //Add optional parameter to the following methods with a Type of serializer to use: done
-        //Extend handshake protocol to include agreement on serialization mechanism
-
-        private static List<Type> _serializers = new List<Type>();
+        //TODO 
+        // Assign weights to serializers
+        // Extend handshake protocol to include agreement on serialization mechanism
 
         private static ILog _log = LogManager.GetLogger(typeof(Stop));
 
+        static SerializationHelper()
+        {
+            Load.Serializers(typeof(SerializationHelper).Assembly);
+        }
 
         /// <summary>
         /// Serializes the specified data.
@@ -64,7 +62,7 @@ namespace Ella.Internal
         /// </returns>
         internal static T Deserialize<T>(byte[] data, int offset = 0, string serializerProtocol = null)
         {
-            if(serializerProtocol == null)
+            if (serializerProtocol == null)
                 serializerProtocol = "CLI-Binary";
             var serializer = GetSerializer(serializerProtocol);
             if (serializer == null)
@@ -96,7 +94,7 @@ namespace Ella.Internal
         {
             try
             {
-                var serializerType = _serializers.Where(t => t.GetCustomAttributes(typeof(SerializationProtocolAttribute), false).Any(a => (a as SerializationProtocolAttribute).ProtocolDescription.Equals(protocolDescription, StringComparison.InvariantCultureIgnoreCase))).FirstOrDefault();
+                var serializerType = Model.EllaModel.Instance.Serializers.Where(t => t.GetCustomAttributes(typeof(SerializationProtocolAttribute), false).Any(a => (a as SerializationProtocolAttribute).ProtocolDescription.Equals(protocolDescription, StringComparison.InvariantCultureIgnoreCase))).FirstOrDefault();
                 if (serializerType == null)
                     return null;
                 var serializer = (ISerialize)serializerType.Assembly.CreateInstance(serializerType.FullName);
@@ -108,7 +106,6 @@ namespace Ella.Internal
                 _log.ErrorFormat("Error in Serializer: {0} - {1} ", ex.Message, ex.GetType().FullName);
                 return null;
             }
-
         }
     }
 }

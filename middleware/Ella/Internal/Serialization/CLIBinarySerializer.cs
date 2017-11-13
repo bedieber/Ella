@@ -9,7 +9,7 @@ using System.Text;
 namespace Ella.Internal.Serialization
 {
     [SerializationProtocol("CLI-Binary")]
-    internal class CLIBinarySerializer : ISerialize
+    public class CLIBinarySerializer : ISerialize
     {
 
         BinaryFormatter _formatter = new BinaryFormatter();

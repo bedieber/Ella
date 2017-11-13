@@ -143,7 +143,7 @@ namespace Ella
             s.SubscribeWithModifyFalse();
             t.PublishEvent();
             Thread.Sleep(100);
-            Assert.IsTrue(ReferenceEquals(t.data,s.rec));
+            Assert.IsTrue(ReferenceEquals(t.data, s.rec));
         }
 
         [TestMethod]
@@ -170,5 +170,29 @@ namespace Ella
             Assert.IsFalse(ReferenceEquals(t.data, s.rec));
         }
 
+        [TestMethod]
+        public void DiscoverSerializers()
+        {
+            Assembly a = typeof(EllaModel).Assembly;
+            Load.Serializers(a);
+            Assert.IsTrue(EllaModel.Instance.Serializers.Count > 0);
+        }
+
+        [TestMethod]
+        public void DoubleDiscoverSerializersDoesNotResultInDuplicateSerializers()
+        {
+            Assembly a = typeof(EllaModel).Assembly;
+            Load.Serializers(a);
+            Load.Serializers(a);
+            Assert.AreEqual(1, EllaModel.Instance.Serializers.Count);
+        }
+
+        [TestMethod]
+        public void CLISerializerIsAlwaysAvailable()
+        {
+            Assert.AreEqual(0, EllaModel.Instance.Serializers.Count);
+            Assert.AreEqual(null, Internal.SerializationHelper.GetSerializer("test"));
+            Assert.AreEqual(1, EllaModel.Instance.Serializers.Count);
+        }
     }
 }

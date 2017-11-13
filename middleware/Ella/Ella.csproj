@@ -90,6 +90,7 @@
     <Compile Include="Attributes\FactoryAttribute.cs" />
     <Compile Include="Attributes\PublishesAttribute.cs" />
     <Compile Include="Attributes\ReceiveMessageAttribute.cs" />
+    <Compile Include="Attributes\SerializationProtocolAttribute.cs" />
     <Compile Include="Attributes\StartAttribute.cs" />
     <Compile Include="Attributes\StopAttribute.cs" />
     <Compile Include="Attributes\SubscriberAttribute.cs" />
@@ -106,6 +107,7 @@
     <Compile Include="Exceptions\InvalidPublisherException.cs" />
     <Compile Include="Exceptions\StateException.cs" />
     <Compile Include="Internal\ReflectionUtils.cs" />
+    <Compile Include="Internal\Serialization\CLIBinarySerializer.cs" />
     <Compile Include="Internal\Serialization\ISerialize.cs" />
     <Compile Include="Internal\Serializer.cs" />
     <Compile Include="Is.cs" />
